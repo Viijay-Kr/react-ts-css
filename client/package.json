@@ -1,0 +1,29 @@
+{
+	"name": "client",
+	"displayName": "Code Action UI Sample - Client",
+	"version": "1.0.0",
+	"private": true,
+	"author": "Microsoft Corporation",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Microsoft/vscode-extension-samples.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Microsoft/vscode-extension-samples/issues"
+	},
+	"engines": {
+		"vscode": "^1.52.0"
+	},
+	"devDependencies": {
+		"@babel/types": "^7.19.3",
+		"@types/babel__traverse": "^7.18.2",
+		"@types/vscode": "1.52.0"
+	},
+	"dependencies": {
+		"@babel/parser": "^7.19.3",
+		"@babel/traverse": "^7.19.3",
+		"fast-glob": "^3.2.12",
+		"vscode-css-languageservice": "^6.1.1"
+	}
+}
