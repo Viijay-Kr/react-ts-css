@@ -1,5 +1,5 @@
 import { DefinitionProvider, Location, Position, Range, Uri } from 'vscode';
-import { parseScss, scssSymbolMatcher } from '../parser/css';
+import { parseScss, scssSymbolMatcher } from '../parser/scss';
 import { parseTsx } from '../parser/tsx';
 import * as fs from 'fs/promises';
 interface ProviderParams {
