@@ -20,16 +20,19 @@ export const definitionProvider: (params: ProviderParams) => DefinitionProvider 
 					if (targetFile) {
 						const content = await fs.readFile(targetFile);
 						const symbols = parseScss(targetFile, content.toString());
-						const symbol = scssSymbolMatcher(symbols, node.targetLiteral.value);
-						if (symbol) {
-							const location = new Location(Uri.file(targetFile), new Range(
-								new Position(symbol.location.range.start.line, symbol.location.range.start.character),
-								new Position(symbol.location.range.end.line, symbol.location.range.end.character)
-							));
-							// const start = node.targetIdentifier.loc?.start;
-							// const end = node.targetLiteral.loc?.end;
-							return location;
-						}
+						const matchedSelectors = scssSymbolMatcher(symbols, node.targetLiteral.value);
+						const locations: Location[] = [];
+						matchedSelectors.forEach(symbol => {
+							if (symbol) {
+								const location = new Location(Uri.file(targetFile), new Range(
+									new Position(symbol.location.range.start.line, symbol.location.range.start.character),
+									new Position(symbol.location.range.end.line, symbol.location.range.end.character)
+								));
+
+								locations.push(location);
+							}
+						});
+						return locations;
 					}
 				}
 
