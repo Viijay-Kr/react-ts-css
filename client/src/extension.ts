@@ -16,10 +16,6 @@ const documentSelector = [
 
 let scssFiles: string[];
 export async function activate(context: ExtensionContext): Promise<void> {
-	// const decorationType = window.createTextEditorDecorationType({
-	// 	textDecoration: 'underline',
-	// });
-	// const textEditor = window.activeTextEditor;
 	const uri = window.activeTextEditor?.document?.uri;
 	if (uri) {
 		const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;

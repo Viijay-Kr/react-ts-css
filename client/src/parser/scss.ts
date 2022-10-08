@@ -1,4 +1,4 @@
-import { languages, MarkdownString } from 'vscode';
+import { MarkdownString } from 'vscode';
 import { getSCSSLanguageService, SymbolInformation, TextDocument } from 'vscode-css-languageservice';
 
 const ls = getSCSSLanguageService();
@@ -40,6 +40,5 @@ export const scssSymbolMatcher = (symbols: SymbolInformation[], target: string) 
 export const getSymbolContent = (symbol: SymbolInformation, fileContent: string) => {
 	const document = TextDocument.create(symbol.location.uri, 'scss', 1, fileContent);
 	const symbolContent = document.getText(symbol.location.range);
-	languages.getLanguages().then(l => console.info(l));
 	return new MarkdownString('', true).appendCodeblock(symbolContent, 'sass');
 };
