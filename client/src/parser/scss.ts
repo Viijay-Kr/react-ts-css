@@ -10,11 +10,19 @@ export const parseScss = (uri: string, content: string) => {
 	return symbols;
 };
 
-export const scssSymbolMatcher = (symbols: SymbolInformation[], target: string) => {
-	const parentSelectors = symbols.filter(s => s.kind === 5 && s.name.replace(/^&/g, '').startsWith('.'));
-	const suffixSelectors = symbols.filter(s => s.kind === 5 && s.name.replace(/^&/g, '').match(/^-|^[__]|^[--]/g));
+export const filterAllSelector = (s: SymbolInformation) => s.kind === 5 && s.name.replace(/^&/g, '').startsWith('.');
 
-	const normalSelectors = parentSelectors.filter(s => s.name.replace(/^(?:\&\.)|^(?:\.)/g, '') === target);
+export const filterSuffixedSelector = (s: SymbolInformation) => s.kind === 5 && s.name.replace(/^&/g, '').match(/^-|^[__]|^[--]/g);
+
+export const filterChildSelector = (s: SymbolInformation) => s.kind === 5 && s.name.startsWith('&');
+
+export const filterParentSelector = (s: SymbolInformation) => s.kind === 5 && s.name.startsWith('.');
+
+export const scssSymbolMatcher = (symbols: SymbolInformation[], target: string) => {
+	const allSelectors = symbols.filter(filterAllSelector);
+	const suffixSelectors = symbols.filter(filterSuffixedSelector);
+
+	const normalSelectors = allSelectors.filter(s => s.name.replace(/^(?:\&\.)|^(?:\.)/g, '') === target);
 	const suffixSelector = suffixSelectors[(() => {
 		let prevMatchIndex = -1;
 		let symbolIndex = -1;

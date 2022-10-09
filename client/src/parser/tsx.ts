@@ -3,7 +3,7 @@ import { parse } from '@babel/parser';
 import traverse, { Scope } from '@babel/traverse';
 import { Identifier, ImportDeclaration, StringLiteral } from '@babel/types';
 
-interface SourceIdentifier {
+export interface SourceIdentifier {
 	identifier: Identifier;
 	import: ImportDeclaration
 }
@@ -11,13 +11,16 @@ export const parseTsx = (content: string, offset: number): Promise<{
 	sourceIdentifiers: SourceIdentifier[];
 	targetLiteral: StringLiteral;
 	targetIdentifier: Identifier;
+	completionIdentifier: Identifier;
 } | undefined> => {
 	const ast = parse(content, {
 		sourceType: 'module',
+		errorRecovery: true,
 		plugins: ['jsx', 'typescript',],
 	});
 	let targetLiteral: StringLiteral;
 	let targetIdentifier: Identifier;
+	let completionIdentifier: Identifier;
 	const sourceIdentifiers: SourceIdentifier[] = [];
 	return new Promise((resolve, reject) => {
 		try {
@@ -34,6 +37,11 @@ export const parseTsx = (content: string, offset: number): Promise<{
 								});
 							},
 						});
+					}
+				},
+				Identifier(path) {
+					if (path.node.start! <= offset && offset <= path.node.end!) {
+						completionIdentifier = path.node;
 					}
 				},
 				StringLiteral(path) {
@@ -58,7 +66,8 @@ export const parseTsx = (content: string, offset: number): Promise<{
 						resolve({
 							sourceIdentifiers,
 							targetIdentifier,
-							targetLiteral
+							targetLiteral,
+							completionIdentifier,
 						});
 					}
 				}
