@@ -1,4 +1,4 @@
-import { CompletionItem, CompletionItemKind, CompletionItemProvider, CompletionList, Range, Position, TextEdit, MarkdownString } from 'vscode';
+import { CompletionItem, CompletionItemKind, CompletionItemProvider, CompletionList, Range, Position, TextEdit, MarkdownString, CompletionTriggerKind } from 'vscode';
 import { ParserFactory } from '../parser/ParserFactory';
 interface CompletionParams {
 	files: string[]
@@ -6,6 +6,9 @@ interface CompletionParams {
 export const completetionProvider: (params: CompletionParams) => CompletionItemProvider = (params) => ({
 	async provideCompletionItems(document, position, _token, _context) {
 		try {
+			if (_context.triggerKind === CompletionTriggerKind.Invoke) {
+				return;
+			}
 			return new Promise(async (resolve, reject) => {
 				try {
 					const parser = new ParserFactory(params.files, document, position, 'Completion');
@@ -32,14 +35,27 @@ export const completetionProvider: (params: CompletionParams) => CompletionItemP
 					const completionList = new CompletionList(
 						uniqueSelectors.map((s) => {
 							const completionItem = new CompletionItem(s.label, CompletionItemKind.Property);
-							completionItem.insertText = `['${s.label}']`;
-							// const range = parser.getCompletionItemRange();
-							completionItem.additionalTextEdits = [new TextEdit(new Range(
-								new Position(position.line, position.character - 1),
-								new Position(position.line, position.character)
-							), '')];
+							const triggerKind = _context.triggerKind;
+							const triggerCharacter = _context.triggerCharacter;
+							completionItem.insertText = (() => {
+								if (triggerKind === CompletionTriggerKind.TriggerCharacter) {
+									switch (triggerCharacter) {
+										case '\[':
+											return `'${s.label}'`;
+										case '\'':
+											return s.label;
+										case '.':
+											completionItem.additionalTextEdits = [new TextEdit(new Range(
+												new Position(position.line, position.character - 1),
+												new Position(position.line, position.character)
+											), '')];
+											return `['${s.label}']`;
+									}
+								}
+								
+								return s.label;
+							})();
 							completionItem.preselect = true;
-							completionItem.documentation = s.content;
 							return completionItem;
 						})
 					);

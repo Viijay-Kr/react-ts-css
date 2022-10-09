@@ -11,7 +11,6 @@ import { hoverProvider } from './providers/hover';
 import { completetionProvider } from './providers/completion';
 const documentSelector = [
 	{ scheme: 'file', language: 'typescriptreact' },
-	{ scheme: 'file', language: 'javascriptreact' },
 	{ scheme: 'file', language: 'typescript' }
 ];
 
@@ -34,7 +33,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 		completetionProvider({
 			files: scssFiles
 		}),
-		'.');
+		'.', '\'', '\[');
 	context.subscriptions.push(
 		_definitionProvider,
 		_hoverProvider,
