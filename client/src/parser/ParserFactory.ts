@@ -1,7 +1,7 @@
 import { Identifier, StringLiteral } from '@babel/types';
 import { Position, TextDocument, Range } from 'vscode';
 import { filterChildSelector, getSymbolContent, parseScss, filterParentSelector, scssSymbolMatcher } from './scss';
-import { parseTsx, SourceIdentifier } from './tsx';
+import { parseImports, parseTsx, SourceIdentifier } from './tsx';
 import * as fs from 'fs/promises';
 import { SymbolInformation } from 'vscode-css-languageservice';
 
@@ -82,9 +82,6 @@ export class ParserFactory implements IParserFactoryMethods {
 		}
 	}
 	public async ParseCSS() {
-		if (!this.parsedNode) {
-			throw new NodeNotFoundError();
-		}
 		if (!this.targetFile) {
 			throw new CssFileNotFoundError();
 		}
@@ -161,7 +158,24 @@ export class ParserFactory implements IParserFactoryMethods {
 		return this.parsedNode.completionIdentifier?.name;
 	}
 
-	public processCompletions() {
-
+	public async preProcessCompletions() {
+		const currentLine = this.document.getText(this.document.lineAt(this.position).range);
+		const documentText = this.document.getText();
+		const matches = [...documentText.matchAll(/.scss/g)];
+		let importStatements = '';
+		matches.forEach(match => {
+			importStatements += this.document.getText(this.document.lineAt(this.document.positionAt(match.index!)).range);
+		});
+		const [importIdentifiers, importDeclrations] = await parseImports(importStatements);
+		const targetIdentifier = importIdentifiers?.find((i) => {
+			return currentLine.match(new RegExp(i.local.name));
+		});
+		const targetDeclration = importDeclrations?.find(i => targetIdentifier && i.specifiers.includes(targetIdentifier));
+		const targetFile = this.files.find(f => {
+			return f.includes(targetDeclration?.source.value.split('/').pop()!);
+		});
+		if (targetFile) {
+			this.targetFile = targetFile;
+		}
 	}
 }

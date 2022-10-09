@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { parse } from '@babel/parser';
 import traverse, { Scope } from '@babel/traverse';
-import { Identifier, ImportDeclaration, StringLiteral } from '@babel/types';
+import { Identifier, ImportDeclaration, ImportDefaultSpecifier, StringLiteral } from '@babel/types';
 
 export interface SourceIdentifier {
 	identifier: Identifier;
@@ -69,6 +69,34 @@ export const parseTsx = (content: string, offset: number): Promise<{
 							targetLiteral,
 							completionIdentifier,
 						});
+					}
+				}
+			});
+		} catch (e) {
+			reject(e);
+		}
+	});
+};
+
+export const parseImports = (content: string): Promise<[ImportDefaultSpecifier[], ImportDeclaration[]] | []> => {
+	const ast = parse(content, {
+		sourceType: 'module',
+		plugins: ['typescript']
+	});
+	const sourceIdentifiers: ImportDefaultSpecifier[] = [];
+	const sourceDeclarations: ImportDeclaration[] = [];
+	return new Promise((resolve, reject) => {
+		try {
+			traverse(ast, {
+				ImportDefaultSpecifier(path) {
+					sourceIdentifiers.push(path.node);
+				},
+				ImportDeclaration(path) {
+					sourceDeclarations.push(path.node);
+				},
+				exit(path) {
+					if (path.node.type === 'Program') {
+						resolve([sourceIdentifiers, sourceDeclarations]);
 					}
 				}
 			});
