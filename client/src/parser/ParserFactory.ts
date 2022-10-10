@@ -159,7 +159,10 @@ export class ParserFactory implements IParserFactoryMethods {
 	}
 
 	public async preProcessCompletions() {
-		const currentLine = this.document.getText(this.document.lineAt(this.position).range);
+		const currentRange = new Range(
+			new Position(this.position.line, this.position.character),
+			new Position(this.position.line, this.position.character)
+		);
 		const documentText = this.document.getText();
 		const matches = [...documentText.matchAll(/.scss/g)];
 		let importStatements = '';
@@ -168,7 +171,14 @@ export class ParserFactory implements IParserFactoryMethods {
 		});
 		const [importIdentifiers, importDeclrations] = await parseImports(importStatements);
 		const targetIdentifier = importIdentifiers?.find((i) => {
-			return currentLine.match(new RegExp(i.local.name));
+			const identifier = i.local.name;
+			const wordToMatch = this.document.getText(
+				currentRange.with(
+					new Position(this.position.line, this.position.character - identifier.length - 1),
+					new Position(this.position.line, this.position.character - 1)
+				)
+			);
+			return wordToMatch.match(new RegExp(i.local.name));
 		});
 		const targetDeclration = importDeclrations?.find(i => targetIdentifier && i.specifiers.includes(targetIdentifier));
 		const targetFile = this.files.find(f => {

@@ -6,7 +6,7 @@ interface CompletionParams {
 export const completetionProvider: (params: CompletionParams) => CompletionItemProvider = (params) => ({
 	async provideCompletionItems(document, position, _token, _context) {
 		try {
-			if (_context.triggerKind === CompletionTriggerKind.Invoke) {
+			if (_context.triggerKind === CompletionTriggerKind.Invoke || _context.triggerKind === CompletionTriggerKind.TriggerForIncompleteCompletions) {
 				return;
 			}
 			return new Promise(async (resolve, reject) => {
@@ -52,7 +52,7 @@ export const completetionProvider: (params: CompletionParams) => CompletionItemP
 											return `['${s.label}']`;
 									}
 								}
-								
+
 								return s.label;
 							})();
 							completionItem.preselect = true;
