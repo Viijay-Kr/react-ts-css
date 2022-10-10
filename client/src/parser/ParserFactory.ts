@@ -1,6 +1,6 @@
 import { Identifier, StringLiteral } from '@babel/types';
 import { Position, TextDocument, Range } from 'vscode';
-import { filterChildSelector, getSymbolContent, parseScss, filterParentSelector, scssSymbolMatcher } from './scss';
+import { filterChildSelector, getSymbolContent, parseScss, filterParentSelector, scssSymbolMatcher, parseCss } from './css';
 import { parseImports, parseTsx, SourceIdentifier } from './tsx';
 import * as fs from 'fs/promises';
 import { SymbolInformation } from 'vscode-css-languageservice';
@@ -9,7 +9,6 @@ interface ParsedNode {
 	targetIdentifier?: Identifier;
 	targetLiteral?: StringLiteral;
 	sourceIdentifiers: SourceIdentifier[];
-	completionIdentifier?: Identifier;
 }
 interface IParserFactoryMethods {
 	ParseCSS: () => Promise<void>
@@ -38,6 +37,12 @@ class CssFileNotFoundError extends Error {
 		super('Target CSS File not Found');
 	}
 }
+
+class FileTypeError extends Error {
+	constructor() {
+		super('Could not resolve the underlying CSS file type');
+	}
+}
 export class ParserFactory implements IParserFactoryMethods {
 	private readonly files: string[];
 	private readonly document: TextDocument;
@@ -47,13 +52,25 @@ export class ParserFactory implements IParserFactoryMethods {
 	private sourceCssContent: string | undefined;
 	private _targetFile: string | undefined;
 	private providerKind: 'Hover' | 'Definition' | 'Completion';
+	private _targetFileType: 'CSS' | 'SCSS' | undefined;
 	public get targetFile(): string | undefined {
 		return this._targetFile;
 	}
 
 	public set targetFile(v: string | undefined) {
 		this._targetFile = v;
+		this.resolveCssFileType();
 	}
+
+	public set targetFileType(v: 'CSS' | 'SCSS' | undefined) {
+		this._targetFileType = v;
+	}
+
+	public get targetFileType(): 'CSS' | 'SCSS' | undefined {
+		return this._targetFileType;
+	}
+
+
 
 	public constructor(files: string[], document: TextDocument, position: Position, provider: 'Hover' | 'Definition' | 'Completion') {
 		this.files = files;
@@ -87,8 +104,28 @@ export class ParserFactory implements IParserFactoryMethods {
 		}
 		const content = await fs.readFile(this.targetFile);
 		this.sourceCssContent = content.toString();
-		const symbols = parseScss(this.targetFile, this.sourceCssContent);
+		const symbols = (() => {
+			if (this.targetFileType === 'SCSS') {
+				return parseScss(this.targetFile, this.sourceCssContent);
+			}
+			if (this.targetFileType === 'CSS') {
+				return parseCss(this.targetFile, this.sourceCssContent);
+			}
+			throw new FileTypeError();
+		})();
 		this.symbols = symbols;
+	}
+
+	private resolveCssFileType() {
+		if (!this.targetFile) {
+			throw new CssFileNotFoundError();
+		}
+		if (this.targetFile.endsWith('.css')) {
+			this.targetFileType = 'CSS';
+		}
+		if (this.targetFile.endsWith('.scss')) {
+			this.targetFileType = 'SCSS';
+		}
 	}
 	public SymbolsMatcher() {
 		if (!this.parsedNode) {
@@ -151,20 +188,13 @@ export class ParserFactory implements IParserFactoryMethods {
 		};
 	}
 
-	public getCompletionIdentifier() {
-		if (!this.parsedNode) {
-			throw new NodeNotFoundError();
-		}
-		return this.parsedNode.completionIdentifier?.name;
-	}
-
 	public async preProcessCompletions() {
 		const currentRange = new Range(
 			new Position(this.position.line, this.position.character),
 			new Position(this.position.line, this.position.character)
 		);
 		const documentText = this.document.getText();
-		const matches = [...documentText.matchAll(/.scss/g)];
+		const matches = [...documentText.matchAll(/(.scss)|(.css)/g)];
 		let importStatements = '';
 		matches.forEach(match => {
 			importStatements += this.document.getText(this.document.lineAt(this.document.positionAt(match.index!)).range);
