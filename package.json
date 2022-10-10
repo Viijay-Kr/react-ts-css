@@ -1,5 +1,5 @@
 {
-	"name": "vscode-react-ts-css",
+	"name": "react-ts-css",
 	"displayName": "React TS CSS",
 	"description": "CSS module support for your React project written in typescript or javsacript.Go to selector , go to nested selector, css peek with post css support,completion support for your css,scss modules,kebab case and camelcase support,completetion support",
 	"version": "1.0.0",
@@ -60,23 +60,33 @@
 			"properties": {
 				"reactTsScss.kebabCase": {
 					"type": "boolean",
-					"default": false
+					"default": false,
+					"description": "Kebab Casing support for class & id selectors"
 				},
 				"reactTsScss.camelCase": {
 					"type": "boolean",
-					"default": true
+					"default": true,
+					"description": "Camel Case support for class and id selectors"
 				},
 				"reactTsScss.peekProperties": {
 					"type": "boolean",
-					"default": true
+					"default": true,
+					"description": "Peek the block of properties on Hovering a selector"
 				},
 				"reactTsScss.autoComplete": {
 					"type": "boolean",
-					"default": true
+					"default": true,
+					"description": "Auto completion of scoped selectors"
 				},
 				"reactTsScss.definition": {
 					"type": "boolean",
-					"default": true
+					"default": true,
+					"description": "Go to definition of scoped selectors"
+				},
+				"reactTsScss.references": {
+					"type": "boolean",
+					"default": true,
+					"description": "Find all references of a selector"
 				}
 			}
 		}
