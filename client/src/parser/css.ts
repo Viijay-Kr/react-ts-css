@@ -1,12 +1,20 @@
 import { MarkdownString } from 'vscode';
-import { getSCSSLanguageService, SymbolInformation, TextDocument } from 'vscode-css-languageservice';
+import { getCSSLanguageService, getSCSSLanguageService, SymbolInformation, TextDocument } from 'vscode-css-languageservice';
 
-const ls = getSCSSLanguageService();
+const scssLs = getSCSSLanguageService();
+const cssLs = getCSSLanguageService();
 
 export const parseScss = (uri: string, content: string) => {
 	const document = TextDocument.create(uri, 'scss', 1, content);
-	const ast = ls.parseStylesheet(document);
-	const symbols = ls.findDocumentSymbols(document, ast);
+	const ast = scssLs.parseStylesheet(document);
+	const symbols = scssLs.findDocumentSymbols(document, ast);
+	return symbols;
+};
+
+export const parseCss = (uri: string, content: string) => {
+	const document = TextDocument.create(uri, 'css', 1, content);
+	const ast = cssLs.parseStylesheet(document);
+	const symbols = cssLs.findDocumentSymbols(document, ast);
 	return symbols;
 };
 

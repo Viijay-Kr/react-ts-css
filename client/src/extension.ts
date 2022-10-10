@@ -15,24 +15,34 @@ const documentSelector = [
 	{ scheme: 'file', language: 'typescript' }
 ];
 
-let scssFiles: string[];
+let workSpaceFiles: string[];
 const settings = new Settings();
+
+workspace.onDidCreateFiles((e) => {
+	const files = e.files;
+	files.forEach((f) => {
+		if (f.path.endsWith('.css') || f.path.endsWith('.scss')) {
+			workSpaceFiles.push(f.path);
+		}
+	});
+});
+
 export async function activate(context: ExtensionContext): Promise<void> {
 	const uri = window.activeTextEditor?.document?.uri;
 	if (uri) {
 		const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
-		scssFiles = await fsg('**/*.scss', {
+		workSpaceFiles = await fsg('**/*.{scss,css}', {
 			cwd: workspaceRoot,
 			ignore: ['node_modules', 'build'],
 			absolute: true,
 		});
 	}
-	const _definitionProvider = languages.registerDefinitionProvider(documentSelector, definitionProvider({ files: scssFiles }));
-	const _hoverProvider = languages.registerHoverProvider(documentSelector, hoverProvider({ files: scssFiles }));
+	const _definitionProvider = languages.registerDefinitionProvider(documentSelector, definitionProvider({ files: workSpaceFiles }));
+	const _hoverProvider = languages.registerHoverProvider(documentSelector, hoverProvider({ files: workSpaceFiles }));
 	const _completionProvider = languages.registerCompletionItemProvider(
 		documentSelector,
 		completetionProvider({
-			files: scssFiles
+			files: workSpaceFiles
 		}),
 		'.', '\'', '\[');
 	if (settings.autoComplete) {

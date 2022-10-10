@@ -11,7 +11,6 @@ export const parseTsx = (content: string, offset: number): Promise<{
 	sourceIdentifiers: SourceIdentifier[];
 	targetLiteral: StringLiteral;
 	targetIdentifier: Identifier;
-	completionIdentifier: Identifier;
 } | undefined> => {
 	const ast = parse(content, {
 		sourceType: 'module',
@@ -20,13 +19,12 @@ export const parseTsx = (content: string, offset: number): Promise<{
 	});
 	let targetLiteral: StringLiteral;
 	let targetIdentifier: Identifier;
-	let completionIdentifier: Identifier;
 	const sourceIdentifiers: SourceIdentifier[] = [];
 	return new Promise((resolve, reject) => {
 		try {
 			traverse(ast, {
 				ImportDeclaration(path) {
-					if (path.node.source.value.endsWith('.scss')) {
+					if (path.node.source.value.endsWith('.scss') || path.node.source.value.endsWith('.css')) {
 						const importNode = path.node;
 						const scope = new Scope(path, path.scope);
 						scope.traverse(path.node, {
@@ -37,11 +35,6 @@ export const parseTsx = (content: string, offset: number): Promise<{
 								});
 							},
 						});
-					}
-				},
-				Identifier(path) {
-					if (path.node.start! <= offset && offset <= path.node.end!) {
-						completionIdentifier = path.node;
 					}
 				},
 				StringLiteral(path) {
@@ -61,13 +54,11 @@ export const parseTsx = (content: string, offset: number): Promise<{
 					}
 				},
 				exit(path) {
-					// eslint-disable-next-line no-console
 					if (path.node.type === 'Program') {
 						resolve({
 							sourceIdentifiers,
 							targetIdentifier,
 							targetLiteral,
-							completionIdentifier,
 						});
 					}
 				}
