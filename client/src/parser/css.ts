@@ -11,9 +11,29 @@ export const parseScss = (uri: string, content: string) => {
 	return symbols;
 };
 
+export const fileExt = (uri: string) => {
+	if (uri.endsWith('.css')) { return 'css'; }
+	if (uri.endsWith('.scss')) { return 'scss'; }
+	return 'css';
+};
+
 export const parseCss = (uri: string, content: string) => {
-	const document = TextDocument.create(uri, 'css', 1, content);
-	const ast = cssLs.parseStylesheet(document);
+	const languageId = fileExt(uri);
+	const document = TextDocument.create(
+		uri,
+		languageId,
+		1,
+		content
+	);
+	const ast = (() => {
+		if (languageId === 'css') {
+			return cssLs.parseStylesheet(document);
+		}
+		if (languageId === 'scss') {
+			return scssLs.parseStylesheet(document);
+		}
+		return cssLs.parseStylesheet(document);
+	})();
 	const symbols = cssLs.findDocumentSymbols(document, ast);
 	return symbols;
 };

@@ -1,23 +1,24 @@
 import { DefinitionLink, DefinitionProvider, Uri } from 'vscode';
-import { ParserFactory } from '../parser/ParserFactory';
+import { ProviderFactory, ProviderKind } from './ProviderFactory';
 interface ProviderParams {
 	files: string[];
 }
 
 
-export const definitionProvider: (params: ProviderParams) => DefinitionProvider = (params) => ({
-	async provideDefinition(document, position) {
+export const definitionProvider: (params: ProviderParams) => DefinitionProvider = () => ({
+	async provideDefinition(_, position) {
 		try {
-			const parser = new ParserFactory(params.files, document, position, 'Definition');
-			await parser.ParseTsx();
-			await parser.ParseCSS();
-			const matchedSelectors = parser.SymbolsMatcher();
-			if (matchedSelectors.length) {
+			const provider = new ProviderFactory({
+				position,
+				providerKind: ProviderKind.Definition
+			});
+			const matchedSelectors = await provider.getMatchedSelectors();
+			if (matchedSelectors?.length) {
 				const locationLinks: DefinitionLink = {
-					originSelectionRange: parser.getOriginWordRange(),
-					targetUri: Uri.file(parser.targetFile || ''),
-					targetSelectionRange: parser.getSymbolLocationRange(matchedSelectors[0]),
-					targetRange: parser.getSymbolLocationRange(matchedSelectors[0]),
+					originSelectionRange: provider.getOriginWordRange(),
+					targetUri: Uri.file(provider.sourceCssFile || ''),
+					targetSelectionRange: provider.getSymbolLocationRange(matchedSelectors[0]),
+					targetRange: provider.getSymbolLocationRange(matchedSelectors[0]),
 				};
 				return [locationLinks];
 			}
