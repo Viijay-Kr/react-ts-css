@@ -17,17 +17,15 @@ export const completetionProvider: (params: CompletionParams) => CompletionItemP
 					position,
 				});
 				provider.preProcessCompletions();
-				const { parentSelectors, childSelectors, siblingSelectots } = await provider.getAllSelectors();
+				// TODO: check if this can run in the background
+				await provider.setSourceCssFileContents();
+				const allSelectors = await provider.getAllSelectors();
 				const uniqueSelectors: Array<{
 					label: string;
 					details?: string;
 					content?: MarkdownString;
 				}> = [];
-				[
-					...parentSelectors,
-					...childSelectors,
-					...siblingSelectots
-				].forEach(async s => {
+				allSelectors.forEach(async s => {
 					const symbolName = extractClassName(s);
 					if (!uniqueSelectors.find(sy => sy.label === symbolName)) {
 						uniqueSelectors.push({
@@ -38,7 +36,7 @@ export const completetionProvider: (params: CompletionParams) => CompletionItemP
 				});
 				const completionList = new CompletionList(
 					uniqueSelectors.map((s) => {
-						const completionItem = new CompletionItem(s.label, CompletionItemKind.Property);
+						const completionItem = new CompletionItem(s.label, CompletionItemKind.Value);
 						const triggerKind = _context.triggerKind;
 						const triggerCharacter = _context.triggerCharacter;
 						completionItem.insertText = (() => {

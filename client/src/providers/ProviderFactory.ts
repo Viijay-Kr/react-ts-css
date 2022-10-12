@@ -1,7 +1,7 @@
 import { Position, Range } from 'vscode';
 import Storage from '../storage/Storage';
 import * as fs from 'fs/promises';
-import { filterChildSelector, filterParentSelector, filterSiblingSelector, getSymbolContent, parseCss, scssSymbolMatcher } from '../parser/css';
+import { filterChildSelector, filterParentSelector, filterSiblingSelector, filterSuffixedSelector, getSuffixesWithParent, getSymbolContent, parseCss, scssSymbolMatcher } from '../parser/css';
 import { SymbolInformation } from 'vscode-css-languageservice';
 import { ImportDeclaration } from '@babel/types';
 export enum ProviderKind {
@@ -78,11 +78,15 @@ export class ProviderFactory {
 		const parentSelectors = symbols.filter(filterParentSelector);
 		const childSelectors = symbols.filter(filterChildSelector);
 		const siblingSelectots = symbols.filter(filterSiblingSelector);
-		return {
-			parentSelectors,
-			childSelectors,
-			siblingSelectots,
-		};
+		const suffixedSelectors = symbols
+			.filter(filterSuffixedSelector).
+			map((s) => getSuffixesWithParent(symbols, this.sourceCssContent, s));
+		return [
+			...parentSelectors,
+			...childSelectors,
+			...siblingSelectots,
+			...suffixedSelectors,
+		];
 	}
 	public getOriginWordRange() {
 		const document = Storage.getActiveTextDocument();
