@@ -78,6 +78,23 @@ export const getSymbolContent = (symbol: SymbolInformation, fileContent: string)
 	return new MarkdownString('', true).appendCodeblock(symbolContent, 'sass');
 };
 
+// This helper assumes the symbol you are trying to parse is a scss symbol
+export const getSuffixesWithParent = (symbols: SymbolInformation[], sourceContent: string, suffix: SymbolInformation) => {
+	let newSuffix = {
+		...suffix,
+	};
+	symbols.filter(filterAllSelector).forEach((s) => {
+		const content = getSymbolContent(s, sourceContent);
+		const document = TextDocument.create(s.location.uri, 'scss', 1, content.value);
+		const ast = scssLs.parseStylesheet(document);
+		const symbols = scssLs.findDocumentSymbols(document, ast);
+		const match = symbols.find(sy => sy.name === suffix.name);
+		if (match) {
+			newSuffix.name = (s.name + suffix.name).replace('&', '');
+		}
+	});
+	return newSuffix;
+};
 export const filterAllSelector = (s: SymbolInformation) => s.kind === 5 && s.name.replace(/^&/g, '').startsWith('.');
 
 export const filterSuffixedSelector = (s: SymbolInformation) => s.kind === 5 && s.name.replace(/^&/g, '').match(/^-|^[__]|^[--]/g);
