@@ -1,22 +1,26 @@
-import { Position, Range } from 'vscode';
+import { MarkdownString, Position, Range } from 'vscode';
 import Storage from '../storage/Storage';
-import * as fs from 'fs/promises';
-import { filterChildSelector, filterParentSelector, filterSiblingSelector, filterSuffixedSelector, getSuffixesWithParent, getSymbolContent, parseCss, scssSymbolMatcher } from '../parser/css';
+import { extractClassName, filterChildSelector, filterParentSelector, filterSiblingSelector, filterSuffixedSelector, getSuffixesWithParent, getSymbolContent, parseCss, scssSymbolMatcher } from '../parser/css';
 import { SymbolInformation } from 'vscode-css-languageservice';
 import { ImportDeclaration } from '@babel/types';
+
 export enum ProviderKind {
 	Definition = 1,
 	Completion = 2,
 	Hover = 3,
 	Invalid = -1
 }
+
+export interface CompletionItemType {
+	label: string;
+	type?: 'root' | 'suffix' | 'child' | 'sibling',
+	content?: MarkdownString
+}
 export class ProviderFactory {
 	/** Dynamic CSS file which should be parsed for completion,definition and hover */
 	public sourceCssFile: string | undefined;
 	public providerKind: ProviderKind = ProviderKind.Invalid;
 	public position: Position;
-	// Source css file content
-	private sourceCssContent: string = '';
 	public constructor(options: { providerKind: ProviderKind, position: Position }) {
 		this.providerKind = options.providerKind;
 		this.position = options.position;
@@ -46,21 +50,11 @@ export class ProviderFactory {
 		const symbols = Storage.getCSSSymbols(this.sourceCssFile);
 		if (!symbols) {
 			// If not found in cache get it from a fresh parse
-			const fileContent = await fs.readFile(this.sourceCssFile);
-			this.sourceCssContent = fileContent.toString();
-			const symbols = parseCss(this.sourceCssFile, fileContent.toString());
+			const symbols = parseCss(this.sourceCssFile);
 			Storage.setCssSymbols(this.sourceCssFile, symbols);
 			return symbols;
 		}
 		return symbols;
-	}
-
-	public async setSourceCssFileContents() {
-		if (!this.sourceCssFile) {
-			throw new Error('No Css file found');
-		}
-		if (this.sourceCssContent) { return; }
-		this.sourceCssContent = (await fs.readFile(this.sourceCssFile)).toString();
 	}
 
 	public async getMatchedSelectors() {
@@ -73,20 +67,31 @@ export class ProviderFactory {
 		return scssSymbolMatcher(symbols, nodeAtOffset?.literal.value);
 	}
 
-	public async getAllSelectors() {
+	public async getSelectorsForCompletion() {
 		const symbols = await this.getAllSymbols();
-		const parentSelectors = symbols.filter(filterParentSelector);
-		const childSelectors = symbols.filter(filterChildSelector);
-		const siblingSelectots = symbols.filter(filterSiblingSelector);
+		const toCompletionItem = (type: CompletionItemType['type']) => (s: SymbolInformation): CompletionItemType => ({
+			label: extractClassName(s),
+			type,
+			content: this.getSymbolContent(s),
+		});
+		const parentSelectors = symbols.filter(filterParentSelector).map(toCompletionItem('root'));
+		const childSelectors = symbols.filter(filterChildSelector).map(toCompletionItem('child'));
+		const siblingSelectots = symbols.filter(filterSiblingSelector).map(toCompletionItem('sibling'));
 		const suffixedSelectors = symbols
 			.filter(filterSuffixedSelector).
-			map((s) => getSuffixesWithParent(symbols, this.sourceCssContent, s));
+			map((s) => getSuffixesWithParent(symbols, s)).map(toCompletionItem('suffix'));
+
 		return [
 			...parentSelectors,
 			...childSelectors,
 			...siblingSelectots,
-			...suffixedSelectors,
-		];
+			...suffixedSelectors
+		].reduce<CompletionItemType[]>((acc, prev) => {
+			if (!acc.find((s) => s.label === prev.label)) {
+				return acc.concat(prev);
+			}
+			return acc;
+		}, []);
 	}
 	public getOriginWordRange() {
 		const document = Storage.getActiveTextDocument();
@@ -117,7 +122,7 @@ export class ProviderFactory {
 		if (!this.sourceCssFile) {
 			throw new Error('No source css file uri found. Did you create a ProviderFactory instance');
 		}
-		return getSymbolContent(symbol, this.sourceCssContent);
+		return getSymbolContent(symbol);
 	}
 
 	public preProcessCompletions() {
