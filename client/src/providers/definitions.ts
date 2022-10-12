@@ -16,7 +16,7 @@ export const definitionProvider: (params: ProviderParams) => DefinitionProvider 
 			if (matchedSelectors?.length) {
 				const locationLinks: DefinitionLink = {
 					originSelectionRange: provider.getOriginWordRange(),
-					targetUri: Uri.file(provider.sourceCssFile || ''),
+					targetUri: Uri.file(matchedSelectors[0].location.uri || ''),
 					targetSelectionRange: provider.getSymbolLocationRange(matchedSelectors[0]),
 					targetRange: provider.getSymbolLocationRange(matchedSelectors[0]),
 				};

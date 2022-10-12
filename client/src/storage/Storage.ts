@@ -1,7 +1,6 @@
 import { CompletionList, TextEditor, Uri, window, workspace } from 'vscode';
 import { SymbolInformation } from 'vscode-css-languageservice';
 import { parseActiveFile, ParserResult } from '../parser/tsx';
-import * as fs from 'fs/promises';
 import { parseCss } from '../parser/css';
 import * as fsg from 'fast-glob';
 
@@ -103,10 +102,9 @@ export class Storage {
 					const files = Array.from(this.sourceFiles.keys());
 					const sourceCssFile = files.find(f => f.includes(r.import.source.value.split('/').pop()!));
 					if (sourceCssFile) {
-						const fileContent = await fs.readFile(sourceCssFile);
-						this.symbols.set(
+						this.setCssSymbols(
 							sourceCssFile,
-							parseCss(sourceCssFile, fileContent.toString())
+							parseCss(sourceCssFile)
 						);
 					}
 				});
