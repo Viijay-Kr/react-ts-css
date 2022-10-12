@@ -1,4 +1,5 @@
 import { CompletionItem, CompletionItemKind, CompletionItemProvider, CompletionList, Range, Position, TextEdit, MarkdownString, CompletionTriggerKind } from 'vscode';
+import { extractClassName } from '../parser/css';
 import Storage from '../storage/Storage';
 import { ProviderFactory, ProviderKind } from './ProviderFactory';
 interface CompletionParams {
@@ -16,14 +17,14 @@ export const completetionProvider: (params: CompletionParams) => CompletionItemP
 					position,
 				});
 				provider.preProcessCompletions();
-				const { parentSelectors } = await provider.getAllSelectors();
+				const { parentSelectors, childSelectors } = await provider.getAllSelectors();
 				const uniqueSelectors: Array<{
 					label: string;
 					details?: string;
 					content?: MarkdownString;
 				}> = [];
-				parentSelectors.forEach(async s => {
-					const symbolName = s.name.replace(/^./g, '');
+				[...parentSelectors, ...childSelectors].forEach(async s => {
+					const symbolName = extractClassName(s);
 					if (!uniqueSelectors.find(sy => sy.label === symbolName)) {
 						uniqueSelectors.push({
 							label: symbolName,

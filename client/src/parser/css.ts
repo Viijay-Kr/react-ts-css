@@ -42,15 +42,20 @@ export const filterAllSelector = (s: SymbolInformation) => s.kind === 5 && s.nam
 
 export const filterSuffixedSelector = (s: SymbolInformation) => s.kind === 5 && s.name.replace(/^&/g, '').match(/^-|^[__]|^[--]/g);
 
-export const filterChildSelector = (s: SymbolInformation) => s.kind === 5 && s.name.startsWith('&');
+export const filterChildSelector = (s: SymbolInformation) => s.kind === 5 && s.name.startsWith('& .');
 
 export const filterParentSelector = (s: SymbolInformation) => s.kind === 5 && s.name.startsWith('.');
+
+export const extractClassName = (s: SymbolInformation) => s.name.replace(/^(?:\&\s*\.)|^(?:\.)/g, '');
 
 export const scssSymbolMatcher = (symbols: SymbolInformation[], target: string) => {
 	const allSelectors = symbols.filter(filterAllSelector);
 	const suffixSelectors = symbols.filter(filterSuffixedSelector);
-
-	const normalSelectors = allSelectors.filter(s => s.name.replace(/^(?:\&\.)|^(?:\.)/g, '') === target);
+	const childSelectors = symbols.filter(filterChildSelector);
+	const normalSelectors = [
+		...allSelectors.filter(s => extractClassName(s) === target),
+		...childSelectors.filter(s => extractClassName(s) === target)
+	];
 	const suffixSelector = suffixSelectors[(() => {
 		let prevMatchIndex = -1;
 		let symbolIndex = -1;

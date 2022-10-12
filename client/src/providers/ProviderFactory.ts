@@ -76,7 +76,7 @@ export class ProviderFactory {
 	public async getAllSelectors() {
 		const symbols = await this.getAllSymbols();
 		const parentSelectors = symbols.filter(filterParentSelector);
-		const childSelectors = parentSelectors.filter(filterChildSelector);
+		const childSelectors = symbols.filter(filterChildSelector);
 		return {
 			parentSelectors,
 			childSelectors,
