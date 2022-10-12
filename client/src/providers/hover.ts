@@ -1,14 +1,17 @@
 import { HoverProvider, Hover, MarkdownString } from 'vscode';
+import Settings from '../settings';
 import Storage from '../storage/Storage';
 import { ProviderFactory, ProviderKind } from './ProviderFactory';
-interface HoverParams {
-	files: string[];
-}
+import { ProviderParams } from './types';
 
 
-export const hoverProvider: (params: HoverParams) => HoverProvider = () => {
+
+export const hoverProvider: (params: ProviderParams) => HoverProvider = () => {
 	return {
 		async provideHover(_, position) {
+			if (!Settings.peek) {
+				return;
+			}
 			try {
 				const provider = new ProviderFactory({
 					position,

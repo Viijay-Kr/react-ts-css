@@ -4,16 +4,14 @@ import { ExtensionContext, window, workspace, languages } from 'vscode';
 import { definitionProvider } from './providers/definitions';
 import { hoverProvider } from './providers/hover';
 import { completetionProvider } from './providers/completion';
-import { Settings } from './settings';
+import Settings, { EXT_NAME, getSettings } from './settings';
 import Storage from './storage/Storage';
 
 const documentSelector = [
 	{ scheme: 'file', language: 'typescriptreact' },
-	{ scheme: 'file', language: 'typescript' }
+	{ scheme: 'file', language: 'typescript' },
 ];
 
-let workSpaceFiles: string[];
-const settings = new Settings();
 
 workspace.onDidCreateFiles((e) => {
 	Storage.addSourceFiles(e.files);
@@ -27,32 +25,42 @@ workspace.onDidChangeTextDocument(() => {
 	Storage.bootStrap();
 });
 
-
+workspace.onDidChangeConfiguration((e) => {
+	const affected = e.affectsConfiguration(EXT_NAME);
+	if (affected) {
+		Settings.autoComplete = getSettings().get('autoComplete');
+		Settings.definition = getSettings().get('definition');
+		Settings.peek = getSettings().get('peek');
+	}
+});
 
 export async function activate(context: ExtensionContext): Promise<void> {
 	try {
 		Storage.bootStrap();
-		const _definitionProvider = languages.registerDefinitionProvider(documentSelector, definitionProvider({ files: workSpaceFiles }));
-		const _hoverProvider = languages.registerHoverProvider(documentSelector, hoverProvider({ files: workSpaceFiles }));
+		const _definitionProvider = languages.registerDefinitionProvider(
+			documentSelector,
+			definitionProvider({})
+		);
+		const _hoverProvider = languages.registerHoverProvider(
+			documentSelector,
+			hoverProvider({})
+		);
 		const _completionProvider = languages.registerCompletionItemProvider(
 			documentSelector,
-			completetionProvider({
-				files: workSpaceFiles
-			}),
-			'.', '\'', '\[');
+			completetionProvider({}),
+			'.',
+			'\'',
+			'['
+		);
 
-		if (settings.autoComplete) {
-			context.subscriptions.push(_completionProvider);
-		}
-		if (settings.definition) {
-			context.subscriptions.push(_definitionProvider);
-		}
-		if (settings.references) {
-			context.subscriptions.push(_hoverProvider);
-		}
+		context.subscriptions.push(_completionProvider);
+		context.subscriptions.push(_definitionProvider);
+		context.subscriptions.push(_hoverProvider);
 		window.showInformationMessage('React-TS-CSS activated successfully');
 	} catch (e) {
-		window.showWarningMessage('Something went wrong while activating React-TS-CSS extension');
+		window.showWarningMessage(
+			'Something went wrong while activating React-TS-CSS extension'
+		);
 	}
 }
 

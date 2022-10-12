@@ -1,12 +1,14 @@
 import { DefinitionLink, DefinitionProvider, Uri } from 'vscode';
+import Settings from '../settings';
 import { ProviderFactory, ProviderKind } from './ProviderFactory';
-interface ProviderParams {
-	files: string[];
-}
+import { ProviderParams } from './types';
 
 
 export const definitionProvider: (params: ProviderParams) => DefinitionProvider = () => ({
 	async provideDefinition(_, position) {
+		if (!Settings.definition) {
+			return;
+		}
 		try {
 			const provider = new ProviderFactory({
 				position,

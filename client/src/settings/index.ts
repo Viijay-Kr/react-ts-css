@@ -2,48 +2,39 @@ import { workspace } from 'vscode';
 
 export const EXT_NAME = 'reactTsScss';
 
-export const getDefaultSettings = () => {
+export const getSettings = () => {
 	return workspace.getConfiguration(EXT_NAME);
 };
 
-const DEFAULT_SETTINGS = getDefaultSettings();
 
 export class Settings {
-	private _kebabCase: boolean | undefined = DEFAULT_SETTINGS.get('kebabcase');
-
-	public get kebabCase(): boolean | undefined {
-		return this._kebabCase;
-	}
-
-	private _camelCase: boolean | undefined = DEFAULT_SETTINGS.get('camelCase');
-
-	public get camelCase(): boolean | undefined {
-		return this._camelCase;
-	}
-
-	private _autoComplete: boolean | undefined = DEFAULT_SETTINGS.get('autoComplete')
-
 	public get autoComplete(): boolean | undefined {
-		return this._autoComplete;
+		return getSettings().get('autoComplete');
 	}
 
-	private _peek: boolean | undefined = DEFAULT_SETTINGS.get('peek')
+	public set autoComplete(v: boolean | undefined) {
+		getSettings().update('autoComplete', v);
+	}
+
+
 
 	public get peek(): boolean | undefined {
-		return this._peek;
+		return getSettings().get('peekProperties');
 	}
 
-	private _definition: boolean | undefined = DEFAULT_SETTINGS.get('definition')
+
+	public set peek(v: boolean | undefined) {
+		workspace.getConfiguration(EXT_NAME).update('peek', v);
+	}
+
 
 	public get definition(): boolean | undefined {
-		return this._definition;
+		return getSettings().get('definition');
 	}
 
-	private _references: boolean | undefined = DEFAULT_SETTINGS.get('references')
-
-	public get references(): boolean | undefined {
-		return this._references;
+	public set definition(v: boolean | undefined) {
+		workspace.getConfiguration(EXT_NAME).update('definition', v);
 	}
-
-
 }
+
+export default new Settings();

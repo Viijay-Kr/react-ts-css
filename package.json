@@ -1,27 +1,22 @@
 {
 	"name": "react-ts-css",
 	"displayName": "React TS CSS",
-	"description": "CSS module support for your React project written in typescript or javsacript.Go to selector , go to nested selector, css peek with post css support,completion support for your css,scss modules,kebab case and camelcase support,completetion support",
+	"description": "Vs code extension for CSS modules support in React projects written in typescript.This extension supports 'Go to selectors,peek properties of selectors and auto completion of selectors' features",
 	"version": "1.0.0",
 	"author": "Viijay-Kr",
 	"license": "MIT",
 	"keywords": [
 		"CSS modules",
+		"Go to class selector",
 		"React CSS modules",
+		"Go to nested selector",
 		"Definitions",
 		"Completion",
 		"CSS Peek",
-		"Go to class selector",
-		"Go to nested selector",
 		"selector navigation",
 		"typescriptreact",
-		"javascriptreact",
 		"SCSS",
-		"CSS",
-		"less",
-		"stylus",
-		"kebab case",
-		"camel case"
+		"CSS"
 	],
 	"engines": {
 		"vscode": "^1.52.0"
@@ -56,36 +51,26 @@
 	},
 	"contributes": {
 		"configuration": {
-			"title": "React-T(S)CSS",
+			"title": "React TS CSS",
 			"properties": {
-				"reactTsScss.kebabCase": {
-					"type": "boolean",
-					"default": false,
-					"description": "Kebab Casing support for class & id selectors"
-				},
-				"reactTsScss.camelCase": {
-					"type": "boolean",
-					"default": true,
-					"description": "Camel Case support for class and id selectors"
-				},
 				"reactTsScss.peekProperties": {
 					"type": "boolean",
 					"default": true,
-					"description": "Peek the block of properties on Hovering a selector"
+					"description": "Peek the block of css or scss properties on Hovering a selector"
 				},
 				"reactTsScss.autoComplete": {
 					"type": "boolean",
 					"default": true,
-					"description": "Auto completion of scoped selectors"
+					"description": "Auto completion of scoped and cyclic selectors"
 				},
 				"reactTsScss.definition": {
 					"type": "boolean",
 					"default": true,
-					"description": "Go to definition of scoped selectors"
+					"description": "Go to definition of scoped and cyclic selectors"
 				},
 				"reactTsScss.references": {
 					"type": "boolean",
-					"default": true,
+					"default": false,
 					"description": "Find all references of a selector"
 				}
 			}

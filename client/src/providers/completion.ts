@@ -1,13 +1,15 @@
 import { CompletionItem, CompletionItemKind, CompletionItemProvider, CompletionList, Range, Position, TextEdit, CompletionTriggerKind } from 'vscode';
+import Settings from '../settings';
 import Storage from '../storage/Storage';
 import { ProviderFactory, ProviderKind } from './ProviderFactory';
-interface CompletionParams {
-	files: string[]
-}
+import { ProviderParams } from './types';
 
 
-export const completetionProvider: (params: CompletionParams) => CompletionItemProvider = () => ({
+export const completetionProvider: (params: ProviderParams) => CompletionItemProvider = () => ({
 	async provideCompletionItems(_, position, _token, _context) {
+		if (!Settings.autoComplete) {
+			return;
+		}
 		try {
 			if (_context.triggerKind !== CompletionTriggerKind.TriggerCharacter || _token.isCancellationRequested) {
 				return Storage.getCompletionsFromCache();
