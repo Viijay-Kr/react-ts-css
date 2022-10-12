@@ -1,69 +1,68 @@
-'use strict';
+"use strict";
 
-import { ExtensionContext, window, workspace, languages } from 'vscode';
-import { definitionProvider } from './providers/definitions';
-import { hoverProvider } from './providers/hover';
-import { completetionProvider } from './providers/completion';
-import Settings, { EXT_NAME, getSettings } from './settings';
-import Storage from './storage/Storage';
+import { ExtensionContext, window, workspace, languages } from "vscode";
+import { definitionProvider } from "./providers/definitions";
+import { hoverProvider } from "./providers/hover";
+import { completetionProvider } from "./providers/completion";
+import Settings, { EXT_NAME, getSettings } from "./settings";
+import Storage from "./storage/Storage";
 
 const documentSelector = [
-	{ scheme: 'file', language: 'typescriptreact' },
-	{ scheme: 'file', language: 'typescript' },
+  { scheme: "file", language: "typescriptreact" },
+  { scheme: "file", language: "typescript" },
 ];
 
-
 workspace.onDidCreateFiles((e) => {
-	Storage.addSourceFiles(e.files);
+  Storage.addSourceFiles(e.files);
 });
 
 workspace.onDidOpenTextDocument(() => {
-	Storage.bootStrap();
+  Storage.bootStrap();
 });
 
 workspace.onDidChangeTextDocument(() => {
-	Storage.bootStrap();
+  Storage.bootStrap();
 });
 
 workspace.onDidChangeConfiguration((e) => {
-	const affected = e.affectsConfiguration(EXT_NAME);
-	if (affected) {
-		Settings.autoComplete = getSettings().get('autoComplete');
-		Settings.definition = getSettings().get('definition');
-		Settings.peek = getSettings().get('peek');
-	}
+  const affected = e.affectsConfiguration(EXT_NAME);
+  if (affected) {
+    Settings.autoComplete = getSettings().get("autoComplete");
+    Settings.definition = getSettings().get("definition");
+    Settings.peek = getSettings().get("peek");
+  }
 });
 
 export async function activate(context: ExtensionContext): Promise<void> {
-	try {
-		Storage.bootStrap();
-		const _definitionProvider = languages.registerDefinitionProvider(
-			documentSelector,
-			definitionProvider({})
-		);
-		const _hoverProvider = languages.registerHoverProvider(
-			documentSelector,
-			hoverProvider({})
-		);
-		const _completionProvider = languages.registerCompletionItemProvider(
-			documentSelector,
-			completetionProvider({}),
-			'.',
-			'\'',
-			'['
-		);
+  try {
+    await Storage.bootStrap();
+    const _definitionProvider = languages.registerDefinitionProvider(
+      documentSelector,
+      definitionProvider({})
+    );
+    const _hoverProvider = languages.registerHoverProvider(
+      documentSelector,
+      hoverProvider({})
+    );
+    const _completionProvider = languages.registerCompletionItemProvider(
+      documentSelector,
+      completetionProvider({}),
+      ".",
+      "'",
+      "["
+    );
 
-		context.subscriptions.push(_completionProvider);
-		context.subscriptions.push(_definitionProvider);
-		context.subscriptions.push(_hoverProvider);
-		window.showInformationMessage('React-TS-CSS activated successfully');
-	} catch (e) {
-		window.showWarningMessage(
-			'Something went wrong while activating React-TS-CSS extension'
-		);
-	}
+    context.subscriptions.push(_completionProvider);
+    context.subscriptions.push(_definitionProvider);
+    context.subscriptions.push(_hoverProvider);
+    window.showInformationMessage("React-TS-CSS activated successfully");
+  } catch (e) {
+    window.showWarningMessage(
+      "Something went wrong while activating React-TS-CSS extension"
+    );
+  }
 }
 
 export function deactivate() {
-	Storage.clear();
+  Storage.clear();
 }
