@@ -17,13 +17,17 @@ export const completetionProvider: (params: CompletionParams) => CompletionItemP
 					position,
 				});
 				provider.preProcessCompletions();
-				const { parentSelectors, childSelectors } = await provider.getAllSelectors();
+				const { parentSelectors, childSelectors, siblingSelectots } = await provider.getAllSelectors();
 				const uniqueSelectors: Array<{
 					label: string;
 					details?: string;
 					content?: MarkdownString;
 				}> = [];
-				[...parentSelectors, ...childSelectors].forEach(async s => {
+				[
+					...parentSelectors,
+					...childSelectors,
+					...siblingSelectots
+				].forEach(async s => {
 					const symbolName = extractClassName(s);
 					if (!uniqueSelectors.find(sy => sy.label === symbolName)) {
 						uniqueSelectors.push({

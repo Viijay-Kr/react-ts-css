@@ -38,24 +38,18 @@ export const parseCss = (uri: string, content: string) => {
 	return symbols;
 };
 
-export const filterAllSelector = (s: SymbolInformation) => s.kind === 5 && s.name.replace(/^&/g, '').startsWith('.');
-
-export const filterSuffixedSelector = (s: SymbolInformation) => s.kind === 5 && s.name.replace(/^&/g, '').match(/^-|^[__]|^[--]/g);
-
-export const filterChildSelector = (s: SymbolInformation) => s.kind === 5 && s.name.startsWith('& .');
-
-export const filterParentSelector = (s: SymbolInformation) => s.kind === 5 && s.name.startsWith('.');
-
-export const extractClassName = (s: SymbolInformation) => s.name.replace(/^(?:\&\s*\.)|^(?:\.)/g, '');
-
 export const scssSymbolMatcher = (symbols: SymbolInformation[], target: string) => {
 	const allSelectors = symbols.filter(filterAllSelector);
 	const suffixSelectors = symbols.filter(filterSuffixedSelector);
 	const childSelectors = symbols.filter(filterChildSelector);
-	const normalSelectors = [
-		...allSelectors.filter(s => extractClassName(s) === target),
-		...childSelectors.filter(s => extractClassName(s) === target)
-	];
+	const siblingsSelectors = symbols.filter(filterSiblingSelector);
+
+	const finalSelectors = [
+		...allSelectors,
+		...childSelectors,
+		...siblingsSelectors,
+	].filter(s => extractClassName(s) === target);
+
 	const suffixSelector = suffixSelectors[(() => {
 		let prevMatchIndex = -1;
 		let symbolIndex = -1;
@@ -73,7 +67,7 @@ export const scssSymbolMatcher = (symbols: SymbolInformation[], target: string) 
 		return symbolIndex;
 	})()];
 
-	if (normalSelectors.length) { return normalSelectors; }
+	if (finalSelectors.length) { return finalSelectors; }
 	if (suffixSelector) { return [suffixSelector]; }
 	return [];
 };
@@ -83,3 +77,16 @@ export const getSymbolContent = (symbol: SymbolInformation, fileContent: string)
 	const symbolContent = document.getText(symbol.location.range);
 	return new MarkdownString('', true).appendCodeblock(symbolContent, 'sass');
 };
+
+export const filterAllSelector = (s: SymbolInformation) => s.kind === 5 && s.name.replace(/^&/g, '').startsWith('.');
+
+export const filterSuffixedSelector = (s: SymbolInformation) => s.kind === 5 && s.name.replace(/^&/g, '').match(/^-|^[__]|^[--]/g);
+
+export const filterChildSelector = (s: SymbolInformation) => s.kind === 5 && s.name.startsWith('& .');
+
+
+export const filterSiblingSelector = (s: SymbolInformation) => s.kind === 5 && s.name.startsWith('&.');
+
+export const filterParentSelector = (s: SymbolInformation) => s.kind === 5 && s.name.startsWith('.');
+
+export const extractClassName = (s: SymbolInformation) => s.name.replace(/^(?:\&\s*\.)|^(?:\.)/g, '');
