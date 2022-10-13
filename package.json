@@ -4,6 +4,7 @@
   "description": "VS code extension for CSS modules support in React projects written in typescript.This extension supports 'Go to selectors,peek properties of selectors and auto completion of selectors' features",
   "version": "1.0.0",
   "author": "Viijay-Kr",
+  "publisher": "viijay-kr",
   "repository": {
     "url": "https://github.com/Viijay-Kr/react-ts-css.git"
   },
