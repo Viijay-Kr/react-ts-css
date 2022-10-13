@@ -1,6 +1,7 @@
 # React TS CSS
 
 VS Code extenstion that enables CSS modules support for your React projects written in typescript.
+
 Currently supports CSS and SCSS modules with the following capabilities
 
 - [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
@@ -44,14 +45,13 @@ Defaults
    - Nested selectors
    - Sibling selectors
    - [Suffix Selectors](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes)
-5. CSS module support is also included in the alpha version
-6. Cyclic dependencies are also resolved
-7. Currently
+5. Cyclic dependencies are also resolved and selectors are added recursively
+   - for instance if a `SCSSModule` includes selectors from a normal sass file (using `@import` or `@use` rules) , those selectors can be accessed by the extension
 
 ## RoadMap
 
 1. Plain selectors without any reference is a `no op` in the current version and is expected to be added in coming versions
-2. Support camel case property values
+2. Support camel case property values and completion in a desired format (cameCase identifiers or string literals)
 3. Support for less and stylus will be added in the future versions
 4. [Reference provider](https://code.visualstudio.com/api/references/vscode-api#ReferenceProvider) - Find all references of a selector from inside a css module
 5. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated

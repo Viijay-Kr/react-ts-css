@@ -19,12 +19,6 @@ export const getLanguageService = (uri: string) => {
     return cssLs;
   }
 };
-export const parseScss = (uri: string, content: string) => {
-  const document = TextDocument.create(uri, "scss", 1, content);
-  const ast = scssLs.parseStylesheet(document);
-  const symbols = scssLs.findDocumentSymbols(document, ast);
-  return symbols;
-};
 
 export const fileExt = (uri: string) => {
   if (uri.endsWith(".css")) {
