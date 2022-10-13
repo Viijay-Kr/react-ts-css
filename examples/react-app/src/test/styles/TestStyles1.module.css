@@ -1,0 +1,23 @@
+.test-class {
+  display: flex;
+}
+
+.test-class > .test-child > .test-child_1 .test-child_2 {
+  display: block;
+}
+
+.test-class.test-sibling {
+  display: flex;
+}
+
+.test-sibling > .test-nested.sibling-child {
+  display: contents;
+}
+
+.test-sibling {
+  display: block;
+}
+
+.sibling-child {
+  display: flex;
+}
