@@ -1,4 +1,11 @@
-import { CompletionList, TextEditor, Uri, window, workspace } from "vscode";
+import {
+  CompletionList,
+  TextDocument,
+  TextEditor,
+  Uri,
+  window,
+  workspace,
+} from "vscode";
 import { SymbolInformation } from "vscode-css-languageservice";
 import { parseActiveFile, ParserResult } from "../parser/tsx";
 import { parseCss } from "../parser/css";
@@ -21,20 +28,6 @@ export class Storage {
   public symbols: Symbols = new Map();
   protected completionList: CompletionList = new CompletionList();
 
-  public constructor() {
-    const uri = window.activeTextEditor?.document?.uri;
-    if (uri) {
-      const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
-      fsg("**/*.{scss,css}", {
-        cwd: workspaceRoot,
-        ignore: ["node_modules", "build"],
-        absolute: true,
-      }).then((files) => {
-        this.setSourcefiles(files);
-        this.workSpaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
-      });
-    }
-  }
   private flushStorage() {
     this.workSpaceRoot = undefined;
     this.activeTextEditor = window.activeTextEditor;
@@ -89,7 +82,17 @@ export class Storage {
     if (this.activeTextEditor.document.isDirty) {
       return;
     }
-
+    const uri = window.activeTextEditor?.document?.uri;
+    if (uri) {
+      const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
+      const files = await fsg("**/*.{scss,css}", {
+        cwd: workspaceRoot,
+        ignore: ["node_modules", "build"],
+        absolute: true,
+      });
+      this.setSourcefiles(files);
+      this.workSpaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
+    }
     const filename = this.activeTextEditor.document.fileName;
     const result = await parseActiveFile(
       this.activeTextEditor.document.getText()
@@ -113,11 +116,8 @@ export class Storage {
    * @param offset number
    * @returns StringLiteral | undefined
    */
-  public getNodeAtOffsetPosition(offset: number) {
-    if (!this.activeTextEditor) {
-      throw new Error("ActiveEditor not found inside storage");
-    }
-    const node = this.nodes.get(this.activeTextEditor.document.fileName);
+  public getNodeAtOffsetPosition(document: TextDocument, offset: number) {
+    const node = this.nodes.get(document.fileName);
     if (node) {
       return node.identifiers.find(
         ({ literal: n }) => n.start! <= offset && offset <= n.end!
@@ -141,7 +141,7 @@ export class Storage {
    * Get a node by filename of the document
    * @returns ParserResult
    */
-  public getNodeByFile() {
+  public getNodeOfActiveFile() {
     const fileName = this.getActiveTextDocument().fileName;
     return this.nodes.get(fileName);
   }
@@ -190,6 +190,10 @@ export class Storage {
 
   public getNodes() {
     return this.nodes;
+  }
+
+  public getNodeByFileUri(uri: string) {
+    return this.nodes.get(uri);
   }
 }
 

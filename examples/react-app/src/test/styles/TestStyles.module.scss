@@ -1,0 +1,15 @@
+.test-container {
+  display: flex;
+
+  & .test-child {
+    display: block;
+  }
+
+  &.test-sibling {
+    border: 1px solid;
+  }
+
+  &-test-suffix {
+    position: relative;
+  }
+}
