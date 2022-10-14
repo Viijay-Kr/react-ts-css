@@ -1,10 +1,15 @@
 {
   "name": "react-ts-css",
-  "displayName": "React TS CSS",
-  "description": "VS code extension for CSS modules support in React projects written in typescript.This extension supports 'Go to selectors,peek properties of selectors and auto completion of selectors'",
+  "displayName": "React CSS modules",
+  "description": "React CSS modules - VS code extension for CSS modules support in React projects written in typescript.This extension supports 'Defitions' , 'Hover' and 'Completion' Apis",
   "version": "1.0.0",
   "author": "Viijay-Kr",
   "publisher": "viijay-kr",
+  "homepage": "https://github.com/Viijay-Kr/react-ts-css/blob/main/README.md",
+  "bugs": {
+    "url": "https://github.com/Viijay-Kr/react-ts-css/issues",
+    "email": "vijay93_20@live.com"
+  },
   "repository": {
     "url": "https://github.com/Viijay-Kr/react-ts-css.git"
   },
@@ -22,11 +27,16 @@
     "SCSS",
     "CSS"
   ],
+  "icon": "assets/icon.png",
+  "galleryBanner": {
+    "color": "#282822",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.72.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages"
   ],
   "activationEvents": [
     "onLanguage:typescriptreact",
@@ -35,7 +45,7 @@
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
-      "title": "React TS CSS",
+      "title": "React CSS modules",
       "properties": {
         "reactTsScss.peekProperties": {
           "type": "boolean",

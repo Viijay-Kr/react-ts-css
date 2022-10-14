@@ -1,4 +1,4 @@
-# React TS CSS
+# React CSS modules
 
 VS Code extenstion that enables CSS modules support for your React projects written in typescript.
 
@@ -10,7 +10,7 @@ Currently supports CSS and SCSS modules with the following capabilities
   - Nested Selectors
   - Suffixed Selectors([scss only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
 
-  - <img src='./assets/definitions.gif' height="300"  alt="hover" />
+  - <img src='./assets/definitions.gif' height="300"  alt="definitions" />
 
 - [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
@@ -22,7 +22,7 @@ Currently supports CSS and SCSS modules with the following capabilities
 
   - Completion of all types of selectors
 
-  - <img src='./assets/autocomplete.gif' height="300"  alt="hover" />
+  - <img src='./assets/autocomplete.gif' height="300"  alt="completions" />
 
 ## Settings
 
@@ -51,7 +51,8 @@ Defaults
 ## RoadMap
 
 1. Plain selectors without any reference is a `no op` in the current version and is expected to be added in coming versions
-2. Support camel case property values and completion in a desired format (cameCase identifiers or string literals)
-3. Support for less and stylus will be added in the future versions
-4. [Reference provider](https://code.visualstudio.com/api/references/vscode-api#ReferenceProvider) - Find all references of a selector from inside a css module
-5. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated
+2. Current support is limited to typescript and typescript react. JSX support is considered for upcoming releases
+3. Support camel case property values and completion in a desired format (cameCase identifiers or string literals)
+4. Support for less and stylus will be added in the future versions
+5. [Reference provider](https://code.visualstudio.com/api/references/vscode-api#ReferenceProvider) - Find all references of a selector from inside a css module
+6. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated
