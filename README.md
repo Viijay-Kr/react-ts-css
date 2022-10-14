@@ -1,5 +1,7 @@
 # React CSS modules
 
+<img src="assets/icon.png" height="100" width="100" />
+
 VS Code extenstion that enables CSS modules support for your React projects written in typescript.
 
 Currently supports CSS and SCSS modules with the following capabilities
