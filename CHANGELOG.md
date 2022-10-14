@@ -1,3 +1,8 @@
+## [1.2.0]
+
+- Camel case support
+- Parsing improvements
+
 ## [1.1.1] - 2022-10-14
 
 - Updated changelog file

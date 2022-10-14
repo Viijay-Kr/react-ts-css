@@ -2,7 +2,7 @@
   "name": "react-ts-css",
   "displayName": "React CSS modules",
   "description": "React CSS modules - VS code extension for CSS modules support in React projects written in typescript.This extension supports 'Defitions' , 'Hover' and 'Completion' Apis",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "author": "Viijay-Kr",
   "publisher": "viijay-kr",
   "homepage": "https://github.com/Viijay-Kr/react-ts-css/blob/main/README.md",
@@ -74,7 +74,8 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "deploy": "vsce publish --yarn"
   },
   "devDependencies": {
     "@babel/types": "^7.19.3",
@@ -92,6 +93,7 @@
     "mocha": "^10.0.0",
     "ts-loader": "^9.3.1",
     "typescript": "^4.7.4",
+    "vsce": "^2.11.0",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
   },
