@@ -1,9 +1,15 @@
-# Change Log
+## [1.1.0] - 2022-10-14
 
-All notable changes to the "test-runner" extension will be documented in this file.
+## Fixes
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+- Fixed the unrsolved css file issue
 
-## [Unreleased]
+## [1.0.0] - 2022-10-14
 
-- Initial release
+### FeatureSet
+
+- Definition Provider
+- Completion Provider
+- Hover Provider
+- Cyclic selectors
+- Suffix selectors
