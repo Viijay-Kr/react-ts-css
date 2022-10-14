@@ -1,7 +1,7 @@
 # React CSS modules
 
-<img src="images/build.svg" /> <img src="images/license.svg" /> <img src="images/tests.svg" />
-<img src="images/version.svg" />
+<img src="images/build.png" /> <img src="images/license.png" /> <img src="images/tests.png" />
+<img src="images/version.png" />
 
 VS Code extenstion that enables CSS modules support for your React projects written in typescript.
 
