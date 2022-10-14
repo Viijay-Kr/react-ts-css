@@ -91,7 +91,7 @@ export const parseCss = (
   uri: string | undefined,
   resolved: (string | undefined)[] = []
 ): SymbolInformation[] => {
-  if (!uri) {
+  if (!uri || !uri.includes(Storage.workSpaceRoot ?? "")) {
     return [];
   }
   const fileContent = readFileSync(uri).toString();

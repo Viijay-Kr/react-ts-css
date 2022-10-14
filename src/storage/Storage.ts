@@ -49,13 +49,23 @@ export class Storage {
     return this._sourceFiles;
   }
   /**
-   * Set the source files on activation
-   * @param files string[]
+   * Set the source css files on activation
+   * TODO: store only modules
    */
-  public setSourcefiles(files: string[]) {
-    files.forEach((v) => {
-      this._sourceFiles.set(v, true);
-    });
+  public async setSourcefiles() {
+    const uri = window.activeTextEditor?.document?.uri;
+    if (uri) {
+      const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
+      const files = await fsg("**/*.{scss,css}", {
+        cwd: workspaceRoot,
+        ignore: ["node_modules", "build"],
+        absolute: true,
+      });
+      this.workSpaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
+      files.forEach((v) => {
+        this._sourceFiles.set(v, true);
+      });
+    }
   }
 
   /**
@@ -77,37 +87,32 @@ export class Storage {
   public async bootStrap() {
     this.activeTextEditor = window.activeTextEditor;
     if (!this.activeTextEditor) {
-      throw new Error("No Active Text Editor found");
+      // wait for the events to fully propagate
+      return;
     }
     if (this.activeTextEditor.document.isDirty) {
       return;
     }
-    const uri = window.activeTextEditor?.document?.uri;
-    if (uri) {
-      const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
-      const files = await fsg("**/*.{scss,css}", {
-        cwd: workspaceRoot,
-        ignore: ["node_modules", "build"],
-        absolute: true,
-      });
-      this.setSourcefiles(files);
-      this.workSpaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
+    if (!this.sourceFiles.size) {
+      this.setSourcefiles();
     }
     const filename = this.activeTextEditor.document.fileName;
-    const result = await parseActiveFile(
-      this.activeTextEditor.document.getText()
-    );
-    if (result) {
-      this.nodes.set(filename, result);
-      result.sourceIdentifiers.forEach(async (r) => {
-        const files = Array.from(this.sourceFiles.keys());
-        const sourceCssFile = files.find((f) =>
-          f.includes(r.import.source.value.split("/").pop()!)
-        );
-        if (sourceCssFile) {
-          this.setCssSymbols(sourceCssFile, parseCss(sourceCssFile));
-        }
-      });
+    if (this.activeTextEditor?.document.fileName.endsWith(".tsx")) {
+      const result = await parseActiveFile(
+        this.activeTextEditor.document.getText()
+      );
+      if (result) {
+        this.nodes.set(filename, result);
+        result.sourceIdentifiers.forEach(async (r) => {
+          const files = Array.from(this.sourceFiles.keys());
+          const sourceCssFile = files.find((f) =>
+            f.includes(r.import.source.value.split("/").pop()!)
+          );
+          if (sourceCssFile) {
+            this.setCssSymbols(sourceCssFile, parseCss(sourceCssFile));
+          }
+        });
+      }
     }
   }
 
@@ -120,7 +125,7 @@ export class Storage {
     const node = this.nodes.get(document.fileName);
     if (node) {
       return node.identifiers.find(
-        ({ literal: n }) => n.start! <= offset && offset <= n.end!
+        ({ literal: n }) => n?.start! <= offset && offset <= n?.end!
       );
     }
     return undefined;

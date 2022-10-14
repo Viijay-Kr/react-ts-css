@@ -27,7 +27,7 @@
     "SCSS",
     "CSS"
   ],
-  "icon": "assets/icon.png",
+  "icon": "images/icon.png",
   "galleryBanner": {
     "color": "#282822",
     "theme": "dark"
