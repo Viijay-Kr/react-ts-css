@@ -27,7 +27,7 @@ jobs:
         id: create_tag
         uses: jaywcjlove/create-tag-action@main
         with:
-          package-path: ./package.json
+          release: true
       - name: Publish
         if: success() && startsWith(github.ref, 'refs/tags/')
         run: npm run deploy
