@@ -22,8 +22,13 @@ jobs:
       - run: npm install
       - run: npm test
         if: runner.os != 'Linux'
+  release:
+    strategy:
+      matrix:
+        os: [macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
       - name: Tag
-        if: success()
         id: create_tag
         uses: jaywcjlove/create-tag-action@main
         with:
