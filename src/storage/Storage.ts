@@ -55,13 +55,13 @@ export class Storage {
   public async setSourcefiles() {
     const uri = window.activeTextEditor?.document?.uri;
     if (uri) {
-      const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
+      const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
       const files = await fsg("**/*.{scss,css}", {
         cwd: workspaceRoot,
         ignore: ["node_modules", "build"],
         absolute: true,
       });
-      this.workSpaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
+      this.workSpaceRoot = workspaceRoot;
       files.forEach((v) => {
         this._sourceFiles.set(v, true);
       });
@@ -87,17 +87,19 @@ export class Storage {
   public async bootStrap() {
     this.activeTextEditor = window.activeTextEditor;
     if (!this.activeTextEditor) {
-      // wait for the events to fully propagate
       return;
     }
     if (this.activeTextEditor.document.isDirty) {
       return;
     }
     if (!this.sourceFiles.size) {
-      this.setSourcefiles();
+      await this.setSourcefiles();
     }
     const filename = this.activeTextEditor.document.fileName;
-    if (this.activeTextEditor?.document.fileName.endsWith(".tsx")) {
+    if (
+      this.activeTextEditor?.document.fileName.endsWith(".tsx") ||
+      this.activeTextEditor?.document.fileName.endsWith(".ts")
+    ) {
       const result = await parseActiveFile(
         this.activeTextEditor.document.getText()
       );
@@ -119,13 +121,13 @@ export class Storage {
   /**
    *
    * @param offset number
-   * @returns StringLiteral | undefined
+   * @returns ParserResult['unsafe_identifiers'] | undefined
    */
   public getNodeAtOffsetPosition(document: TextDocument, offset: number) {
     const node = this.nodes.get(document.fileName);
     if (node) {
-      return node.identifiers.find(
-        ({ literal: n }) => n?.start! <= offset && offset <= n?.end!
+      return node.unsafe_identifiers?.find(
+        ({ property: n }) => n?.start! <= offset && offset <= n?.end!
       );
     }
     return undefined;

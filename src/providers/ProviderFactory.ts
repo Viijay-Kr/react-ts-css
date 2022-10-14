@@ -57,9 +57,9 @@ export class ProviderFactory {
       this.document.offsetAt(position)
     );
     const nodeByFile = Storage.getNodeByFileUri(this.document.fileName);
-    const targetIdentifier = nodeAtOffset?.parent;
+    const stylesIdentifier = nodeAtOffset?.object;
     const targetImport = nodeByFile?.sourceIdentifiers?.find(
-      (s) => s.identifier.name === targetIdentifier?.name
+      (s) => s.identifier.name === stylesIdentifier?.name
     )?.import;
     if (targetImport) {
       const files = Array.from(Storage.sourceFiles.keys());
@@ -89,10 +89,17 @@ export class ProviderFactory {
       this.document,
       this.document.offsetAt(this.position)
     );
-    if (!nodeAtOffset?.literal.value) {
-      return;
+    if (!nodeAtOffset) {
+      return [];
     }
-    return scssSymbolMatcher(symbols, nodeAtOffset?.literal.value);
+    switch (nodeAtOffset.property.type) {
+      case "Identifier":
+        return scssSymbolMatcher(symbols, nodeAtOffset.property.name);
+      case "StringLiteral":
+        return scssSymbolMatcher(symbols, nodeAtOffset.property.value);
+      default:
+        return [];
+    }
   }
 
   public async getSelectorsForCompletion() {
@@ -141,12 +148,12 @@ export class ProviderFactory {
     }
     return new Range(
       new Position(
-        nodeAtOffset.parent.loc?.start.line! - 1,
-        nodeAtOffset.parent.loc?.start.column!
+        nodeAtOffset.object.loc?.start.line! - 1,
+        nodeAtOffset.object.loc?.start.column!
       ),
       new Position(
-        nodeAtOffset.literal.loc?.end.line! - 1,
-        nodeAtOffset.literal.loc?.end.column!
+        nodeAtOffset.property.loc?.end.line! - 1,
+        nodeAtOffset.property.loc?.end.column!
       )
     );
   }

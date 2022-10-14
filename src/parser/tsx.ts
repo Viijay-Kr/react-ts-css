@@ -1,12 +1,7 @@
 /* eslint-disable no-console */
-import { parse } from "@babel/parser";
+import { parse, ParseResult } from "@babel/parser";
 import traverse, { Scope } from "@babel/traverse";
-import {
-  Identifier,
-  ImportDeclaration,
-  ImportDefaultSpecifier,
-  StringLiteral,
-} from "@babel/types";
+import { Identifier, ImportDeclaration, StringLiteral } from "@babel/types";
 
 export interface SourceIdentifier {
   identifier: Identifier;
@@ -15,9 +10,9 @@ export interface SourceIdentifier {
 
 export interface ParserResult {
   sourceIdentifiers: SourceIdentifier[];
-  identifiers: Array<{
-    literal: StringLiteral;
-    parent: Identifier;
+  unsafe_identifiers?: Array<{
+    property: StringLiteral | Identifier;
+    object: Identifier; // This should Always be a style identifier
   }>;
 }
 
@@ -31,10 +26,7 @@ export const parseActiveFile = (
       plugins: ["jsx", "typescript"],
     });
     const sourceIdentifiers: SourceIdentifier[] = [];
-    const targetIdentifiers: Array<{
-      literal: StringLiteral;
-      parent: Identifier;
-    }> = [];
+    const unsafe_identifiers: ParserResult["unsafe_identifiers"] = [];
     return new Promise((resolve, reject) => {
       try {
         traverse(ast, {
@@ -55,32 +47,30 @@ export const parseActiveFile = (
               });
             }
           },
-          StringLiteral(path) {
-            const sourceIdentifierNames = sourceIdentifiers.map(
-              (i) => i.identifier.name
-            );
-            const parent = path.parent;
-            const _this = path.node;
-            const scope = new Scope(path.parentPath, path.parentPath.scope);
-            scope.traverse(parent, {
-              Identifier(path) {
+          MemberExpression(path) {
+            if (path.node.object.type === "Identifier") {
+              const iName = path.node.object.name;
+              const isPresent = sourceIdentifiers.some(
+                (s) => s.identifier.name === iName
+              );
+              if (isPresent) {
                 if (
-                  sourceIdentifierNames.includes(path.node.name) &&
-                  sourceIdentifiers.every((v) => v.import.source !== _this)
+                  path.node.property.type === "StringLiteral" ||
+                  path.node.property.type === "Identifier"
                 ) {
-                  targetIdentifiers.push({
-                    literal: _this,
-                    parent: path.node,
+                  unsafe_identifiers.push({
+                    property: path.node.property,
+                    object: path.node.object,
                   });
                 }
-              },
-            });
+              }
+            }
           },
           exit(path) {
             if (path.node.type === "Program") {
               resolve({
                 sourceIdentifiers,
-                identifiers: targetIdentifiers,
+                unsafe_identifiers,
               });
             }
           },

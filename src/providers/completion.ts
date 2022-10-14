@@ -61,7 +61,11 @@ export const completetionProvider: (
                         ""
                       ),
                     ];
-                    return `['${s.label}']`;
+                    if (s.label.includes("-")) {
+                      return `['${s.label}']`;
+                    } else {
+                      return `.${s.label}`;
+                    }
                 }
               }
               return s.label;

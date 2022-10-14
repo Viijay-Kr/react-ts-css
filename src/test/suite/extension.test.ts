@@ -24,7 +24,6 @@ const examplesLocation = "../../../examples/";
 
 suite("Extension Test Suite", async () => {
   window.showInformationMessage("Start all tests.");
-
   const AppComponentUri = Uri.file(
     path.join(__dirname, examplesLocation, "react-app/src/App.tsx")
   );
@@ -62,8 +61,8 @@ suite("Extension Test Suite", async () => {
       await window.showTextDocument(document);
       await StorageInstance.bootStrap();
       assert.strictEqual(
-        StorageInstance.getNodeByFileUri(AppComponentUri.fsPath)?.identifiers
-          .length,
+        StorageInstance.getNodeByFileUri(AppComponentUri.fsPath)
+          ?.unsafe_identifiers?.length,
         0
       );
       assert.strictEqual(StorageInstance.symbols.size, 0);
@@ -91,7 +90,7 @@ suite("Extension Test Suite", async () => {
         await StorageInstance.bootStrap();
 
         const definition = definitionProvider({});
-        const position = new Position(5, 34);
+        const position = new Position(6, 34);
         const result = await definition.provideDefinition(document, position, {
           isCancellationRequested: false,
           onCancellationRequested: () => new Disposable(() => {}),
@@ -126,7 +125,7 @@ suite("Extension Test Suite", async () => {
         const definition = definitionProvider({});
         const suffixResult = (await definition.provideDefinition(
           document,
-          new Position(6, 37),
+          new Position(7, 37),
           {
             isCancellationRequested: false,
             onCancellationRequested: () => new Disposable(() => {}),
@@ -136,7 +135,7 @@ suite("Extension Test Suite", async () => {
 
         const nestedChild = (await definition.provideDefinition(
           document,
-          new Position(9, 39),
+          new Position(10, 39),
           {
             isCancellationRequested: false,
             onCancellationRequested: () => new Disposable(() => {}),
@@ -147,7 +146,7 @@ suite("Extension Test Suite", async () => {
 
         const sibling = (await definition.provideDefinition(
           document,
-          new Position(10, 41),
+          new Position(11, 41),
           {
             isCancellationRequested: false,
             onCancellationRequested: () => new Disposable(() => {}),
@@ -164,7 +163,7 @@ suite("Extension Test Suite", async () => {
         await StorageInstance.bootStrap();
 
         const hover = hoverProvider({});
-        const position = new Position(5, 34);
+        const position = new Position(6, 34);
         const result = await hover.provideHover(document, position, {
           isCancellationRequested: false,
           onCancellationRequested: () => new Disposable(() => {}),
@@ -201,7 +200,7 @@ suite("Extension Test Suite", async () => {
         const definition = hoverProvider({});
         const result = (await definition.provideHover(
           document,
-          new Position(6, 37),
+          new Position(7, 37),
           {
             isCancellationRequested: false,
             onCancellationRequested: () => new Disposable(() => {}),
@@ -209,6 +208,24 @@ suite("Extension Test Suite", async () => {
         )) as Hover;
         // @ts-ignore
         assert.equal(result.contents[1].value.includes("&-test-suffix"), true);
+      });
+
+      test("should work for camel case selector values", async () => {
+        const document = await workspace.openTextDocument(TestComponentUri);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+
+        const definition = hoverProvider({});
+        const result = (await definition.provideHover(
+          document,
+          new Position(14, 37),
+          {
+            isCancellationRequested: false,
+            onCancellationRequested: () => new Disposable(() => {}),
+          }
+        )) as Hover;
+        // @ts-ignore
+        assert.equal(result.contents[1].value.includes("testCamelCase"), true);
       });
     });
 
@@ -219,7 +236,7 @@ suite("Extension Test Suite", async () => {
         await StorageInstance.bootStrap();
 
         const completion = completetionProvider({});
-        const position = new Position(5, 31);
+        const position = new Position(6, 31);
         const list = (await completion.provideCompletionItems(
           document,
           position,
@@ -250,7 +267,7 @@ suite("Extension Test Suite", async () => {
         await StorageInstance.bootStrap();
 
         const completion = completetionProvider({});
-        const position = new Position(5, 31);
+        const position = new Position(6, 31);
         const list = (await completion.provideCompletionItems(
           document,
           position,
@@ -285,7 +302,7 @@ suite("Extension Test Suite", async () => {
         await StorageInstance.bootStrap();
         const completion = completetionProvider({});
         writeFileSync(cssDocument.uri.path, enc.encode(contents));
-        const position = new Position(5, 31);
+        const position = new Position(6, 31);
         const list = (await completion.provideCompletionItems(
           document,
           position,
@@ -300,7 +317,7 @@ suite("Extension Test Suite", async () => {
         )) as CompletionList;
         contents = contents.replace(replaceText, "");
         writeFileSync(cssDocument.uri.path, enc.encode(contents));
-        assert.equal(list.items.length, 5);
+        assert.equal(list.items.length, 6);
         StorageInstance.clear();
       });
     });

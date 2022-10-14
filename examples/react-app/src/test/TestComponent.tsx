@@ -12,6 +12,7 @@ export const TestComponent = () => {
       <section className={TestStyles["test-sibling"]}></section>
       <p className={TestStyles["test-sibling"]}></p>
       <p className={TestStyles["test-container-test-suffix"]}></p>
+      <span className={TestStyles.testCamelCase}></span>
     </div>
   );
 };
