@@ -1,3 +1,7 @@
+## [1.2.1]
+
+- Doc updates for 1.2.0
+
 ## [1.2.0]
 
 - Camel case support
