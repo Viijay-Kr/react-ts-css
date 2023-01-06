@@ -100,21 +100,23 @@ export class Storage {
       this.activeTextEditor?.document.fileName.endsWith(".tsx") ||
       this.activeTextEditor?.document.fileName.endsWith(".ts")
     ) {
-      const result = await parseActiveFile(
-        this.activeTextEditor.document.getText()
-      );
-      if (result) {
-        this.nodes.set(filename, result);
-        result.sourceIdentifiers.forEach(async (r) => {
-          const files = Array.from(this.sourceFiles.keys());
-          const sourceCssFile = files.find((f) =>
-            f.includes(r.import.source.value.split("/").pop()!)
-          );
-          if (sourceCssFile) {
-            this.setCssSymbols(sourceCssFile, parseCss(sourceCssFile));
-          }
-        });
-      }
+      try {
+        const result = await parseActiveFile(
+          this.activeTextEditor.document.getText()
+        );
+        if (result) {
+          this.nodes.set(filename, result);
+          result.sourceIdentifiers.forEach(async (r) => {
+            const files = Array.from(this.sourceFiles.keys());
+            const sourceCssFile = files.find((f) =>
+              f.includes(r.import.source.value.split("/").pop()!)
+            );
+            if (sourceCssFile) {
+              this.setCssSymbols(sourceCssFile, parseCss(sourceCssFile));
+            }
+          });
+        }
+      } catch (e) {}
     }
   }
 
