@@ -1,11 +1,11 @@
-name: Check Package Version
+name: Check Version
 on:
   pull_request_target:
-    branches:
-      - main
+    branches: [main]
+
 jobs:
   check_version:
-    name: Check Package Version
+    name: Check Version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
