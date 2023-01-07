@@ -155,6 +155,7 @@ export const scssSymbolMatcher = (
   return [];
 };
 
+// TODO: Deprecate this function
 export const getSymbolContent = (symbol: SymbolInformation) => {
   const fileContent = readFileSync(symbol.location.uri).toString();
   const document = TextDocument.create(
@@ -164,6 +165,7 @@ export const getSymbolContent = (symbol: SymbolInformation) => {
     fileContent
   );
   const symbolContent = document.getText(symbol.location.range);
+
   return new MarkdownString("", true).appendCodeblock(
     symbolContent,
     fileExt(symbol.location.uri) === "scss" ? "sass" : "css"
@@ -181,7 +183,7 @@ export const getSymbolContentForHover = (symbol: SymbolInformation) => {
   const symbolContent = document.getText(symbol.location.range);
   return {
     content: symbolContent,
-    language: fileExt(symbol.location.uri) === "scss" ? "sass" : "css",
+    language: fileExt(symbol.location.uri),
   };
 };
 
