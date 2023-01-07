@@ -171,7 +171,7 @@ suite("Extension Test Suite", async () => {
         assert.notEqual(result, undefined);
         assert.equal(
           // @ts-ignore
-          result?.contents[1]?.value!.includes("test-container"),
+          result?.contents[1]?.includes("test-container"),
           true
         );
         StorageInstance.clear();
@@ -207,7 +207,7 @@ suite("Extension Test Suite", async () => {
           }
         )) as Hover;
         // @ts-ignore
-        assert.equal(result.contents[1].value.includes("&-test-suffix"), true);
+        assert.equal(result.contents[1].includes("&-test-suffix"), true);
       });
 
       test("should work for camel case selector values", async () => {
@@ -225,7 +225,7 @@ suite("Extension Test Suite", async () => {
           }
         )) as Hover;
         // @ts-ignore
-        assert.equal(result.contents[1].value.includes("testCamelCase"), true);
+        assert.equal(result.contents[1].includes("testCamelCase"), true);
       });
     });
 

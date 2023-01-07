@@ -1,0 +1,8 @@
+.bodyBold {
+    display: flex;
+
+    & h2 {
+        // abc
+        padding: 0 40px;
+    }
+}
