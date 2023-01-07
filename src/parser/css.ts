@@ -159,7 +159,7 @@ export const getSymbolContent = (symbol: SymbolInformation) => {
   const fileContent = readFileSync(symbol.location.uri).toString();
   const document = TextDocument.create(
     symbol.location.uri,
-    "scss",
+    fileExt(symbol.location.uri) === "scss" ? "sass" : "css",
     1,
     fileContent
   );
@@ -168,6 +168,21 @@ export const getSymbolContent = (symbol: SymbolInformation) => {
     symbolContent,
     fileExt(symbol.location.uri) === "scss" ? "sass" : "css"
   );
+};
+
+export const getSymbolContentForHover = (symbol: SymbolInformation) => {
+  const fileContent = readFileSync(symbol.location.uri).toString();
+  const document = TextDocument.create(
+    symbol.location.uri,
+    fileExt(symbol.location.uri) === "scss" ? "sass" : "css",
+    1,
+    fileContent
+  );
+  const symbolContent = document.getText(symbol.location.range);
+  return {
+    content: symbolContent,
+    language: fileExt(symbol.location.uri) === "scss" ? "sass" : "css",
+  };
 };
 
 // This helper assumes the symbol you are trying to parse is a scss symbol

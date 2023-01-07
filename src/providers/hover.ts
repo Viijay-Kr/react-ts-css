@@ -19,7 +19,8 @@ export const hoverProvider: (params: ProviderParams) => HoverProvider = () => {
         const matchedSelectors = await provider.getMatchedSelectors();
         if (matchedSelectors?.length) {
           const target = matchedSelectors[0];
-          const hoverContent = provider.getSymbolContent(target);
+          const { content, language } =
+            provider.getSymbolContentForHover(target);
           const filePath = target.location.uri
             .replace(Storage.workSpaceRoot ?? "", "")
             .replace(/^\//g, "");
@@ -28,7 +29,7 @@ export const hoverProvider: (params: ProviderParams) => HoverProvider = () => {
           const hover = new Hover(
             [
               new MarkdownString(`*_${filePath}:${linenum},${charnum}_*`),
-              hoverContent,
+              `\`\`\`${language} \n${content}\n\`\`\``,
             ],
             provider.getOriginWordRange()
           );

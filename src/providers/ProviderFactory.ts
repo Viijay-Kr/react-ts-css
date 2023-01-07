@@ -8,6 +8,7 @@ import {
   filterSuffixedSelector,
   getSuffixesWithParent,
   getSymbolContent,
+  getSymbolContentForHover,
   parseCss,
   scssSymbolMatcher,
 } from "../parser/css";
@@ -178,6 +179,15 @@ export class ProviderFactory {
       );
     }
     return getSymbolContent(symbol);
+  }
+
+  public getSymbolContentForHover(symbol: SymbolInformation) {
+    if (!this.sourceCssFile) {
+      throw new Error(
+        "No source css file uri found. Did you create a ProviderFactory instance"
+      );
+    }
+    return getSymbolContentForHover(symbol);
   }
 
   public preProcessCompletions() {
