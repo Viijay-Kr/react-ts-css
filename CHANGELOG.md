@@ -1,3 +1,7 @@
+## [1.3.0]
+ - Workflows have been setup to automate jobs in github - NO Breaking Change
+## [1.2.3]
+ - Fix broken activation logic when AST encounters an error
 ## [1.2.2]
 
 - Minor meta data update
