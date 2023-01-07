@@ -1,9 +1,12 @@
 name: Check
+
 on:
   pull_request_target:
+    types: [opened, reopened, synchronize]
     branches:
       - main
       - "release/*"
+
 jobs:
   test:
     name: Run Tests
