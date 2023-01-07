@@ -15,7 +15,3 @@ jobs:
         with:
           repo_token: "${{ secrets.MY_GITHUB_TOKEN }}"
           prerelease: false
-          files: |
-            ./dist/*.LICENSE.txt
-            ./dist/*.js
-            ./dist/*.js.map
