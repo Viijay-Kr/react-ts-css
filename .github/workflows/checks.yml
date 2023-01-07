@@ -1,12 +1,12 @@
-name: Run Tests
+name: Check
 on:
-  push:
-    branches-ignore:
+  pull_request_target:
+    branches:
       - main
-    tags-ignore: ["*"]
-
+      - "release/*"
 jobs:
-  build:
+  test:
+    name: Run Tests
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest]
@@ -23,3 +23,10 @@ jobs:
         if: runner.os == 'Linux'
       - run: npm test
         if: runner.os != 'Linux'
+  check_version:
+    name: Check Version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install
+      - run: npm run check:version
