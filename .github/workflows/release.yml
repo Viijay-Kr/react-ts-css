@@ -1,0 +1,21 @@
+name: Create Release
+on:
+  workflow_run:
+    workflows: [Publish]
+    types: [completed]
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.MY_GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            ./dist/*.LICENSE.txt
+            ./dist/*.js
+            ./dist/*.js.map
