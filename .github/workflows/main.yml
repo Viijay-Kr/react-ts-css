@@ -1,13 +1,10 @@
-on:
-  push:
-    branches:
-      - main
-
+name: test
+on: push
 jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -17,4 +14,7 @@ jobs:
         with:
           node-version: 16.x
       - run: npm install
+      - run: xvfb-run -a npm test
+        if: runner.os == 'Linux'
       - run: npm test
+        if: runner.os != 'Linux'
