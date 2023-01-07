@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+const { execSync } = require("child_process");
+const packageJson = require("../package.json");
+
+console.log("Comparing version number before pushing into main");
+
+const current_version = packageJson.version;
+
+const latest_tag_hash = execSync(
+  "git rev-list --tags --max-count=1"
+).toString();
+
+const latest_tag = execSync(
+  `git describe --tags ${latest_tag_hash}`
+).toString();
+
+const latest_tag_number = latest_tag.replace("v", "");
+
+if (current_version > latest_tag_number) {
+  process.exitCode = 0;
+  process.stdout.write(
+    `Version Check successfull. Version will be changed to ${current_version}`
+  );
+} else {
+  process.stderr.write(
+    `\nVersion in number in package.json should be higher than the latest version\nThe latest tagged version is ${latest_tag}\nCurrent version in package.json is ${current_version}`
+  );
+  process.exitCode = 1;
+}
