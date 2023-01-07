@@ -2,7 +2,6 @@ name: Publish
 on:
   workflow_run:
     workflows: [Create Tag]
-    tags: ["*"]
     types: [completed]
 
 jobs:
