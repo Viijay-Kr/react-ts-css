@@ -1,7 +1,9 @@
+## [1.3.1]
+ - Extensions Agnostic Syntax highlighting on hover using markdown syntax - Fixes [#19](https://github.com/Viijay-Kr/react-ts-css/issues/19)
 ## [1.3.0]
- - Workflows have been setup to automate jobs in github - NO Breaking Change
+ - Workflows have been setup to automate jobs in github - **NO BREAKING CHANGE** - Closes [#23](https://github.com/Viijay-Kr/react-ts-css/issues/23) 
 ## [1.2.3]
- - Fix broken activation logic when AST encounters an error
+ - Fix broken activation logic when AST encounters an error - fixes [#21](https://github.com/Viijay-Kr/react-ts-css/issues/21)
 ## [1.2.2]
 
 - Minor meta data update
