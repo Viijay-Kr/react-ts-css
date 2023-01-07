@@ -1,7 +1,7 @@
 name: Publish
 on:
   workflow_run:
-    workflows: [Run Tests]
+    workflows: [Create Tag]
     tags: ["*"]
     types: [completed]
 
@@ -13,4 +13,5 @@ jobs:
     env:
       VSCE_PAT: ${{ secrets.VSCE_PAT }}
     steps:
+      - uses: actions/checkout@v3
       - run: npm run deploy
