@@ -3,7 +3,7 @@
 <img src="images/build.png" /> <img src="images/license.png" /> <img src="images/tests.png" />
 <img src="images/version.png" />
 
-VS Code extenstion that enables CSS modules support for your React projects written in typescript.
+VS Code extenstion that enables  CSS modules support for your React projects written in typescript.
 
 Currently supports CSS and SCSS modules with the following capabilities
 
@@ -12,9 +12,9 @@ Currently supports CSS and SCSS modules with the following capabilities
   - Root selectors
   - Nested Selectors
   - Suffixed Selectors([scss only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
-
+  
   - <img src='./assets/definitions.gif' alt="definitions" />
-
+> Major  types of casing is supported. Check the [Casings](#casings) section
 - [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
   - Peek properties on hover
@@ -30,6 +30,12 @@ Currently supports CSS and SCSS modules with the following capabilities
   - Completion of style identifiers with automatic import of corresponding (s)css module
 
   - <img src='./assets/auto-import.gif' alt="auto-import-on-completions" />
+
+## Casings 
+This extensions supports selectors written in 
+1. snake_case
+2. camelCase 
+3. kebab-case
 
 ## Settings
 

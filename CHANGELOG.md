@@ -1,3 +1,5 @@
+## [1.3.4]
+- Update doc to highlight the casing support
 ## [1.3.2]
   - Auto import modules on completion selection of default export identifier - Closes [#20](https://github.com/Viijay-Kr/react-ts-css/issues/20)
 ## [1.3.1]
