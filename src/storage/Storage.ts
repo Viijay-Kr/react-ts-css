@@ -10,6 +10,7 @@ import { SymbolInformation } from "vscode-css-languageservice";
 import { parseActiveFile, ParserResult } from "../parser/tsx";
 import { parseCss } from "../parser/css";
 import * as fsg from "fast-glob";
+import { parse, ParseResult } from "@babel/parser";
 
 type SourceFiles = Map<string, boolean>;
 // Full file path of the active opened file
@@ -45,6 +46,9 @@ export class Storage {
     this._workSpaceRoot = v;
   }
 
+  /**
+   * Map of all the css/scss files in the workspace
+   */
   public get sourceFiles(): SourceFiles {
     return this._sourceFiles;
   }

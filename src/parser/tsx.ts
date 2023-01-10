@@ -10,6 +10,7 @@ export interface SourceIdentifier {
 
 export interface ParserResult {
   sourceIdentifiers: SourceIdentifier[];
+  unsafe_ast: ReturnType<typeof parse>;
   unsafe_identifiers?: Array<{
     property: StringLiteral | Identifier;
     object: Identifier; // This should Always be a style identifier
@@ -71,6 +72,7 @@ export const parseActiveFile = (
               resolve({
                 sourceIdentifiers,
                 unsafe_identifiers,
+                unsafe_ast: ast,
               });
             }
           },
@@ -84,3 +86,5 @@ export const parseActiveFile = (
     throw e;
   }
 };
+
+

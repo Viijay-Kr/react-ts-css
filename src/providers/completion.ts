@@ -13,7 +13,7 @@ import Storage from "../storage/Storage";
 import { ProviderFactory, ProviderKind } from "./ProviderFactory";
 import { ProviderParams } from "./types";
 
-export const completetionProvider: (
+export const selectorsCompletetionProvider: (
   params: ProviderParams
 ) => CompletionItemProvider = () => ({
   async provideCompletionItems(document, position, _token, _context) {
@@ -33,7 +33,7 @@ export const completetionProvider: (
           position,
           document,
         });
-        provider.preProcessCompletions();
+        provider.preProcessSelectorCompletions();
         const allSelectors = await provider.getSelectorsForCompletion();
 
         const completionList = new CompletionList(
@@ -81,5 +81,30 @@ export const completetionProvider: (
       console.info(e);
     }
     return [];
+  },
+});
+
+export const importsCompletionProvider: () => CompletionItemProvider = () => ({
+  async provideCompletionItems(document, position, _token, _context) {
+    if (!Settings.autoComplete || !Settings.autoImport) {
+      return;
+    }
+    try {
+      const provider = new ProviderFactory({
+        providerKind: ProviderKind.Completion,
+        position,
+        document,
+      });
+      const items = await provider.getImportCompletions();
+      return items.map((c, index) => ({
+        label: c.label,
+        detail: `auto import...${c.shortPath}`,
+        kind: CompletionItemKind.Module,
+        additionalTextEdits: c.additionalEdits,
+      }));
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
   },
 });
