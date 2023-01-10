@@ -57,6 +57,11 @@
           "default": true,
           "description": "Auto completion of scoped and cyclic selectors"
         },
+        "reactTsScss.autoImport":{
+          "type": "boolean",
+          "default":true,
+          "description": "Auto import css/scss modules on completion"
+        },
         "reactTsScss.definition": {
           "type": "boolean",
           "default": true,

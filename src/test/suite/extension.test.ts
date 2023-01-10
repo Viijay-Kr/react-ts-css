@@ -16,7 +16,7 @@ import StorageInstance, {
 
 import { definitionProvider } from "../../providers/definitions";
 import { hoverProvider } from "../../providers/hover";
-import { completetionProvider } from "../../providers/completion";
+import { selectorsCompletetionProvider } from "../../providers/completion";
 import { CompletionList } from "vscode-css-languageservice";
 import { writeFileSync } from "fs";
 import "../../settings";
@@ -235,7 +235,7 @@ suite("Extension Test Suite", async () => {
 
         await StorageInstance.bootStrap();
 
-        const completion = completetionProvider({});
+        const completion = selectorsCompletetionProvider({});
         const position = new Position(6, 31);
         const list = (await completion.provideCompletionItems(
           document,
@@ -266,7 +266,7 @@ suite("Extension Test Suite", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
         await StorageInstance.bootStrap();
 
-        const completion = completetionProvider({});
+        const completion = selectorsCompletetionProvider({});
         const position = new Position(6, 31);
         const list = (await completion.provideCompletionItems(
           document,
@@ -300,7 +300,7 @@ suite("Extension Test Suite", async () => {
         writeFileSync(cssDocument.uri.path, enc.encode(contents));
 
         await StorageInstance.bootStrap();
-        const completion = completetionProvider({});
+        const completion = selectorsCompletetionProvider({});
         writeFileSync(cssDocument.uri.path, enc.encode(contents));
         const position = new Position(6, 31);
         const list = (await completion.provideCompletionItems(

@@ -3,7 +3,10 @@
 import { ExtensionContext, window, workspace, languages } from "vscode";
 import { definitionProvider } from "./providers/definitions";
 import { hoverProvider } from "./providers/hover";
-import { completetionProvider } from "./providers/completion";
+import {
+  importsCompletionProvider,
+  selectorsCompletetionProvider,
+} from "./providers/completion";
 import Settings, { EXT_NAME, getSettings } from "./settings";
 import Storage from "./storage/Storage";
 
@@ -44,15 +47,21 @@ export async function activate(context: ExtensionContext): Promise<void> {
       documentSelector,
       hoverProvider({})
     );
-    const _completionProvider = languages.registerCompletionItemProvider(
+    const _selectorsCompletionProvider =
+      languages.registerCompletionItemProvider(
+        documentSelector,
+        selectorsCompletetionProvider({}),
+        ".",
+        "'",
+        "["
+      );
+    const _importsCompletionProvider = languages.registerCompletionItemProvider(
       documentSelector,
-      completetionProvider({}),
-      ".",
-      "'",
-      "["
+      importsCompletionProvider()
     );
 
-    context.subscriptions.push(_completionProvider);
+    context.subscriptions.push(_selectorsCompletionProvider);
+    context.subscriptions.push(_importsCompletionProvider);
     context.subscriptions.push(_definitionProvider);
     context.subscriptions.push(_hoverProvider);
     window.showInformationMessage("React-TS-CSS activated successfully");
