@@ -13,19 +13,23 @@ Currently supports CSS and SCSS modules with the following capabilities
   - Nested Selectors
   - Suffixed Selectors([scss only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
 
-  - <img src='./assets/definitions.gif' height="300"  alt="definitions" />
+  - <img src='./assets/definitions.gif' alt="definitions" />
 
 - [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
   - Peek properties on hover
 
-  - <img src='./assets/hover.gif' height="300"  alt="hover" />
+  - <img src='./assets/hover.gif' alt="hover" />
 
 - [Completions](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
   - Completion of all types of selectors
+  
+  - <img src='./assets/autocomplete.gif' alt="completions" />
+  
+  - Completion of style identifiers with automatic import of corresponding (s)css module
 
-  - <img src='./assets/autocomplete.gif' height="300"  alt="completions" />
+  - <img src='./assets/auto-import.gif' alt="auto-import-on-completions" />
 
 ## Settings
 
@@ -35,6 +39,7 @@ Defaults
 {
   "reactTsCSS.peek": true,
   "reactTsCSS.autoComplete": true,
+  "reactTsCSS.autoImport": true,
   "reactTsCSS.definition": true
 }
 ```
