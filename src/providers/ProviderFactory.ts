@@ -1,4 +1,10 @@
-import { MarkdownString, Position, Range, TextDocument } from "vscode";
+import {
+  MarkdownString,
+  Position,
+  Range,
+  TextDocument,
+  TextEdit,
+} from "vscode";
 import Storage from "../storage/Storage";
 import {
   extractClassName,
@@ -13,7 +19,8 @@ import {
   scssSymbolMatcher,
 } from "../parser/css";
 import { SymbolInformation } from "vscode-css-languageservice";
-import { ImportDeclaration } from "@babel/types";
+import { ImportDeclaration, isImportDeclaration } from "@babel/types";
+import { getImportDeclarations } from "../parser/utils";
 
 export enum ProviderKind {
   Definition = 1,
@@ -24,15 +31,28 @@ export enum ProviderKind {
 
 export interface CompletionItemType {
   label: string;
-  type?: "root" | "suffix" | "child" | "sibling";
   content?: MarkdownString;
+  extras?: string;
+  additionalEdits?: TextEdit[];
+}
+
+export interface SelectorCompletionItem extends CompletionItemType {
+  type?: "root" | "suffix" | "child" | "sibling";
+}
+
+export interface ImportCompletionItem extends CompletionItemType {
+  type?: "module";
+  shortPath: string;
 }
 export class ProviderFactory {
   /** Dynamic CSS file which should be parsed for completion,definition and hover */
   public sourceCssFile: string | undefined;
   public providerKind: ProviderKind = ProviderKind.Invalid;
+  /** Current Active Position in the Document */
   public position: Position;
+  /** Current Active Text Document in focus */
   public document: TextDocument;
+
   public constructor(options: {
     providerKind: ProviderKind;
     position: Position;
@@ -106,12 +126,13 @@ export class ProviderFactory {
   public async getSelectorsForCompletion() {
     const symbols = await this.getAllSymbols();
     const toCompletionItem =
-      (type: CompletionItemType["type"]) =>
-      (s: SymbolInformation): CompletionItemType => ({
+      (type: SelectorCompletionItem["type"]) =>
+      (s: SymbolInformation): SelectorCompletionItem => ({
         label: extractClassName(s),
         type,
         content: this.getSymbolContent(s),
       });
+
     const parentSelectors = symbols
       .filter(filterParentSelector)
       .map(toCompletionItem("root"));
@@ -131,7 +152,7 @@ export class ProviderFactory {
       ...childSelectors,
       ...siblingSelectots,
       ...suffixedSelectors,
-    ].reduce<CompletionItemType[]>((acc, prev) => {
+    ].reduce<SelectorCompletionItem[]>((acc, prev) => {
       if (!acc.find((s) => s.label === prev.label)) {
         return acc.concat(prev);
       }
@@ -190,7 +211,7 @@ export class ProviderFactory {
     return getSymbolContentForHover(symbol);
   }
 
-  public preProcessCompletions() {
+  public preProcessSelectorCompletions() {
     const currentRange = new Range(
       new Position(this.position.line, this.position.character),
       new Position(this.position.line, this.position.character)
@@ -221,5 +242,65 @@ export class ProviderFactory {
     this.sourceCssFile = files.find((f) => {
       return f.includes(targetDeclration?.source.value.split("/").pop()!);
     });
+  }
+
+  public canCompleteImports() {
+    // This method should handle the ability of the completion
+    // Completion should be activated only when the trigger was made on a JSX attribute `className`
+  }
+
+  public async getImportCompletions() {
+    const sourceFiles = Storage.sourceFiles;
+    const activeFileuri = this.document.uri.path;
+    const parserResult = Storage.getNodeOfActiveFile();
+    const importStatements = getImportDeclarations(parserResult?.unsafe_ast);
+    const lastImportStatement = importStatements[importStatements.length - 1];
+
+    const buildAdditionalEdit = (
+      module: string /** full path of the module */,
+      moduleIdentifier: string
+    ) => {
+      const absolutePath = module.replace(Storage.workSpaceRoot + "/", "");
+      const newText = `import ${moduleIdentifier} from '${absolutePath}'\n`;
+      if (lastImportStatement?.loc) {
+        return [
+          TextEdit.insert(
+            new Position(lastImportStatement.loc?.end.line, 0),
+            newText
+          ),
+        ];
+      } else {
+        return [TextEdit.insert(new Position(0, 0), newText)];
+      }
+    };
+
+    const filterOutExistingModules = (item: ImportCompletionItem) => {
+      let isAlreadyExported = false;
+      for (const statement of importStatements) {
+        if (isImportDeclaration(statement)) {
+          const name = statement.source.value;
+          if (name.match(item.shortPath)?.index) {
+            isAlreadyExported = true;
+            break;
+          }
+        }
+      }
+      return !isAlreadyExported;
+    };
+
+    return Array.from(sourceFiles.keys())
+      .map((uri): ImportCompletionItem => {
+        const shortPath = uri.split("/").pop() ?? "";
+        const moduleIdentifier =
+          (shortPath.split(".")[0] ?? shortPath) + "_styles";
+        return {
+          label: moduleIdentifier,
+          type: "module",
+          shortPath,
+          extras: uri,
+          additionalEdits: buildAdditionalEdit(uri, moduleIdentifier),
+        };
+      })
+      .filter((c) => filterOutExistingModules(c))
   }
 }
