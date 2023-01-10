@@ -1,5 +1,8 @@
+## [1.3.2]
+  - Auto import modules on completion selection of default export identifier - Closes [#20](https://github.com/Viijay-Kr/react-ts-css/issues/20)
 ## [1.3.1]
  - Extensions Agnostic Syntax highlighting on hover using markdown syntax - Fixes [#19](https://github.com/Viijay-Kr/react-ts-css/issues/19)
+
 ## [1.3.0]
  - Workflows have been setup to automate jobs in github - **NO BREAKING CHANGE** - Closes [#23](https://github.com/Viijay-Kr/react-ts-css/issues/23) 
 ## [1.2.3]
