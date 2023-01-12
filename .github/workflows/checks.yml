@@ -1,11 +1,6 @@
 name: Check
 
-on:
-  pull_request_target:
-    types: [opened, reopened, synchronize]
-    branches:
-      - main
-      - "release/*"
+on: [push]
 
 jobs:
   test:
@@ -30,7 +25,8 @@ jobs:
     name: Check Version
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - run: npm install

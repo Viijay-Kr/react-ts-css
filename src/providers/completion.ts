@@ -98,7 +98,7 @@ export const importsCompletionProvider: () => CompletionItemProvider = () => ({
       const items = await provider.getImportCompletions();
       return items.map((c, index) => ({
         label: c.label,
-        detail: `auto import...${c.shortPath}`,
+        detail: `auto import ...${c.shortPath}`,
         kind: CompletionItemKind.Module,
         additionalTextEdits: c.additionalEdits,
       }));

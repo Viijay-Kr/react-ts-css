@@ -1,3 +1,5 @@
+## [1.3.5]
+- Update: The auto import feature now only includes modules in the same directory - closes [#20](https://github.com/Viijay-Kr/react-ts-css/issues/20#issuecomment-1379073856)
 ## [1.3.4]
 - Update doc to highlight the casing support
 ## [1.3.2]
