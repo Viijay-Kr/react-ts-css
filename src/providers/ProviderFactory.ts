@@ -21,6 +21,7 @@ import {
 import { SymbolInformation } from "vscode-css-languageservice";
 import { ImportDeclaration, isImportDeclaration } from "@babel/types";
 import { getImportDeclarations } from "../parser/utils";
+import { basename, extname, parse as parsePath, relative } from "path";
 
 export enum ProviderKind {
   Definition = 1,
@@ -252,16 +253,22 @@ export class ProviderFactory {
   public async getImportCompletions() {
     const sourceFiles = Storage.sourceFiles;
     const activeFileuri = this.document.uri.path;
+    const activePathInfo = parsePath(activeFileuri);
+    const currentDir = activePathInfo.dir;
     const parserResult = Storage.getNodeOfActiveFile();
     const importStatements = getImportDeclarations(parserResult?.unsafe_ast);
     const lastImportStatement = importStatements[importStatements.length - 1];
 
     const buildAdditionalEdit = (
-      module: string /** full path of the module */,
-      moduleIdentifier: string
+      module: string /** full path of the module */
     ) => {
-      const absolutePath = module.replace(Storage.workSpaceRoot + "/", "");
-      const newText = `import ${moduleIdentifier} from '${absolutePath}'\n`;
+      const modulePathInfo = parsePath(module);
+      const activePathInfo = parsePath(activeFileuri);
+      const relativePath = relative(activePathInfo.dir, modulePathInfo.dir);
+      const newText = `import styles from '${
+        relativePath === "" ? "./" : relativePath
+      }${modulePathInfo.base}';\n`;
+
       if (lastImportStatement?.loc) {
         return [
           TextEdit.insert(
@@ -274,33 +281,40 @@ export class ProviderFactory {
       }
     };
 
-    const filterOutExistingModules = (item: ImportCompletionItem) => {
-      let isAlreadyExported = false;
-      for (const statement of importStatements) {
-        if (isImportDeclaration(statement)) {
-          const name = statement.source.value;
-          if (name.match(item.shortPath)?.index) {
-            isAlreadyExported = true;
-            break;
+    const shouldInclude = (uri: string): boolean => {
+      // allow only the modules that live in the same directory
+      const uriPathInfo = parsePath(uri);
+      if (currentDir === uriPathInfo.dir) {
+        let isAlreadyImported = false;
+        for (const statement of importStatements) {
+          if (isImportDeclaration(statement)) {
+            const name = statement.source.value;
+            if (name.match(uriPathInfo.name)?.index) {
+              isAlreadyImported = true;
+              break;
+            }
           }
         }
+        return !isAlreadyImported;
       }
-      return !isAlreadyExported;
+      return false;
     };
 
-    return Array.from(sourceFiles.keys())
-      .map((uri): ImportCompletionItem => {
-        const shortPath = uri.split("/").pop() ?? "";
-        const moduleIdentifier =
-          (shortPath.split(".")[0] ?? shortPath) + "_styles";
-        return {
-          label: moduleIdentifier,
-          type: "module",
-          shortPath,
-          extras: uri,
-          additionalEdits: buildAdditionalEdit(uri, moduleIdentifier),
-        };
-      })
-      .filter((c) => filterOutExistingModules(c))
+    return Array.from(sourceFiles.keys()).reduce<ImportCompletionItem[]>(
+      (acc, uri) => {
+        const shortPath = basename(uri);
+        if (shouldInclude(uri)) {
+          return acc.concat({
+            label: "styles",
+            type: "module",
+            shortPath,
+            extras: uri,
+            additionalEdits: buildAdditionalEdit(uri),
+          });
+        }
+        return acc;
+      },
+      []
+    );
   }
 }
