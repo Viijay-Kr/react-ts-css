@@ -1,4 +1,4 @@
-import { DefinitionLink, DefinitionProvider, Uri } from "vscode";
+import { DefinitionLink, DefinitionProvider, Uri, Range } from "vscode";
 import Settings from "../settings";
 import { ProviderFactory, ProviderKind } from "./ProviderFactory";
 import { ProviderParams } from "./types";
@@ -16,13 +16,25 @@ export const definitionProvider: (
         providerKind: ProviderKind.Definition,
         document: document,
       });
-      const matchedSelectors = await provider.getMatchedSelectors();
-      if (matchedSelectors?.length) {
+      const matchedSelector = provider.getMatchedSelector();
+      if (matchedSelector && matchedSelector.selector) {
+        const targetRange = new Range(
+          matchedSelector.selector.range.start.line,
+          matchedSelector.selector.range.start.character,
+          matchedSelector.selector.range.end.line,
+          matchedSelector.selector.range.end.character
+        );
+        const targetSelectionRange = new Range(
+          matchedSelector.selector.selectionRange.start.line,
+          matchedSelector.selector.selectionRange.start.character,
+          matchedSelector.selector.selectionRange.end.line,
+          matchedSelector.selector.selectionRange.end.character
+        );
         const locationLinks: DefinitionLink = {
           originSelectionRange: provider.getOriginWordRange(),
-          targetUri: Uri.file(matchedSelectors[0].location.uri || ""),
-          // targetSelectionRange: provider.getSymbolLocationRange(matchedSelectors[0]),
-          targetRange: provider.getSymbolLocationRange(matchedSelectors[0]),
+          targetUri: Uri.file(matchedSelector.uri),
+          targetRange,
+          targetSelectionRange,
         };
         return [locationLinks];
       }

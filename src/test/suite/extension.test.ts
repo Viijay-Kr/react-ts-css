@@ -11,8 +11,8 @@ import {
   workspace,
 } from "vscode";
 import StorageInstance, {
-  Storage as StorageClass,
-} from "../../storage/Storage";
+  experimental_Storage as StorageClass,
+} from "../../storage/Storage_v2";
 
 import { definitionProvider } from "../../providers/definitions";
 import { hoverProvider } from "../../providers/hover";
@@ -54,31 +54,6 @@ suite("Extension Test Suite", async () => {
         workspace.getWorkspaceFolder(AppComponentUri)?.name,
         "react-app"
       );
-    });
-
-    test("Should have no identifiers and symbols when a active typescript module doesn't have a  refrence to a css/scss modules", async () => {
-      const document = await workspace.openTextDocument(AppComponentUri);
-      await window.showTextDocument(document);
-      await StorageInstance.bootStrap();
-      assert.strictEqual(
-        StorageInstance.getNodeByFileUri(AppComponentUri.fsPath)
-          ?.unsafe_identifiers?.length,
-        0
-      );
-      assert.strictEqual(StorageInstance.symbols.size, 0);
-      StorageInstance.clear();
-    });
-  });
-
-  suite("Parser Suite", () => {
-    test("Should parse the typescirpt module and set the node and symbols", async () => {
-      const document = await workspace.openTextDocument(TestComponentUri);
-      await window.showTextDocument(document);
-      await StorageInstance.bootStrap();
-      assert.strictEqual(StorageInstance.nodes.size, 1);
-      assert.strictEqual(StorageInstance.symbols.size, 1);
-      assert.equal(StorageInstance.symbols.has(TestCssModulePath), true);
-      StorageInstance.clear();
     });
   });
 

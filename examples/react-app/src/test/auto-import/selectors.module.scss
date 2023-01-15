@@ -1,0 +1,22 @@
+%hello {
+    display: flex;
+
+    .hello-world {
+        display: block;
+    }
+}
+
+.display {
+    @extend %hello;
+    flex: row;
+}
+
+@mixin primary {
+    display: flex;
+
+    .variant {
+        &-1 {
+            display: flex;
+        }
+    }
+}

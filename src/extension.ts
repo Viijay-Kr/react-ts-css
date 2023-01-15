@@ -8,7 +8,7 @@ import {
   selectorsCompletetionProvider,
 } from "./providers/completion";
 import Settings, { EXT_NAME, getSettings } from "./settings";
-import Storage from "./storage/Storage";
+import Storage_V2 from "./storage/Storage_v2";
 
 const documentSelector = [
   { scheme: "file", language: "typescriptreact" },
@@ -16,15 +16,15 @@ const documentSelector = [
 ];
 
 workspace.onDidCreateFiles((e) => {
-  Storage.addSourceFiles(e.files);
+  Storage_V2.addSourceFiles(e.files);
 });
 
-workspace.onDidOpenTextDocument(() => {
-  Storage.bootStrap();
+workspace.onDidOpenTextDocument((e) => {
+  Storage_V2.bootStrap();
 });
 
 workspace.onDidChangeTextDocument(() => {
-  Storage.bootStrap();
+  Storage_V2.bootStrap();
 });
 
 workspace.onDidChangeConfiguration((e) => {
@@ -38,7 +38,7 @@ workspace.onDidChangeConfiguration((e) => {
 
 export async function activate(context: ExtensionContext): Promise<void> {
   try {
-    await Storage.bootStrap();
+    await Storage_V2.bootStrap();
     const _definitionProvider = languages.registerDefinitionProvider(
       documentSelector,
       definitionProvider({})
@@ -73,5 +73,5 @@ export async function activate(context: ExtensionContext): Promise<void> {
 }
 
 export function deactivate() {
-  Storage.clear();
+  Storage_V2.clear();
 }
