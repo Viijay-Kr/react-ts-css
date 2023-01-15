@@ -37,7 +37,14 @@ export class experimental_Storage {
   protected _sourceFiles: SourceFiles = new Map();
   /** Root path of the workspace */
   protected _workSpaceRoot: string | undefined;
-  protected activeTextEditor: TextEditor | undefined = window.activeTextEditor;
+
+  public get activeTextEditor(): TextEditor {
+    const editor = window.activeTextEditor;
+    if (!editor) {
+      throw new Error("No Text editor found");
+    }
+    return editor;
+  }
 
   public get workSpaceRoot(): string | undefined {
     return this._workSpaceRoot;
@@ -80,7 +87,6 @@ export class experimental_Storage {
 
   public async bootStrap() {
     try {
-      this.activeTextEditor = window.activeTextEditor;
       if (!this.activeTextEditor) {
         return;
       }
@@ -148,7 +154,7 @@ export class experimental_Storage {
       const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
       const files = await fsg("**/*.{scss,css}", {
         cwd: workspaceRoot,
-        ignore: ["node_modules", "build"],
+        ignore: ["node_modules", "build", "dist"],
         absolute: true,
       });
       this.workSpaceRoot = workspaceRoot;
@@ -185,22 +191,17 @@ export class experimental_Storage {
    * @returns Map<string,Selector>
    */
   public getSelectorsByIdentifier(identfier: Identifier["name"]) {
-    const filePath = this.activeTextEditor?.document.uri.path;
-    if (filePath) {
-      return this.parsedResult.get(filePath)?.selectors.get(identfier);
-    }
+    const filePath = this.activeTextEditor.document.uri.path;
+    return this.parsedResult.get(filePath)?.selectors.get(identfier);
   }
 
   public getParsedResultByFilePath() {
-    const filePath = this.activeTextEditor?.document.uri.path;
-    if (filePath) {
-      return this.parsedResult.get(filePath);
-    }
+    const filePath = this.activeTextEditor.document.uri.path;
+    return this.parsedResult.get(filePath);
   }
 
   private flushStorage() {
     this.workSpaceRoot = undefined;
-    this.activeTextEditor = window.activeTextEditor;
     this._sourceFiles = new Map();
     this.parsedResult = new Map();
   }

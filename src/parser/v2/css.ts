@@ -54,7 +54,7 @@ export type Selector = {
 export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
   const selectors: Map<string, Selector> = new Map();
 
-  function traverse(node: Node, parent: Node | null) {
+  function resolveRuleSet(node: Node, parent: Node | null) {
     if (node.type === NodeType.Ruleset) {
       const selectorNodeList = (node as RuleSet).getSelectors();
       for (const selectorNode of selectorNodeList.getChildren()) {
@@ -115,7 +115,7 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
       const declarations = (node as RuleSet).declarations;
       if (declarations) {
         for (const child of declarations.getChildren()) {
-          traverse(child, node);
+          resolveRuleSet(child, node);
         }
       }
     }
@@ -123,7 +123,7 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
 
   for (const child of ast.getChildren()) {
     if (child.type === NodeType.Ruleset) {
-      traverse(child, null);
+      resolveRuleSet(child, null);
     }
   }
 
