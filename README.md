@@ -31,6 +31,13 @@ Currently supports CSS and SCSS modules with the following capabilities
 
   - <img src='./assets/auto-import.gif' alt="auto-import-on-completions" />
 
+- [Diagnostics](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic)
+  - Useful diagnostics information are provided for missing selector
+  - <img src="./assets/missing-selector.png" alt="missing-selector-warning" />
+  
+  - Module not found error is also provided for non existing css modules
+  - <img src="./assets/missing-module.png" alt="missing-module" />
+> NOTE: Code Actions for the diagnostics will be provided in the future versions
 ## Casings 
 This extensions supports selectors written in 
 1. snake_case
@@ -68,3 +75,4 @@ Defaults
 3. Support for less and stylus will be added in the future versions
 4. [Reference provider](https://code.visualstudio.com/api/references/vscode-api#ReferenceProvider) - Find all references of a selector from inside a css module
 5. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated
+6. Code Actions for Diagnostics

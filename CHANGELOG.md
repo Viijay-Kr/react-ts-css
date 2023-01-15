@@ -1,3 +1,5 @@
+## [1.3.8]
+- Added useful diagnostics to non existing selectors and incorrect module import statements - Closes [#41](41)
 ## [1.3.7]
 - This release contains Major updates to the parsing logic. This improves the following problems - [#37](https://github.com/Viijay-Kr/react-ts-css/issues/37)
   - Conflicts in suffixed selectors - [#18](https://github.com/Viijay-Kr/react-ts-css/issues/18)

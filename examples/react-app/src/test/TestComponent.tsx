@@ -13,7 +13,7 @@ export const TestComponent = () => {
       <p className={TestStyles["test-sibling"]}></p>
       <p className={TestStyles["test-container-test-suffix"]}></p>
       <span className={TestStyles.testCamelCase}></span>
-      <span className={TestStyles.snake_case}></span>
+      <span className={TestStyles["non-existing-selector"]}></span>
     </div>
   );
 };
