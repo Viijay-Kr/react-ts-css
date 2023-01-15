@@ -1,3 +1,11 @@
+## [1.3.7]
+- This release contains Major updates to the parsing logic. This improves the following problems - [#37](https://github.com/Viijay-Kr/react-ts-css/issues/37)
+  - Conflicts in suffixed selectors - [#18](https://github.com/Viijay-Kr/react-ts-css/issues/18)
+  - Clean up of completion list by removing pusedo selectors
+  - Start up time boost
+  - Memory optimization
+  - Performance improvements - Altough this is an intuitive assumption
+- 1.3.7 removes the cyclic dependency mentioned [here](https://github.com/Viijay-Kr/react-ts-css#current-feasibilities) in point 4. From 1.3.7 cyclic dependencies injection will become no op
 ## [1.3.6]
 - Removes the start up message on activate - Closes [#38](https://github.com/Viijay-Kr/react-ts-css/issues/38)
 ## [1.3.5]

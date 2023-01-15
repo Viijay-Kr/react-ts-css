@@ -1,7 +1,7 @@
 # React CSS modules
 
-<img src="images/build.png" /> <img src="images/license.png" /> <img src="images/tests.png" />
-<img src="images/version.png" />
+<img src="images/build.svg" /> <img src="images/license.svg" /> <img src="images/tests.svg" />
+<img src="images/version.svg" />
 
 VS Code extenstion that enables  CSS modules support for your React projects written in typescript.
 
@@ -54,12 +54,12 @@ Defaults
 
 1. This extension supports only on typescript react projects using CSS/SCSS modules.
 2. In order for the features to work smoothly, the selectors must have a reference to a CSS module.
-3. The extension Supports features for
+3. The extension provides intellisense  for
    - Nested selectors
    - Sibling selectors
    - [Suffix Selectors](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes)
-4. Cyclic dependencies are also resolved and selectors are added recursively
-   - for instance if a `SCSSModule` includes selectors from a normal sass file (using `@import` or `@use` rules) , those selectors can be accessed by the extension
+4. ~~Cyclic dependencies are also resolved and selectors are added recursively~~
+   - ~~for instance if a `SCSSModule` includes selectors from a normal sass file (using `@import` or `@use` rules) , those selectors can be accessed by the extension~~
 
 ## RoadMap
 
