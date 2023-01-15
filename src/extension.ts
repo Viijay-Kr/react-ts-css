@@ -64,7 +64,6 @@ export async function activate(context: ExtensionContext): Promise<void> {
     context.subscriptions.push(_importsCompletionProvider);
     context.subscriptions.push(_definitionProvider);
     context.subscriptions.push(_hoverProvider);
-    window.showInformationMessage("React-TS-CSS activated successfully");
   } catch (e) {
     console.error(e);
     window.showWarningMessage(
