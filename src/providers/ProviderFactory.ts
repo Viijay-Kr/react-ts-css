@@ -1,9 +1,12 @@
 import {
+  Diagnostic,
   MarkdownString,
   Position,
   Range,
   TextDocument,
   TextEdit,
+  languages,
+  DiagnosticSeverity,
 } from "vscode";
 import Storage_v2 from "../storage/Storage_v2";
 import {
@@ -69,14 +72,20 @@ export class ProviderFactory {
     );
     if (allSelectors) {
       if (isIdentifier(accessorAtOffset.property)) {
+        const selector = allSelectors.selectors.get(
+          accessorAtOffset.property.name
+        );
         return {
-          selector: allSelectors.selectors.get(accessorAtOffset.property.name),
+          selector,
           uri: allSelectors.uri,
         };
       }
       if (isStringLiteral(accessorAtOffset.property)) {
+        const selector = allSelectors.selectors.get(
+          accessorAtOffset.property.value
+        );
         return {
-          selector: allSelectors.selectors.get(accessorAtOffset.property.value),
+          selector,
           uri: allSelectors.uri,
         };
       }
