@@ -6,7 +6,13 @@ import {
   Range,
   TextDocument,
 } from "vscode-css-languageservice";
-import { Node, NodeType, RuleSet, Stylesheet } from "../../css-node.types";
+import {
+  MixinDeclaration,
+  Node,
+  NodeType,
+  RuleSet,
+  Stylesheet,
+} from "../../css-node.types";
 
 const getLanguageService = (module: string) => {
   switch (path.extname(module)) {
@@ -49,12 +55,36 @@ export type Selector = {
   selector: string;
   range: Range;
   content: string;
+  selectionRange: Range;
 };
 
 export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
   const selectors: Map<string, Selector> = new Map();
 
-  function resolveRuleSet(node: Node, parent: Node | null) {
+  const insertSelector = (
+    selectorNode: Node,
+    parentNode: Node,
+    selector: string
+  ) => {
+    if (selectors.has(selector)) {
+      return;
+    }
+    const range = Range.create(
+      document.positionAt(selectorNode.offset),
+      document.positionAt(selectorNode.end)
+    );
+    const selectionRange = Range.create(
+      document.positionAt(parentNode.offset),
+      document.positionAt(parentNode.end)
+    );
+    selectors.set(selector, {
+      selector,
+      range,
+      content: parentNode.getText(),
+      selectionRange,
+    });
+  };
+  function resolveSelectors(node: Node, parent: Node | null) {
     if (node.type === NodeType.Ruleset) {
       const selectorNodeList = (node as RuleSet).getSelectors();
       for (const selectorNode of selectorNodeList.getChildren()) {
@@ -83,30 +113,11 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
             }
             if (selector.indexOf(".") > -1) {
               for (const _selector of selector.split(".")) {
-                if (selectors.has(_selector)) {
-                  continue;
-                }
-                const range = Range.create(
-                  document.positionAt(selectorNode.offset),
-                  document.positionAt(selectorNode.end)
-                );
-                selectors.set(_selector, {
-                  selector,
-                  range,
-                  content: node.getText(),
-                });
+                insertSelector(selectorNode, node, _selector);
               }
             } else {
-              if (!isInvalid && !selectors.has(selector)) {
-                const range = Range.create(
-                  document.positionAt(selectorNode.offset),
-                  document.positionAt(selectorNode.end)
-                );
-                selectors.set(selector, {
-                  selector,
-                  range,
-                  content: node.getText(),
-                });
+              if (!isInvalid) {
+                insertSelector(selectorNode, node, selector);
               }
             }
           }
@@ -115,16 +126,22 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
       const declarations = (node as RuleSet).declarations;
       if (declarations) {
         for (const child of declarations.getChildren()) {
-          resolveRuleSet(child, node);
+          resolveSelectors(child, node);
+        }
+      }
+    }
+    if (node.type === NodeType.MixinDeclaration) {
+      const declarations = (node as MixinDeclaration).declarations;
+      if (declarations) {
+        for (const child of declarations.getChildren()) {
+          resolveSelectors(child, node);
         }
       }
     }
   }
 
   for (const child of ast.getChildren()) {
-    if (child.type === NodeType.Ruleset) {
-      resolveRuleSet(child, null);
-    }
+    resolveSelectors(child, null);
   }
 
   return selectors;

@@ -1,0 +1,25 @@
+.grid {
+    display: grid;
+    &-column {
+        grid-template-columns: auto;
+    }
+    &-row {
+        grid-template-rows: auto;
+    }
+}
+
+.flex {
+    display: flex;
+
+    &-row {
+        flex-direction: row;
+    }
+
+    &-column {
+        flex-direction: column;
+    }
+
+    &:not(div) {
+        display: flex
+    }
+}

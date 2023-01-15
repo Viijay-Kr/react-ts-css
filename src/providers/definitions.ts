@@ -24,10 +24,17 @@ export const definitionProvider: (
           matchedSelector.selector.range.end.line,
           matchedSelector.selector.range.end.character
         );
+        const targetSelectionRange = new Range(
+          matchedSelector.selector.selectionRange.start.line,
+          matchedSelector.selector.selectionRange.start.character,
+          matchedSelector.selector.selectionRange.end.line,
+          matchedSelector.selector.selectionRange.end.character
+        );
         const locationLinks: DefinitionLink = {
           originSelectionRange: provider.getOriginWordRange(),
           targetUri: Uri.file(matchedSelector.uri),
           targetRange,
+          targetSelectionRange,
         };
         return [locationLinks];
       }

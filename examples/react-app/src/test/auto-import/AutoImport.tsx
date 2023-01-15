@@ -1,8 +1,8 @@
-import styles from './scss.module.scss';
+import dummyStyles from './selectors.module.scss';
 
 export const AutoImport = () => {
   return (
-    <div className={styles.hello}>
+    <div className={dummyStyles['variant-1']}>
       
     </div>
   );

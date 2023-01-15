@@ -87,9 +87,6 @@ export class experimental_Storage {
 
   public async bootStrap() {
     try {
-      if (!this.activeTextEditor) {
-        return;
-      }
       if (this.activeTextEditor.document.isDirty) {
         return;
       }

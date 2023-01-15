@@ -19,7 +19,7 @@ workspace.onDidCreateFiles((e) => {
   Storage_V2.addSourceFiles(e.files);
 });
 
-workspace.onDidOpenTextDocument(() => {
+workspace.onDidOpenTextDocument((e) => {
   Storage_V2.bootStrap();
 });
 
