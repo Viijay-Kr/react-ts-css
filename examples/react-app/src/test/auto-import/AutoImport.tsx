@@ -1,6 +1,8 @@
+import styles from './scss.module.scss';
+
 export const AutoImport = () => {
   return (
-    <div>
+    <div className={styles.hello}>
       
     </div>
   );

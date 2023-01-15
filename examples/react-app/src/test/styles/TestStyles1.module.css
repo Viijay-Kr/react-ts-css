@@ -2,7 +2,15 @@
   display: flex;
 }
 
-.test-class > .test-child > .test-child_1 .test-child_2 {
+.test-class:hover {
+  background-color: antiquewhite;
+}
+
+.test-class::after {
+  display: block;
+}
+
+.test-class>.test-child>.test-child_1 .test-child_2 {
   display: block;
 }
 
@@ -10,7 +18,7 @@
   display: flex;
 }
 
-.test-sibling > .test-nested.sibling-child {
+.test-sibling>.test-nested.sibling-child {
   display: contents;
 }
 
