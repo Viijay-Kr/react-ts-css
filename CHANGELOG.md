@@ -1,3 +1,5 @@
+## [1.3.9]
+- Module not found for node module assets has been fixed - [#43](https://github.com/Viijay-Kr/react-ts-css/issues/43)
 ## [1.3.8]
 - Added useful diagnostics to non existing selectors and incorrect module import statements - Closes [#41](https://github.com/Viijay-Kr/react-ts-css/issues/41)
 - New Settings have been added to resolve diagnostics

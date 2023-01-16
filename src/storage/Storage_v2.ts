@@ -260,7 +260,7 @@ export class experimental_Storage {
         const module = statement.source.value;
         const ext = path.extname(module);
         const isRelative = module.startsWith(".");
-        if (CSS_MODULE_EXTENSIONS.includes(ext)) {
+        if (CSS_MODULE_EXTENSIONS.includes(ext) && module.includes(".module")) {
           const relativePath = !isRelative
             ? path.resolve(this.workSpaceRoot! + "/" + baseDir, module)
             : path.resolve(activeFileDir, module);

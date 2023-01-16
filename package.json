@@ -2,7 +2,7 @@
   "name": "react-ts-css",
   "displayName": "React CSS modules",
   "description": "React CSS modules - VS code extension for CSS modules support in React projects written in typescript.Supports Definitions, Hover and Completion Providers",
-  "version": "1.3.8",
+  "version": "1.3.9",
   "author": "Viijay-Kr",
   "publisher": "viijay-kr",
   "homepage": "https://github.com/Viijay-Kr/react-ts-css/blob/main/README.md",
@@ -25,6 +25,8 @@
     "selector navigation",
     "typescriptreact",
     "SCSS",
+    "Linting",
+    "Diagnostics",
     "CSS"
   ],
   "icon": "images/icon.png",
@@ -55,7 +57,7 @@
         "reactTsScss.autoComplete": {
           "type": "boolean",
           "default": true,
-          "description": "Auto completion of scoped and cyclic selectors"
+          "description": "Selectors Auto completion"
         },
         "reactTsScss.autoImport":{
           "type": "boolean",
