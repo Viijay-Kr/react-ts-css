@@ -3,10 +3,22 @@ import {
   isIdentifier,
   isImportDeclaration,
   isImportDefaultSpecifier,
+  isStringLiteral,
 } from "@babel/types";
 import path = require("path");
-import { TextDocument, TextEditor, Uri, window, workspace } from "vscode";
-import { TS_MODULE_EXTENSIONS } from "../constants";
+import {
+  Diagnostic,
+  DiagnosticSeverity,
+  languages,
+  TextDocument,
+  TextEditor,
+  Uri,
+  window,
+  Range,
+  workspace,
+  Position,
+} from "vscode";
+import { CSS_MODULE_EXTENSIONS, TS_MODULE_EXTENSIONS } from "../constants";
 import {
   ParserResult,
   parseActiveFile,
@@ -14,7 +26,8 @@ import {
 } from "../parser/v2/tsx";
 import * as fsg from "fast-glob";
 import { parseCss, Selector } from "../parser/v2/css";
-
+import { promises as fs_promises } from "node:fs";
+import Settings from "../settings";
 type FileName = string;
 type StyleIdentifier = Identifier["name"];
 type Selectors = {
@@ -37,6 +50,9 @@ export class experimental_Storage {
   protected _sourceFiles: SourceFiles = new Map();
   /** Root path of the workspace */
   protected _workSpaceRoot: string | undefined;
+  static diagonisticCollection =
+    languages.createDiagnosticCollection("react-ts-css");
+  private tsConfig: any = {};
 
   public get activeTextEditor(): TextEditor {
     const editor = window.activeTextEditor;
@@ -59,6 +75,24 @@ export class experimental_Storage {
    */
   public get sourceFiles(): SourceFiles {
     return this._sourceFiles;
+  }
+
+  private async saveTsConfig() {
+    try {
+      if (Settings.tsconfig) {
+        const contents = (
+          await fs_promises.readFile(
+            path.resolve(this.workSpaceRoot ?? "", Settings.tsconfig)
+          )
+        ).toString();
+        const tsconfig = JSON.parse(contents);
+        this.tsConfig = tsconfig;
+      } else {
+        throw new Error("Unable to resolve tsconfig.json");
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   /**
@@ -93,6 +127,7 @@ export class experimental_Storage {
       if (!this.sourceFiles.size) {
         await this.setSourcefiles();
       }
+      await this.saveTsConfig();
       const filePath = this.activeTextEditor.document.uri.path;
       const uri = this.activeTextEditor.document.uri;
       const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
@@ -134,6 +169,9 @@ export class experimental_Storage {
             ...parsedResult,
             selectors,
           });
+          if (Settings.diagnostics) {
+            return this.provideDiagnostics();
+          }
         }
       }
     } catch (e) {
@@ -208,6 +246,85 @@ export class experimental_Storage {
    */
   public clear() {
     this.flushStorage();
+  }
+
+  private provideDiagnostics() {
+    const parsedResult = this.getParsedResultByFilePath();
+    const diagnostics: Diagnostic[] = [];
+    const activeFileDir = path.parse(
+      this.activeTextEditor.document.uri.path
+    ).dir;
+    const baseDir = this.tsConfig.compilerOptions.baseUrl || Settings.baseDir;
+    for (const statement of parsedResult?.import_statements ?? []) {
+      if (isImportDeclaration(statement)) {
+        const module = statement.source.value;
+        const ext = path.extname(module);
+        const isRelative = module.startsWith(".");
+        if (CSS_MODULE_EXTENSIONS.includes(ext)) {
+          const relativePath = !isRelative
+            ? path.resolve(this.workSpaceRoot! + "/" + baseDir, module)
+            : path.resolve(activeFileDir, module);
+          if (!this.sourceFiles.has(relativePath)) {
+            diagnostics.push({
+              message: `Module Not found '${module}'`,
+              source: "React TS CSS",
+              severity: DiagnosticSeverity.Error,
+              range: new Range(
+                new Position(
+                  statement.loc!.start.line - 1,
+                  statement.loc!.start.column
+                ),
+                new Position(
+                  statement.loc!.end.line - 1,
+                  statement.loc!.end.column
+                )
+              ),
+            });
+          }
+        }
+      }
+    }
+    for (const accessor of parsedResult?.style_accessors ?? []) {
+      const { property, object } = accessor;
+      const selectors = parsedResult?.selectors.get(object.name);
+      if (selectors) {
+        const selector = (() => {
+          if (isStringLiteral(property)) {
+            return property.value;
+          }
+          if (isIdentifier(property)) {
+            return property.name;
+          }
+          return "";
+        })();
+        if (!selectors.selectors.has(selector)) {
+          const relativePath = path.relative(
+            this.workSpaceRoot ?? "",
+            selectors.uri
+          );
+          diagnostics.push({
+            message: `Selector '${selector}' does not exist in '${relativePath}'`,
+            source: "React TS CSS",
+            range: new Range(
+              new Position(
+                object.loc?.start.line! - 1,
+                object.loc?.start.column!
+              ),
+              new Position(
+                property.loc?.end.line! - 1,
+                property.loc?.end.column!
+              )
+            ),
+            severity: DiagnosticSeverity.Warning,
+          });
+        }
+      }
+    }
+    experimental_Storage.diagonisticCollection.set(
+      this.activeTextEditor.document.uri,
+      diagnostics
+    );
+    return diagnostics;
   }
 }
 export default new experimental_Storage();

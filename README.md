@@ -31,6 +31,17 @@ Currently supports CSS and SCSS modules with the following capabilities
 
   - <img src='./assets/auto-import.gif' alt="auto-import-on-completions" />
 
+- [Diagnostics](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic)
+  - Useful diagnostics information are provided for missing selector
+  - <img src="./assets/missing-selector.png" alt="missing-selector-warning" />
+  
+  - Module not found error is also provided for non existing css modules
+  - <img src="./assets/missing-module.png" alt="missing-module" />
+  - Settings to change diagnostics
+    - `reactTsCSS.diagnostics` - Toggle to turn off diagnostics
+    - `reactTsScss.tsconfig` - Base TS Config path in the project.Useful for resolving path aliases. Defaults to './tsconfig.json'
+    - `reactTsScss.baseDir` - Root directory of your project. Useful if tsconfig doesn't have information about path aliases.Defaults to 'src'
+> NOTE: Code Actions for the diagnostics will be provided in the future versions
 ## Casings 
 This extensions supports selectors written in 
 1. snake_case
@@ -43,10 +54,13 @@ Defaults
 
 ```json
 {
-  "reactTsCSS.peek": true,
-  "reactTsCSS.autoComplete": true,
-  "reactTsCSS.autoImport": true,
-  "reactTsCSS.definition": true
+  "reactTsCSS.peek": true, // Hover
+  "reactTsCSS.autoComplete": true, // Completion
+  "reactTsCSS.autoImport": true, // Auto import modules
+  "reactTsCSS.definition": true, // Definition
+  "reactTsCSS.tsconfig":"./tsconfig.json", // TS config path in workspace
+  "reactTsCSS.baseDir":"src", // Root directory of your application
+  "reactTsCSS.diagnostics":true, // Diagnostics
 }
 ```
 
@@ -68,3 +82,4 @@ Defaults
 3. Support for less and stylus will be added in the future versions
 4. [Reference provider](https://code.visualstudio.com/api/references/vscode-api#ReferenceProvider) - Find all references of a selector from inside a css module
 5. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated
+6. Code Actions for Diagnostics
