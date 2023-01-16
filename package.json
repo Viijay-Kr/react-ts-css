@@ -66,6 +66,23 @@
           "type": "boolean",
           "default": true,
           "description": "Go to definition of scoped and cyclic selectors"
+        },
+        "reactTsScss.diagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Provide Diagnostics for non existing selectors and non existing css modules"
+        },
+        "reactTsScss.tsconfig":{
+          "type":"string",
+          "title": "TS Config Path",
+          "default":"./tsconfig.json",
+          "description": "Location of tsconfig.json inside the project.This config is used to resolve path aliases by the extension"
+        },
+        "reactTsScss.baseDir":{
+          "type":"string",
+          "default":"src",
+          "title": "Base Dir Path",
+          "description": "Base directory path inside the project. Defaults to 'src'"
         }
       }
     }

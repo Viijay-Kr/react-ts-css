@@ -37,6 +37,10 @@ Currently supports CSS and SCSS modules with the following capabilities
   
   - Module not found error is also provided for non existing css modules
   - <img src="./assets/missing-module.png" alt="missing-module" />
+  - Settings to change diagnostics
+    - `reactTsCSS.diagnostics` - Toggle to turn off diagnostics
+    - `reactTsScss.tsconfig` - Base TS Config path in the project.Useful for resolving path aliases. Defaults to './tsconfig.json'
+    - `reactTsScss.baseDir` - Root directory of your project. Useful if tsconfig doesn't have information about path aliases.Defaults to 'src'
 > NOTE: Code Actions for the diagnostics will be provided in the future versions
 ## Casings 
 This extensions supports selectors written in 
@@ -50,10 +54,13 @@ Defaults
 
 ```json
 {
-  "reactTsCSS.peek": true,
-  "reactTsCSS.autoComplete": true,
-  "reactTsCSS.autoImport": true,
-  "reactTsCSS.definition": true
+  "reactTsCSS.peek": true, // Hover
+  "reactTsCSS.autoComplete": true, // Completion
+  "reactTsCSS.autoImport": true, // Auto import modules
+  "reactTsCSS.definition": true, // Definition
+  "reactTsCSS.tsconfig":"./tsconfig.json", // TS config path in workspace
+  "reactTsCSS.baseDir":"src", // Root directory of your application
+  "reactTsCSS.diagnostics":true, // Diagnostics
 }
 ```
 

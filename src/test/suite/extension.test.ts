@@ -55,6 +55,12 @@ suite("Extension Test Suite", async () => {
         "react-app"
       );
     });
+    test("should provide diagnostics for missing selector", async () => {
+      const document = await workspace.openTextDocument(TestComponentUri);
+      await window.showTextDocument(document);
+      const diagnostics = await StorageInstance.bootStrap();
+      assert.equal(diagnostics?.length, 1);
+    });
   });
 
   suite("Provider Factory", async () => {

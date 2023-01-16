@@ -38,6 +38,30 @@ export class Settings {
   public set autoImport(v: boolean | undefined) {
     workspace.getConfiguration(EXT_NAME).update("autoImport", v);
   }
+
+  public get diagnostics(): boolean | undefined {
+    return getSettings().get("diagnostics");
+  }
+
+  public set diagnostics(v: boolean | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("diagnostics", v);
+  }
+
+  public get tsconfig(): string | undefined {
+    return getSettings().get("tsconfig");
+  }
+
+  public set tsconfig(v: string | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("tsconfig", v);
+  }
+
+  public get baseDir(): string | undefined {
+    return getSettings().get("baseDir");
+  }
+
+  public set baseDir(v: string | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("baseDir", v);
+  }
 }
 
 export default new Settings();
