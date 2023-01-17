@@ -7,8 +7,6 @@ import {
 } from "@babel/types";
 import path = require("path");
 import {
-  Diagnostic,
-  DiagnosticSeverity,
   languages,
   TextEditor,
   Uri,
@@ -18,7 +16,11 @@ import {
   workspace,
   Position,
 } from "vscode";
-import { CSS_MODULE_EXTENSIONS, TS_MODULE_EXTENSIONS } from "../constants";
+import {
+  CssModuleExtensions,
+  CSS_MODULE_EXTENSIONS,
+  TS_MODULE_EXTENSIONS,
+} from "../constants";
 import {
   ParserResult,
   parseActiveFile,
@@ -117,7 +119,11 @@ export class experimental_Storage {
    */
   public addSourceFiles(files: readonly Uri[]) {
     files.forEach((f) => {
-      if (f.path.endsWith(".css") || f.path.endsWith(".scss")) {
+      if (
+        CSS_MODULE_EXTENSIONS.includes(
+          path.extname(f.path) as CssModuleExtensions
+        )
+      ) {
         this._sourceFiles.set(f.path, true);
       }
     });
@@ -178,11 +184,16 @@ export class experimental_Storage {
     const uri = window.activeTextEditor?.document?.uri;
     if (uri) {
       const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
-      const files = await fsg("**/*.{scss,css}", {
-        cwd: workspaceRoot,
-        ignore: ["node_modules", "build", "dist", "coverage"],
-        absolute: true,
-      });
+      const files = await fsg(
+        `**/*.{${CSS_MODULE_EXTENSIONS.map((e) => e.replace(".", "")).join(
+          ","
+        )}}`,
+        {
+          cwd: workspaceRoot,
+          ignore: ["node_modules", "build", "dist", "coverage"],
+          absolute: true,
+        }
+      );
       this.workSpaceRoot = workspaceRoot;
       files.forEach((v) => {
         this._sourceFiles.set(v, true);

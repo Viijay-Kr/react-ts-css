@@ -10,10 +10,10 @@ import {
   StringLiteral,
 } from "@babel/types";
 import path = require("path");
-import { CSS_MODULE_EXTENSIONS } from "../../constants";
+import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../../constants";
 
 export const isCssModuleDeclaration = (value: string) => {
-  const ext = path.extname(value);
+  const ext = path.extname(value) as CssModuleExtensions;
   return CSS_MODULE_EXTENSIONS.includes(ext);
 };
 type Accessor = {
@@ -87,6 +87,6 @@ export const parseActiveFile = (
           }
         },
       });
-  } catch (e) {}
+    } catch (e) {}
   });
 };

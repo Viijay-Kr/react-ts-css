@@ -1,0 +1,56 @@
+.qlp-question-type-ranking {
+
+    &-row {
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+
+        &-spacer {
+            flex: 1 0 auto;
+
+            &-spacer-child-1 {
+                flex: 1 1;
+
+                &-spacer-child-1-child-1 {
+                    flex: 1;
+                }
+
+                &-space-child-1::after {
+                    flex: auto;
+                }
+            }
+        }
+
+        .qlp-draggable-list-item:not(:hover) &-actions {
+            visibility: hidden;
+        }
+
+        &-label {
+            padding-right: 16px;
+        }
+
+        & .qlp-react-label-short-label {
+            color: inherit;
+        }
+    }
+}
+
+.qlp-project-body {
+    // from packages/qlp-ui-app-layout/client/qlpBody.less
+    flex-grow: 1;
+    box-shadow: 0 0 6px rgba(14, 18, 26, 0.04), 0 0 4px rgba(14, 18, 26, 0.07),
+        0 0 2px rgba(15, 17, 25, 0.07);
+    outline: 1px solid rgba(14, 18, 26, 0.08);
+    outline-offset: -1px;
+    background-color: white;
+    margin-bottom: 60px;
+}
+
+#__filestack-picker {
+    position: relative;
+    z-index: 1000000;
+}
+
+#__filestack-picker .fsp-loading--folder {
+    position: fixed;
+}

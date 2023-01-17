@@ -1,3 +1,7 @@
+## [1.5.0]
+- Less support is added from 1.5.0 (only modules with .module extension is supported)
+- Deeper suffix selectors are also resolved now
+
 ## [1.4.0]
 ## Code Actions For Diagnostics
 - 1.4.0 support Code Actions for Selector related Diagnostics - Closes [#45](https://github.com/Viijay-Kr/react-ts-css/issues/45)
