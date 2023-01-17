@@ -9,6 +9,7 @@ import {
 } from "./providers/completion";
 import Settings, { EXT_NAME, getSettings } from "./settings";
 import Storage_V2 from "./storage/Storage_v2";
+import { DiagnosticCodeAction } from "./providers/code-actions";
 
 const documentSelector = [
   { scheme: "file", language: "typescriptreact" },
@@ -19,11 +20,11 @@ workspace.onDidCreateFiles((e) => {
   Storage_V2.addSourceFiles(e.files);
 });
 
-workspace.onDidOpenTextDocument((e) => {
+workspace.onDidChangeTextDocument(() => {
   Storage_V2.bootStrap();
 });
 
-workspace.onDidChangeTextDocument(() => {
+window.onDidChangeActiveTextEditor((e) => {
   Storage_V2.bootStrap();
 });
 
@@ -59,11 +60,16 @@ export async function activate(context: ExtensionContext): Promise<void> {
       documentSelector,
       importsCompletionProvider()
     );
+    const _codeActionsProvider = languages.registerCodeActionsProvider(
+      documentSelector,
+      new DiagnosticCodeAction(context)
+    );
 
     context.subscriptions.push(_selectorsCompletionProvider);
     context.subscriptions.push(_importsCompletionProvider);
     context.subscriptions.push(_definitionProvider);
     context.subscriptions.push(_hoverProvider);
+    context.subscriptions.push(_codeActionsProvider);
   } catch (e) {
     console.error(e);
     window.showWarningMessage(

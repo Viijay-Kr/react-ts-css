@@ -20,6 +20,7 @@ export enum ProviderKind {
   Definition = 1,
   Completion = 2,
   Hover = 3,
+  CODE_ACTIONS = 4,
   Invalid = -1,
 }
 

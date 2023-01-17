@@ -1,10 +1,11 @@
 import { promises as fs_promises } from "fs";
 import path = require("path");
+import { Position, Range as vscodeRange } from "vscode";
 import {
   getCSSLanguageService,
   getSCSSLanguageService,
-  Range,
   TextDocument,
+  Range,
 } from "vscode-css-languageservice";
 import {
   MixinDeclaration,
@@ -45,7 +46,12 @@ export const parseCss = async (module: string) => {
       content
     );
     const ast = languageService.parseStylesheet(document);
-    return getSelectors(ast as Stylesheet, document);
+    const selectors = getSelectors(ast as Stylesheet, document);
+    const eofRange = new vscodeRange(
+      new Position(document.lineCount + 2, 0),
+      new Position(document.lineCount + 2, 0)
+    );
+    return { selectors, eofRange };
   } catch (e) {
     console.error(e);
   }
