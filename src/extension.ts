@@ -73,5 +73,5 @@ export async function activate(context: ExtensionContext): Promise<void> {
 }
 
 export function deactivate() {
-  Storage_V2.clear();
+  Storage_V2.flushStorage();
 }

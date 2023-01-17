@@ -28,9 +28,10 @@ import * as fsg from "fast-glob";
 import { parseCss, Selector } from "../parser/v2/css";
 import { promises as fs_promises } from "node:fs";
 import Settings from "../settings";
+import { ParserFactory } from "../parser/ParserFactory";
 type FileName = string;
 type StyleIdentifier = Identifier["name"];
-type Selectors = {
+export type Selectors = {
   selectors: Map<
     StyleIdentifier,
     {
@@ -45,6 +46,11 @@ type SourceFiles = Map<string, boolean>;
 
 type ParsedResult = Map<FileName, ParserResult & Selectors>;
 
+export type TsConfig = {
+  compilerOptions: {
+    baseUrl: string;
+  };
+};
 export class experimental_Storage {
   public parsedResult: ParsedResult = new Map();
   protected _sourceFiles: SourceFiles = new Map();
@@ -52,7 +58,11 @@ export class experimental_Storage {
   protected _workSpaceRoot: string | undefined;
   static diagonisticCollection =
     languages.createDiagnosticCollection("react-ts-css");
-  private tsConfig: any = {};
+  private tsConfig: TsConfig = {
+    compilerOptions: {
+      baseUrl: "",
+    },
+  };
 
   public get activeTextEditor(): TextEditor {
     const editor = window.activeTextEditor;
@@ -127,52 +137,28 @@ export class experimental_Storage {
       if (!this.sourceFiles.size) {
         await this.setSourcefiles();
       }
-      await this.saveTsConfig();
+      if (!this.tsConfig) {
+        await this.saveTsConfig();
+      }
       const filePath = this.activeTextEditor.document.uri.path;
       const uri = this.activeTextEditor.document.uri;
       const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
-      if (TS_MODULE_EXTENSIONS.includes(path.extname(filePath))) {
-        const parsedResult = await parseActiveFile(
-          this.activeTextEditor.document.getText()
-        );
-        if (parsedResult && workspaceRoot) {
-          const selectors: Selectors["selectors"] = new Map();
-          for (const statements of parsedResult.import_statements) {
-            if (
-              isImportDeclaration(statements) &&
-              isCssModuleDeclaration(statements.source.value)
-            ) {
-              const sourceFiles = Array.from(this.sourceFiles.keys());
-              const sourceCssFile = sourceFiles.find((f) =>
-                f.includes(path.basename(statements.source.value))
-              );
-              if (sourceCssFile) {
-                const _selectors = await this.buildSelectorsSet(sourceCssFile);
-                let styleIdentifier = "";
-                for (const specifier of statements.specifiers) {
-                  if (isImportDefaultSpecifier(specifier)) {
-                    if (isIdentifier(specifier.local)) {
-                      styleIdentifier = specifier.local.name;
-                    }
-                  }
-                }
-                if (_selectors && styleIdentifier) {
-                  selectors.set(styleIdentifier, {
-                    selectors: _selectors,
-                    uri: sourceCssFile,
-                  });
-                }
-              }
-            }
-          }
-          this.parsedResult.set(filePath, {
-            ...parsedResult,
-            selectors,
-          });
-          if (Settings.diagnostics) {
-            return this.provideDiagnostics();
-          }
-        }
+      const parserFactory = new ParserFactory({
+        document: this.activeTextEditor.document,
+        workspaceRoot,
+        tsConfig: this.tsConfig,
+        baseDir: Settings.baseDir,
+        sourceFiles: this.sourceFiles,
+      });
+      const result = await parserFactory.parse();
+      if (result) {
+        this.parsedResult.set(filePath, {
+          ...result.parsedResult,
+          selectors: result.selectors,
+        });
+      }
+      if (Settings.diagnostics) {
+        return this.provideDiagnostics();
       }
     } catch (e) {
       console.error(e);
@@ -189,7 +175,7 @@ export class experimental_Storage {
       const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
       const files = await fsg("**/*.{scss,css}", {
         cwd: workspaceRoot,
-        ignore: ["node_modules", "build", "dist"],
+        ignore: ["node_modules", "build", "dist", "coverage"],
         absolute: true,
       });
       this.workSpaceRoot = workspaceRoot;
@@ -197,10 +183,6 @@ export class experimental_Storage {
         this._sourceFiles.set(v, true);
       });
     }
-  }
-
-  private async buildSelectorsSet(cssModule: string) {
-    return await parseCss(cssModule);
   }
 
   /**
@@ -235,17 +217,13 @@ export class experimental_Storage {
     return this.parsedResult.get(filePath);
   }
 
-  private flushStorage() {
-    this.workSpaceRoot = undefined;
-    this._sourceFiles = new Map();
-    this.parsedResult = new Map();
-  }
-
   /**
    * Flushes the entire storage on deactivation or opening a new workspace
    */
-  public clear() {
-    this.flushStorage();
+  public flushStorage() {
+    this.workSpaceRoot = undefined;
+    this._sourceFiles = new Map();
+    this.parsedResult = new Map();
   }
 
   private provideDiagnostics() {
