@@ -3,16 +3,17 @@
 <img height="24"  src="images/build.png" /> <img src="images/license.png" height="24" /> <img src="images/tests.png" height="24" />
 <img height="24" src="images/version.png" />
 
-VS Code extenstion that enables  CSS modules intellisense for your React projects written in typescript.
+VS Code extenstion that enables CSS modules intellisense for your React projects written in typescript.
 
-Currently supports CSS and SCSS modules with the following capabilities
+Currently supports CSS,SCSS,Less modules with the following capabilities
 
-> This extension is uniuque interms of support for major types of [Casings](#casings)
+> This extension is uniuque interms of support for major types of [Casings](#casings) and different types of css class selectors
 > 
-> Different types of selectors are supported which are not support by most of the other extensions in matketplace
+> Different types of selectors are supported
 > - Root selectors
 > - Nested Selectors
 > - Suffixed Selectors([scss only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
+> - Deeply nested suffix selectors
 ### [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
 - Go to any type of selector definition from your React Components
   
@@ -21,10 +22,7 @@ Currently supports CSS and SCSS modules with the following capabilities
 ### [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
   - Peek CSS properties of a selector on hover
   
-  <img src='./assets/hover.gif' alt="hover" />
-
-  
-
+    <img src='./assets/hover.gif' alt="hover" />
 
 ### [Completions](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
@@ -80,22 +78,10 @@ Defaults
 }
 ```
 
-## Current Feasibilities
-
-1. This extension supports only on typescript react projects using CSS/SCSS modules.
-2. In order for the features to work smoothly, the selectors must have a reference to a CSS module.
-3. The extension provides intellisense  for
-   - Nested selectors
-   - Sibling selectors
-   - [Suffix Selectors](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes)
-4. ~~Cyclic dependencies are also resolved and selectors are added recursively~~
-   - ~~for instance if a `SCSSModule` includes selectors from a normal sass file (using `@import` or `@use` rules) , those selectors can be accessed by the extension~~
-
 ## RoadMap
 
 1. Plain selectors without any reference is a `no op` in the current version and is expected to be added in coming versions
 2. Current support is limited to typescript and typescript react. JSX support is considered for upcoming releases
-3. Support for less and stylus will be added in the future versions
+3. Support for stylus will be added in the future versions
 4. [Reference provider](https://code.visualstudio.com/api/references/vscode-api#ReferenceProvider) - Find all references of a selector from inside a css module
 5. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated
-6. Code Actions for Diagnostics

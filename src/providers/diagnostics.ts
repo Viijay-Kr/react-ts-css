@@ -15,7 +15,7 @@ import {
   Range,
   Uri,
 } from "vscode";
-import { CSS_MODULE_EXTENSIONS } from "../constants";
+import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../constants";
 import { Selector } from "../parser/v2/css";
 import Storage_v2 from "../storage/Storage_v2";
 
@@ -161,7 +161,7 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
     for (const statement of this.parsedResult?.import_statements ?? []) {
       if (isImportDeclaration(statement)) {
         const module = statement.source.value;
-        const ext = path.extname(module);
+        const ext = path.extname(module) as CssModuleExtensions;
         const isRelative = module.startsWith(".");
         if (CSS_MODULE_EXTENSIONS.includes(ext) && module.includes(".module")) {
           const relativePath = !isRelative

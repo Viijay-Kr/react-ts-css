@@ -6,31 +6,38 @@ import {
   getSCSSLanguageService,
   TextDocument,
   Range,
+  getLESSLanguageService,
 } from "vscode-css-languageservice";
+import { CssModuleExtensions } from "../../constants";
 import {
   MixinDeclaration,
   Node,
   NodeType,
   RuleSet,
+  SimpleSelector,
   Stylesheet,
 } from "../../css-node.types";
 
 const getLanguageService = (module: string) => {
-  switch (path.extname(module)) {
+  switch (path.extname(module) as CssModuleExtensions) {
     case ".css":
       return getCSSLanguageService();
     case ".scss":
       return getSCSSLanguageService();
+    case ".less":
+      return getLESSLanguageService();
     default:
       return getCSSLanguageService();
   }
 };
 const getLanguageId = (module: string) => {
-  switch (path.extname(module)) {
+  switch (path.extname(module) as CssModuleExtensions) {
     case ".css":
       return "css";
     case ".scss":
       return "scss";
+    case ".less":
+      return "less";
     default:
       return "css";
   }
@@ -90,6 +97,7 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
       selectionRange,
     });
   };
+
   function resolveSelectors(node: Node, parent: Node | null) {
     if (node.type === NodeType.Ruleset) {
       const selectorNodeList = (node as RuleSet).getSelectors();
@@ -97,17 +105,10 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
         for (const simpleSelector of selectorNode.getChildren()) {
           if (simpleSelector.type === NodeType.SimpleSelector) {
             let selector = simpleSelector.getText();
-            if (selector.indexOf(":") > -1) {
-              selector = selector.split(":")[0];
-            }
             let isInvalid = false;
             if (selector.startsWith("&-")) {
-              const parentSelector = (parent as RuleSet)
-                .getSelectors()
-                .getText();
-              const suffixSelector =
-                parentSelector.replace(".", "") + selector.replace("&", "");
-              selector = suffixSelector;
+              selector =
+                resolveSuffixSelectors(parent, "") + selector.replace("&", "");
             } else if (selector.startsWith("&.")) {
               selector = selector.replace(/&./gi, "");
             } else if (selector.startsWith("& .")) {
@@ -116,6 +117,9 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
               selector = selector.replace(".", "");
             } else {
               isInvalid = true;
+            }
+            if (selector.indexOf(":") > -1) {
+              selector = selector.split(":")[0];
             }
             if (selector.indexOf(".") > -1) {
               for (const _selector of selector.split(".")) {
@@ -152,3 +156,19 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
 
   return selectors;
 };
+
+function resolveSuffixSelectors(parent: Node | null, suffixes: string): string {
+  if (!parent) {
+    return suffixes;
+  }
+  if (parent.type !== NodeType.Ruleset) {
+    return resolveSuffixSelectors(parent.parent, suffixes);
+  }
+  const parentSelector = (parent as RuleSet).getSelectors().getText();
+  if (parentSelector.startsWith("&-")) {
+    suffixes = parentSelector.replace("&", "") + suffixes;
+    return resolveSuffixSelectors(parent.parent, suffixes);
+  }
+  const suffixSelector = parentSelector.replace(".", "") + suffixes;
+  return suffixSelector;
+}
