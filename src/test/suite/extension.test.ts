@@ -78,7 +78,7 @@ suite("Extension Test Suite", async () => {
         });
 
         assert.equal(Array.isArray(result) ? result.length : [], 1);
-        StorageInstance.clear();
+        StorageInstance.flushStorage();
       });
 
       test("should not provide definitions if the command is triggered at a irrelavent position [no class identifier]", async () => {
@@ -95,7 +95,7 @@ suite("Extension Test Suite", async () => {
         if (Array.isArray(result)) {
           assert.equal(result.length, 0);
         }
-        StorageInstance.clear();
+        StorageInstance.flushStorage();
       });
 
       test("should go to the correct definition content when definition is triggered on suffixed/nested selectors", async () => {
@@ -155,7 +155,7 @@ suite("Extension Test Suite", async () => {
           result?.contents[1]?.includes("test-container"),
           true
         );
-        StorageInstance.clear();
+        StorageInstance.flushStorage();
       });
 
       test("should not create a hovering content on hover at irrelavent position [Class selctor idenftier]", async () => {
@@ -170,7 +170,7 @@ suite("Extension Test Suite", async () => {
           onCancellationRequested: () => new Disposable(() => {}),
         });
         assert.equal(result, undefined);
-        StorageInstance.clear();
+        StorageInstance.flushStorage();
       });
 
       test("should show the correct hover content when hover on suffix selectors", async () => {
@@ -234,7 +234,7 @@ suite("Extension Test Suite", async () => {
           list.items.some((i) => i.label === "test-container"),
           true
         );
-        StorageInstance.clear();
+        StorageInstance.flushStorage();
       });
 
       test("should not consider pusedo selectors for completion", async () => {
@@ -268,7 +268,7 @@ suite("Extension Test Suite", async () => {
           false
         );
 
-        StorageInstance.clear();
+        StorageInstance.flushStorage();
       });
 
       test("should consider newly added selectors for completion", async () => {
@@ -299,7 +299,7 @@ suite("Extension Test Suite", async () => {
         contents = contents.replace(replaceText, "");
         writeFileSync(cssDocument.uri.path, enc.encode(contents));
         assert.equal(list.items.length, 6);
-        StorageInstance.clear();
+        StorageInstance.flushStorage();
       });
     });
   });
