@@ -10,10 +10,10 @@ import {
   Diagnostic,
   DiagnosticSeverity,
   languages,
-  TextDocument,
   TextEditor,
   Uri,
   window,
+  TextDocument,
   Range,
   workspace,
   Position,
@@ -29,6 +29,9 @@ import { parseCss, Selector } from "../parser/v2/css";
 import { promises as fs_promises } from "node:fs";
 import Settings from "../settings";
 import { ParserFactory } from "../parser/ParserFactory";
+import { DiagnosticsProvider } from "../providers/diagnostics";
+
+import { TextDocument as CSSTextDocument } from "vscode-css-languageservice";
 type FileName = string;
 type StyleIdentifier = Identifier["name"];
 export type Selectors = {
@@ -37,6 +40,7 @@ export type Selectors = {
     {
       uri: string;
       selectors: Map<string, Selector>;
+      rangeAtEof: Range;
     }
   >;
 };
@@ -44,7 +48,7 @@ export type Selectors = {
 // Full file path of the active opened file
 type SourceFiles = Map<string, boolean>;
 
-type ParsedResult = Map<FileName, ParserResult & Selectors>;
+export type ParsedResult = Map<FileName, ParserResult & Selectors>;
 
 export type TsConfig = {
   compilerOptions: {
@@ -58,6 +62,7 @@ export class experimental_Storage {
   protected _workSpaceRoot: string | undefined;
   static diagonisticCollection =
     languages.createDiagnosticCollection("react-ts-css");
+  protected diagnosticsProvider: DiagnosticsProvider | undefined;
   private tsConfig: TsConfig = {
     compilerOptions: {
       baseUrl: "",
@@ -228,81 +233,22 @@ export class experimental_Storage {
 
   private provideDiagnostics() {
     const parsedResult = this.getParsedResultByFilePath();
-    const diagnostics: Diagnostic[] = [];
     const activeFileDir = path.parse(
       this.activeTextEditor.document.uri.path
     ).dir;
     const baseDir = this.tsConfig.compilerOptions.baseUrl || Settings.baseDir;
-    for (const statement of parsedResult?.import_statements ?? []) {
-      if (isImportDeclaration(statement)) {
-        const module = statement.source.value;
-        const ext = path.extname(module);
-        const isRelative = module.startsWith(".");
-        if (CSS_MODULE_EXTENSIONS.includes(ext) && module.includes(".module")) {
-          const relativePath = !isRelative
-            ? path.resolve(this.workSpaceRoot! + "/" + baseDir, module)
-            : path.resolve(activeFileDir, module);
-          if (!this.sourceFiles.has(relativePath)) {
-            diagnostics.push({
-              message: `Module Not found '${module}'`,
-              source: "React TS CSS",
-              severity: DiagnosticSeverity.Error,
-              range: new Range(
-                new Position(
-                  statement.loc!.start.line - 1,
-                  statement.loc!.start.column
-                ),
-                new Position(
-                  statement.loc!.end.line - 1,
-                  statement.loc!.end.column
-                )
-              ),
-            });
-          }
-        }
-      }
+    const activeFileUri = this.activeTextEditor.document.uri;
+    if (Settings.diagnostics) {
+      this.diagnosticsProvider = new DiagnosticsProvider({
+        parsedResult,
+        activeFileDir,
+        baseDir,
+        activeFileUri,
+      });
+      this.diagnosticsProvider.runDiagnostics();
+      this.diagnosticsProvider.provideDiagnostics();
+      return this.diagnosticsProvider.getDiagnostics();
     }
-    for (const accessor of parsedResult?.style_accessors ?? []) {
-      const { property, object } = accessor;
-      const selectors = parsedResult?.selectors.get(object.name);
-      if (selectors) {
-        const selector = (() => {
-          if (isStringLiteral(property)) {
-            return property.value;
-          }
-          if (isIdentifier(property)) {
-            return property.name;
-          }
-          return "";
-        })();
-        if (!selectors.selectors.has(selector)) {
-          const relativePath = path.relative(
-            this.workSpaceRoot ?? "",
-            selectors.uri
-          );
-          diagnostics.push({
-            message: `Selector '${selector}' does not exist in '${relativePath}'`,
-            source: "React TS CSS",
-            range: new Range(
-              new Position(
-                object.loc?.start.line! - 1,
-                object.loc?.start.column!
-              ),
-              new Position(
-                property.loc?.end.line! - 1,
-                property.loc?.end.column!
-              )
-            ),
-            severity: DiagnosticSeverity.Warning,
-          });
-        }
-      }
-    }
-    experimental_Storage.diagonisticCollection.set(
-      this.activeTextEditor.document.uri,
-      diagnostics
-    );
-    return diagnostics;
   }
 }
 export default new experimental_Storage();

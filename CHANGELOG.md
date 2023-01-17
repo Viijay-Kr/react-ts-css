@@ -1,3 +1,11 @@
+## [1.4.0]
+## Code Actions For Diagnostics
+- 1.4.0 support Code Actions for Selector related Diagnostics - Closes [#45](https://github.com/Viijay-Kr/react-ts-css/issues/45)
+  - get  Code Action to change spelling of a misspelled selector by providing the closest match or add a new selector to the module
+  - In the event of non existing selector ,get a Code Action to add the selector to the css module
+- Future versions will include code actions to fix all selector related warnings
+- Future versions will include code actions to fix all import related problems
+  
 ## [1.3.9]
 - Module not found for node module assets has been fixed - [#43](https://github.com/Viijay-Kr/react-ts-css/issues/43)
 ## [1.3.8]

@@ -3,45 +3,53 @@
 <img height="24"  src="images/build.png" /> <img src="images/license.png" height="24" /> <img src="images/tests.png" height="24" />
 <img height="24" src="images/version.png" />
 
-VS Code extenstion that enables  CSS modules support for your React projects written in typescript.
+VS Code extenstion that enables  CSS modules intellisense for your React projects written in typescript.
 
 Currently supports CSS and SCSS modules with the following capabilities
 
-- [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
-
-  - Root selectors
-  - Nested Selectors
-  - Suffixed Selectors([scss only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
+> This extension is uniuque interms of support for major types of [Casings](#casings)
+> 
+> Different types of selectors are supported which are not support by most of the other extensions in matketplace
+> - Root selectors
+> - Nested Selectors
+> - Suffixed Selectors([scss only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
+### [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
+Go to any type of selector definition from your React Components
   
-  - <img src='./assets/definitions.gif' alt="definitions" />
-> Major  types of casing is supported. Check the [Casings](#casings) section
-- [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
+  <img src='./assets/definitions.gif' alt="definitions" />
 
-  - Peek properties on hover
-
-  - <img src='./assets/hover.gif' alt="hover" />
-
-- [Completions](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
-
-  - Completion of all types of selectors
+### [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
+  Peek CSS properties of a selector on hover
   
-  - <img src='./assets/autocomplete.gif' alt="completions" />
+  <img src='./assets/hover.gif' alt="hover" />
+
   
-  - Completion of style identifiers with automatic import of corresponding (s)css module
 
-  - <img src='./assets/auto-import.gif' alt="auto-import-on-completions" />
 
-- [Diagnostics](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic)
+### [Completions](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
+
+  - Completion of selectors 
+  
+  <img src='./assets/autocomplete.gif' alt="completions" />
+
+  - Completion of style identifiers with automatic import of closest (s)css module
+  
+  <img src='./assets/auto-import.gif' alt="auto-import-on-completions" />
+
+### [Diagnostics](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic)
+  <img src="./assets/missing-selector.png" alt="missing-selector-warning" />
   - Useful diagnostics information are provided for missing selector
-  - <img src="./assets/missing-selector.png" alt="missing-selector-warning" />
-  
   - Module not found error is also provided for non existing css modules
   - <img src="./assets/missing-module.png" alt="missing-module" />
   - Settings to change diagnostics
     - `reactTsCSS.diagnostics` - Toggle to turn off diagnostics
     - `reactTsScss.tsconfig` - Base TS Config path in the project.Useful for resolving path aliases. Defaults to './tsconfig.json'
     - `reactTsScss.baseDir` - Root directory of your project. Useful if tsconfig doesn't have information about path aliases.Defaults to 'src'
-> NOTE: Code Actions for the diagnostics will be provided in the future versions
+
+### [Code Actions](https://code.visualstudio.com/docs/editor/refactoring#_code-actions-quick-fixes-and-refactorings)
+ -
+
+
 ## Casings 
 This extensions supports selectors written in 
 1. snake_case

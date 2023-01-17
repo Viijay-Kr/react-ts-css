@@ -1,7 +1,7 @@
 {
   "name": "react-ts-css",
   "displayName": "React CSS modules",
-  "description": "React CSS modules - VS code extension for CSS modules support in React projects written in typescript.Supports Definitions, Hover and Completion Providers",
+  "description": "React CSS modules - VS code extension for CSS modules support in React projects written in typescript.Supports Definitions, Hover , Completion Providers and Diagnostics",
   "version": "1.4.0",
   "author": "Viijay-Kr",
   "publisher": "viijay-kr",
@@ -27,6 +27,7 @@
     "SCSS",
     "Linting",
     "Diagnostics",
+    "Code Actions",
     "CSS"
   ],
   "icon": "images/icon.png",
@@ -59,9 +60,9 @@
           "default": true,
           "description": "Selectors Auto completion"
         },
-        "reactTsScss.autoImport":{
+        "reactTsScss.autoImport": {
           "type": "boolean",
-          "default":true,
+          "default": true,
           "description": "Auto import css/scss modules on completion"
         },
         "reactTsScss.definition": {
@@ -72,17 +73,17 @@
         "reactTsScss.diagnostics": {
           "type": "boolean",
           "default": true,
-          "description": "Provide Diagnostics for non existing selectors and non existing css modules"
+          "description": "Provide Diagnostics and Code Actions for non existing selectors and non existing css modules"
         },
-        "reactTsScss.tsconfig":{
-          "type":"string",
+        "reactTsScss.tsconfig": {
+          "type": "string",
           "title": "TS Config Path",
-          "default":"./tsconfig.json",
+          "default": "./tsconfig.json",
           "description": "Location of tsconfig.json inside the project.This config is used to resolve path aliases by the extension"
         },
-        "reactTsScss.baseDir":{
-          "type":"string",
-          "default":"src",
+        "reactTsScss.baseDir": {
+          "type": "string",
+          "default": "src",
           "title": "Base Dir Path",
           "description": "Base directory path inside the project. Defaults to 'src'"
         }
@@ -100,7 +101,7 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "deploy": "vsce publish",
-    "check:version":"./scripts/check_version"
+    "check:version": "./scripts/check_version"
   },
   "vsce": {
     "yarn": false
@@ -129,6 +130,7 @@
   "dependencies": {
     "@babel/parser": "^7.19.3",
     "@babel/traverse": "^7.19.3",
+    "closest-match": "^1.3.3",
     "fast-glob": "^3.2.12",
     "sinon": "^14.0.1",
     "vscode-css-languageservice": "^6.1.1"

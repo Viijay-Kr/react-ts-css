@@ -6,7 +6,7 @@ import {
 import path = require("path");
 import { TextDocument, Uri } from "vscode";
 import { TS_MODULE_EXTENSIONS } from "../constants";
-import Storage_v2, { Selectors, TsConfig } from "../storage/Storage_v2";
+import { Selectors, TsConfig } from "../storage/Storage_v2";
 import { parseCss } from "./v2/css";
 import { isCssModuleDeclaration, parseActiveFile } from "./v2/tsx";
 
@@ -70,7 +70,7 @@ export class ParserFactory {
               statements.source.value
             );
             if (sourceCssFile) {
-              const _selectors = await this.buildSelectorsSet(sourceCssFile);
+              const result = await this.buildSelectorsSet(sourceCssFile);
               let styleIdentifier = "";
               for (const specifier of statements.specifiers) {
                 if (isImportDefaultSpecifier(specifier)) {
@@ -79,9 +79,10 @@ export class ParserFactory {
                   }
                 }
               }
-              if (_selectors && styleIdentifier) {
+              if (result && styleIdentifier) {
                 selectors.set(styleIdentifier, {
-                  selectors: _selectors,
+                  selectors: result.selectors,
+                  rangeAtEof: result.eofRange,
                   uri: sourceCssFile,
                 });
               }
