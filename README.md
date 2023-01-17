@@ -14,12 +14,12 @@ Currently supports CSS and SCSS modules with the following capabilities
 > - Nested Selectors
 > - Suffixed Selectors([scss only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
 ### [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
-Go to any type of selector definition from your React Components
+- Go to any type of selector definition from your React Components
   
   <img src='./assets/definitions.gif' alt="definitions" />
 
 ### [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
-  Peek CSS properties of a selector on hover
+  - Peek CSS properties of a selector on hover
   
   <img src='./assets/hover.gif' alt="hover" />
 
@@ -29,25 +29,33 @@ Go to any type of selector definition from your React Components
 ### [Completions](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
   - Completion of selectors 
-  
-  <img src='./assets/autocomplete.gif' alt="completions" />
+    
+    <img src='./assets/autocomplete.gif' alt="completions" />
 
   - Completion of style identifiers with automatic import of closest (s)css module
   
-  <img src='./assets/auto-import.gif' alt="auto-import-on-completions" />
+    <img src='./assets/auto-import.gif' alt="auto-import-on-completions" />
 
 ### [Diagnostics](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic)
-  <img src="./assets/missing-selector.png" alt="missing-selector-warning" />
   - Useful diagnostics information are provided for missing selector
+  
+    <img src="./assets/missing-selector.png" alt="missing-selector-warning" />
   - Module not found error is also provided for non existing css modules
-  - <img src="./assets/missing-module.png" alt="missing-module" />
+  
+    <img src="./assets/missing-module.png" alt="missing-module" />
+  
   - Settings to change diagnostics
     - `reactTsCSS.diagnostics` - Toggle to turn off diagnostics
     - `reactTsScss.tsconfig` - Base TS Config path in the project.Useful for resolving path aliases. Defaults to './tsconfig.json'
     - `reactTsScss.baseDir` - Root directory of your project. Useful if tsconfig doesn't have information about path aliases.Defaults to 'src'
 
 ### [Code Actions](https://code.visualstudio.com/docs/editor/refactoring#_code-actions-quick-fixes-and-refactorings)
- -
+ - Code Actions to quick fix misspelled selectors
+ - Code Actions to add a non existing selector to the corresponding css/scss module
+
+   <img src="./assets/code-actions.gif" alt="code-actions" />
+
+  
 
 
 ## Casings 
