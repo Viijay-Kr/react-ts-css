@@ -48,13 +48,11 @@ Currently supports CSS,SCSS,Less modules with the following capabilities
     - `reactTsScss.baseDir` - Root directory of your project. Useful if tsconfig doesn't have information about path aliases.Defaults to 'src'
 
 ### [Code Actions](https://code.visualstudio.com/docs/editor/refactoring#_code-actions-quick-fixes-and-refactorings)
- - Code Actions to quick fix misspelled selectors
- - Code Actions to add a non existing selector to the corresponding css/scss module
-
+ - Code Action to quick fix misspelled selectors
+ - Code Action to add a non existing selector to the corresponding css/scss module
+ - Code Action to ignore warnings temproarily
+   
    <img src="./assets/code-actions.gif" alt="code-actions" />
-
-  
-
 
 ## Casings 
 This extensions supports selectors written in 
