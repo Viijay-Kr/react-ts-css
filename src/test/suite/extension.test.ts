@@ -242,7 +242,7 @@ suite("Extension Test Suite", async () => {
         const replaceText = `.test-container:hover { position:relative;}`;
         let contents = cssDocument.getText() + replaceText;
         const enc = new TextEncoder();
-        writeFileSync(cssDocument.uri.path, enc.encode(contents));
+        writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
 
         const document = await workspace.openTextDocument(TestComponentUri);
         await StorageInstance.bootStrap();
@@ -262,7 +262,7 @@ suite("Extension Test Suite", async () => {
           }
         )) as CompletionList;
         contents = contents.replace(replaceText, "");
-        writeFileSync(cssDocument.uri.path, enc.encode(contents));
+        writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
         assert.equal(
           list.items.some((i) => i.label === "test-container:hover"),
           false
@@ -278,11 +278,11 @@ suite("Extension Test Suite", async () => {
         const replaceText = `.test-hover { position:relative; }`;
         let contents = cssDocument.getText() + replaceText;
         const enc = new TextEncoder();
-        writeFileSync(cssDocument.uri.path, enc.encode(contents));
+        writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
 
         await StorageInstance.bootStrap();
         const completion = selectorsCompletetionProvider({});
-        writeFileSync(cssDocument.uri.path, enc.encode(contents));
+        writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
         const position = new Position(6, 31);
         const list = (await completion.provideCompletionItems(
           document,
@@ -297,7 +297,7 @@ suite("Extension Test Suite", async () => {
           }
         )) as CompletionList;
         contents = contents.replace(replaceText, "");
-        writeFileSync(cssDocument.uri.path, enc.encode(contents));
+        writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
         assert.equal(list.items.length, 6);
         StorageInstance.flushStorage();
       });

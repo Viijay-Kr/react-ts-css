@@ -147,7 +147,7 @@ export class ProviderFactory {
   }
 
   public async getImportForCompletions() {
-    const activeFileuri = this.document.uri.path;
+    const activeFileuri = this.document.uri.fsPath;
     const activePathInfo = parsePath(activeFileuri);
     const parsedResult = Storage_v2.getParsedResultByFilePath();
     const currentDir = activePathInfo.dir;

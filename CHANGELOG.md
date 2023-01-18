@@ -1,3 +1,5 @@
+## [1.5.2]
+- Fix windows
 ## [1.5.1]
 - Ignore quick fix to ignore selector diagnostics temproarily - Closes [#52](https://github.com/Viijay-Kr/react-ts-css/issues/52)
 ## [1.5.0]

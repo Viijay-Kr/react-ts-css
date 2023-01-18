@@ -31,25 +31,26 @@ export class ParserFactory {
       workspaceRoot = "",
       baseDir = "",
     } = this.context;
-    const activeFileDir = path.dirname(document.uri.path);
+    const activeFileDir = path.dirname(document.uri.fsPath);
     const isRelativePath = source.startsWith(".");
     const doesModuleExists = (pathOfSource: string) =>
       sourceFiles.has(pathOfSource);
     if (isRelativePath) {
-      const relativePathOfSource = path.resolve(activeFileDir, source);
+      const relativePathOfSource = path.resolve(activeFileDir, source).replace(/\\/g,"/");
       if (doesModuleExists(relativePathOfSource)) {
         return relativePathOfSource;
       }
     } else {
-      let absolutePathOfSource = path.resolve(workspaceRoot, source);
+      let absolutePathOfSource = path.resolve(workspaceRoot, source).replace(/\\/g,"/");
       if (doesModuleExists(absolutePathOfSource)) {
         return absolutePathOfSource;
       }
       // as a last resort find the path using tsconfig.compilerOptions.base or base setting
       absolutePathOfSource = path.resolve(
-        workspaceRoot + "/" + baseDir,
+        workspaceRoot,
+        baseDir,
         source
-      );
+      ).replace(/\\/g,"/");
       if (doesModuleExists(absolutePathOfSource)) {
         return absolutePathOfSource;
       }
@@ -57,7 +58,7 @@ export class ParserFactory {
   }
   async parse() {
     const { workspaceRoot, document } = this.context;
-    if (TS_MODULE_EXTENSIONS.includes(path.extname(document.uri.path))) {
+    if (TS_MODULE_EXTENSIONS.includes(path.extname(document.uri.fsPath))) {
       const parsedResult = await parseActiveFile(document.getText());
       if (parsedResult && workspaceRoot) {
         const selectors: Selectors["selectors"] = new Map();
