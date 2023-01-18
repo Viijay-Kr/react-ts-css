@@ -1,10 +1,4 @@
-import {
-  Identifier,
-  isIdentifier,
-  isImportDeclaration,
-  isImportDefaultSpecifier,
-  isStringLiteral,
-} from "@babel/types";
+import { Identifier } from "@babel/types";
 import path = require("path");
 import {
   languages,
@@ -14,26 +8,16 @@ import {
   TextDocument,
   Range,
   workspace,
-  Position,
 } from "vscode";
-import {
-  CssModuleExtensions,
-  CSS_MODULE_EXTENSIONS,
-  TS_MODULE_EXTENSIONS,
-} from "../constants";
-import {
-  ParserResult,
-  parseActiveFile,
-  isCssModuleDeclaration,
-} from "../parser/v2/tsx";
+import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../constants";
+import { ParserResult } from "../parser/v2/tsx";
 import * as fsg from "fast-glob";
-import { parseCss, Selector } from "../parser/v2/css";
+import { Selector } from "../parser/v2/css";
 import { promises as fs_promises } from "node:fs";
 import Settings from "../settings";
 import { ParserFactory } from "../parser/ParserFactory";
 import { DiagnosticsProvider } from "../providers/diagnostics";
 
-import { TextDocument as CSSTextDocument } from "vscode-css-languageservice";
 type FileName = string;
 type StyleIdentifier = Identifier["name"];
 export type Selectors = {
@@ -57,6 +41,11 @@ export type TsConfig = {
     baseUrl: string;
   };
 };
+
+export type IgnoreDiagnostis = Map<
+  string, // Selector
+  Range // Range of the Selector
+>;
 export class experimental_Storage {
   public parsedResult: ParsedResult = new Map();
   protected _sourceFiles: SourceFiles = new Map();
@@ -65,6 +54,7 @@ export class experimental_Storage {
   static diagonisticCollection =
     languages.createDiagnosticCollection("react-ts-css");
   protected diagnosticsProvider: DiagnosticsProvider | undefined;
+  public ignoredDiagnostics: IgnoreDiagnostis = new Map();
   private tsConfig: TsConfig = {
     compilerOptions: {
       baseUrl: "",
@@ -260,6 +250,15 @@ export class experimental_Storage {
       this.diagnosticsProvider.provideDiagnostics();
       return this.diagnosticsProvider.getDiagnostics();
     }
+  }
+
+  /**
+   *
+   * @param args [Range, string] Range is range of source, second argument is the selector which should be ignored from diagnostic
+   */
+  public collectIgnoredDiagnostics([range, source]: [Range, string]) {
+    this.ignoredDiagnostics.set(source, range);
+    this.provideDiagnostics();
   }
 }
 export default new experimental_Storage();

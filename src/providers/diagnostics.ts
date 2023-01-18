@@ -19,6 +19,11 @@ import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../constants";
 import { Selector } from "../parser/v2/css";
 import Storage_v2 from "../storage/Storage_v2";
 
+export type extended_Diagnostic = Diagnostic & {
+  replace?: string;
+  sourceAtRange: string;
+};
+
 export type DiagnosticsContext = {
   parsedResult: ReturnType<typeof Storage_v2.getParsedResultByFilePath>;
   baseDir: string | undefined;
@@ -29,6 +34,10 @@ export type DiagnosticsContext = {
 export enum DiagnosticCodeActions {
   RENAME_SELECTOR = "rename-selector",
   CREATE_SELECTOR = "add-selector",
+}
+
+export enum DiagnosticNonCodeActions {
+  IGNORE_WARNING = "ignore-warning",
 }
 
 export class DiagnosticsProvider {
@@ -65,7 +74,7 @@ export class DiagnosticsProvider {
 }
 
 class Diagnostics {
-  public diagnostics: Array<Diagnostic & { replace?: string }> = [];
+  public diagnostics: Array<extended_Diagnostic> = [];
   protected readonly parsedResult: ReturnType<
     typeof Storage_v2.getParsedResultByFilePath
   >;
@@ -106,7 +115,10 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
           }
           return "";
         })();
-        if (!selectors.selectors.has(selector)) {
+        if (
+          !selectors.selectors.has(selector) &&
+          !Storage_v2.ignoredDiagnostics.has(selector)
+        ) {
           const closestMatchingSelector =
             SelectorRelatedDiagnostics.findClosestMatchingSelector(
               selector,
@@ -122,6 +134,7 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
           this.diagnostics.push({
             message: `Selector '${selector}' does not exist in '${relativePath}'.${additionalSelector}`,
             source: "React TS CSS",
+            sourceAtRange: selector,
             code: closestMatchingSelector
               ? DiagnosticCodeActions.RENAME_SELECTOR
               : DiagnosticCodeActions.CREATE_SELECTOR,
@@ -174,6 +187,7 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
             this.diagnostics.push({
               message: `Module Not found '${module}'`,
               source: "React TS CSS",
+              sourceAtRange: "",
               severity: DiagnosticSeverity.Error,
               range: new Range(
                 new Position(
