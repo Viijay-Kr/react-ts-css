@@ -74,7 +74,7 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
     if (diagnostic.relatedInformation?.[0]) {
       const codeAction = new vscode.CodeAction(
         `Add '${diagnostic.replace}' to ${path.basename(
-          diagnostic.relatedInformation[0].location.uri.path
+          diagnostic.relatedInformation[0].location.uri.fsPath
         )}`,
         vscode.CodeActionKind.QuickFix
       );

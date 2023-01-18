@@ -141,9 +141,9 @@ export class experimental_Storage {
       if (!this.tsConfig) {
         await this.saveTsConfig();
       }
-      const filePath = this.activeTextEditor.document.uri.path;
+      const filePath = this.activeTextEditor.document.uri.fsPath;
       const uri = this.activeTextEditor.document.uri;
-      const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
+      const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
       const parserFactory = new ParserFactory({
         document: this.activeTextEditor.document,
         workspaceRoot,
@@ -173,18 +173,20 @@ export class experimental_Storage {
   private async setSourcefiles() {
     const uri = window.activeTextEditor?.document?.uri;
     if (uri) {
-      const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.path;
+      const _uri =  workspace.getWorkspaceFolder(uri)?.uri;
+      const workspaceRoot =_uri?.fsPath;
+      const glob = `**/*.{${CSS_MODULE_EXTENSIONS.map((e) => e.replace(".", "")).join(
+        ","
+      )}}`;
+      this.workSpaceRoot = workspaceRoot;
       const files = await fsg(
-        `**/*.{${CSS_MODULE_EXTENSIONS.map((e) => e.replace(".", "")).join(
-          ","
-        )}}`,
+        glob,
         {
           cwd: workspaceRoot,
           ignore: ["node_modules", "build", "dist", "coverage"],
           absolute: true,
         }
       );
-      this.workSpaceRoot = workspaceRoot;
       files.forEach((v) => {
         this._sourceFiles.set(v, true);
       });
@@ -214,12 +216,12 @@ export class experimental_Storage {
    * @returns Map<string,Selector>
    */
   public getSelectorsByIdentifier(identfier: Identifier["name"]) {
-    const filePath = this.activeTextEditor.document.uri.path;
+    const filePath = this.activeTextEditor.document.uri.fsPath;
     return this.parsedResult.get(filePath)?.selectors.get(identfier);
   }
 
   public getParsedResultByFilePath() {
-    const filePath = this.activeTextEditor.document.uri.path;
+    const filePath = this.activeTextEditor.document.uri.fsPath;
     return this.parsedResult.get(filePath);
   }
 
@@ -235,7 +237,7 @@ export class experimental_Storage {
   private provideDiagnostics() {
     const parsedResult = this.getParsedResultByFilePath();
     const activeFileDir = path.parse(
-      this.activeTextEditor.document.uri.path
+      this.activeTextEditor.document.uri.fsPath
     ).dir;
     const baseDir = this.tsConfig.compilerOptions.baseUrl || Settings.baseDir;
     const activeFileUri = this.activeTextEditor.document.uri;
