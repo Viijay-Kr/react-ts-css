@@ -1,7 +1,11 @@
 import path = require("path");
 import * as vscode from "vscode";
 import Storage_v2 from "../storage/Storage_v2";
-import { DiagnosticCodeActions } from "./diagnostics";
+import {
+  DiagnosticCodeActions,
+  DiagnosticNonCodeActions,
+  extended_Diagnostic,
+} from "./diagnostics";
 
 export class DiagnosticCodeAction implements vscode.CodeActionProvider {
   public static readonly codeActionKinds = [vscode.CodeActionKind.QuickFix];
@@ -10,14 +14,24 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
   public constructor(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       DiagnosticCodeAction.ADD_SELECTOR_COMMAND,
-      this.addSelector
+      this.addSelectorCommand
+    );
+    vscode.commands.registerCommand(
+      DiagnosticNonCodeActions.IGNORE_WARNING,
+      this.ignoreWarningCommand
     );
   }
-  private async addSelector(...args: any[]) {
+  private async addSelectorCommand(...args: any[]) {
     await vscode.window.showTextDocument(args[0].location.uri, {
       selection: args[0].location.range,
     });
   }
+
+  // TODO: type args
+  private async ignoreWarningCommand(...args: [vscode.Range, string]) {
+    Storage_v2.collectIgnoredDiagnostics([args[0], args[1]]);
+  }
+
   public provideCodeActions(
     document: vscode.TextDocument,
     range: vscode.Range | vscode.Selection,
@@ -25,7 +39,7 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
     token: vscode.CancellationToken
   ): vscode.ProviderResult<(vscode.CodeAction | vscode.Command)[]> {
     const relaventDiagnostics = (
-      context.diagnostics as Array<vscode.Diagnostic & { replace?: string }>
+      context.diagnostics as Array<extended_Diagnostic>
     ).filter(
       (d) =>
         (d.code && d.code === DiagnosticCodeActions.RENAME_SELECTOR) ||
@@ -39,7 +53,7 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
     return codeActions;
   }
 
-  private renameAction(diagnostic: vscode.Diagnostic & { replace?: string }) {
+  private renameAction(diagnostic: extended_Diagnostic) {
     const renameAction = new vscode.CodeAction(
       "Change spelling to '" + diagnostic.replace + "'",
       vscode.CodeActionKind.QuickFix
@@ -56,9 +70,7 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
     return renameAction;
   }
 
-  private addSelectorAction(
-    diagnostic: vscode.Diagnostic & { replace?: string }
-  ) {
+  private addSelectorAction(diagnostic: extended_Diagnostic) {
     if (diagnostic.relatedInformation?.[0]) {
       const codeAction = new vscode.CodeAction(
         `Add '${diagnostic.replace}' to ${path.basename(
@@ -91,27 +103,52 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
     }
   }
 
+  private ignoreWarningAction(diagnostic: extended_Diagnostic) {
+    try {
+      const action = new vscode.CodeAction(
+        `ignore '${diagnostic.sourceAtRange}' warning`,
+        vscode.CodeActionKind.QuickFix
+      );
+      action.command = {
+        command: DiagnosticNonCodeActions.IGNORE_WARNING,
+        title: "Ignore warnings",
+        arguments: [diagnostic.range, diagnostic.sourceAtRange],
+      };
+      action.isPreferred = true;
+      action.diagnostics = [diagnostic];
+      return action;
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
   private createCodeActions(
-    diagnostic: vscode.Diagnostic & { replace?: string }
+    diagnostic: extended_Diagnostic
   ): vscode.CodeAction[] {
+    let actions: vscode.CodeAction[] = [];
     switch (diagnostic.code) {
       case DiagnosticCodeActions.RENAME_SELECTOR: {
+        const ignoreWarningAction = this.ignoreWarningAction(diagnostic);
         const renameAction = this.renameAction(diagnostic);
         const addSelectorAction = this.addSelectorAction(diagnostic);
-        const actions = [renameAction];
+        actions.push(renameAction);
         if (addSelectorAction) {
-          actions.push(addSelectorAction);
+          actions.push(addSelectorAction, ignoreWarningAction);
         }
-        return actions;
+        break;
       }
       case DiagnosticCodeActions.CREATE_SELECTOR: {
         const addSelectorAction = this.addSelectorAction(diagnostic);
+        const ignoreWarningAction = this.ignoreWarningAction(diagnostic);
         if (addSelectorAction) {
-          return [addSelectorAction];
+          actions.push(addSelectorAction, ignoreWarningAction);
         }
+        break;
       }
       default:
-        return [];
+        return actions;
     }
+    return actions;
   }
 }
