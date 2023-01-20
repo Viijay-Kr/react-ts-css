@@ -1,3 +1,5 @@
+## [1.5.3]
+- Fix documentation typos
 ## [1.5.2]
 - Fix windows
 ## [1.5.1]
