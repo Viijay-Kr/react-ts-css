@@ -1,11 +1,11 @@
 "use strict";
 
 import { ExtensionContext, window, workspace, languages } from "vscode";
-import { definitionProvider } from "./providers/definitions";
-import { hoverProvider } from "./providers/hover";
+import { DefnitionProvider } from "./providers/definitions";
+import { HoverProvider } from "./providers/hover";
 import {
-  importsCompletionProvider,
-  selectorsCompletetionProvider,
+  SelectorsCompletionProvider,
+  ImportCompletionProvider,
 } from "./providers/completion";
 import Settings, { EXT_NAME, getSettings } from "./settings";
 import Storage_V2 from "./storage/Storage_v2";
@@ -42,23 +42,23 @@ export async function activate(context: ExtensionContext): Promise<void> {
     await Storage_V2.bootStrap();
     const _definitionProvider = languages.registerDefinitionProvider(
       documentSelector,
-      definitionProvider({})
+      new DefnitionProvider()
     );
     const _hoverProvider = languages.registerHoverProvider(
       documentSelector,
-      hoverProvider({})
+      new HoverProvider()
     );
     const _selectorsCompletionProvider =
       languages.registerCompletionItemProvider(
         documentSelector,
-        selectorsCompletetionProvider({}),
+        new SelectorsCompletionProvider(),
         ".",
         "'",
         "["
       );
     const _importsCompletionProvider = languages.registerCompletionItemProvider(
       documentSelector,
-      importsCompletionProvider()
+      new ImportCompletionProvider()
     );
     const _codeActionsProvider = languages.registerCodeActionsProvider(
       documentSelector,

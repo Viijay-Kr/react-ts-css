@@ -1,3 +1,5 @@
+## [1.5.5]
+- Minor Refactorings of Providers
 ## [1.5.4]
 - No Diagnostic warning for empty string - Closes [#52](https://github.com/Viijay-Kr/react-ts-css/issues/52) 
 ## [1.5.3]

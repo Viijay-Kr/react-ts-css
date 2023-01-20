@@ -161,9 +161,7 @@ export class experimental_Storage {
       if (Settings.diagnostics) {
         return this.provideDiagnostics();
       }
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) {}
   }
 
   /**
@@ -173,20 +171,17 @@ export class experimental_Storage {
   private async setSourcefiles() {
     const uri = window.activeTextEditor?.document?.uri;
     if (uri) {
-      const _uri =  workspace.getWorkspaceFolder(uri)?.uri;
-      const workspaceRoot =_uri?.fsPath;
-      const glob = `**/*.{${CSS_MODULE_EXTENSIONS.map((e) => e.replace(".", "")).join(
-        ","
-      )}}`;
+      const _uri = workspace.getWorkspaceFolder(uri)?.uri;
+      const workspaceRoot = _uri?.fsPath;
+      const glob = `**/*.{${CSS_MODULE_EXTENSIONS.map((e) =>
+        e.replace(".", "")
+      ).join(",")}}`;
       this.workSpaceRoot = workspaceRoot;
-      const files = await fsg(
-        glob,
-        {
-          cwd: workspaceRoot,
-          ignore: ["node_modules", "build", "dist", "coverage"],
-          absolute: true,
-        }
-      );
+      const files = await fsg(glob, {
+        cwd: workspaceRoot,
+        ignore: ["node_modules", "build", "dist", "coverage"],
+        absolute: true,
+      });
       files.forEach((v) => {
         this._sourceFiles.set(v, true);
       });

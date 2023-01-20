@@ -18,6 +18,7 @@ import {
 import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../constants";
 import { Selector } from "../parser/v2/css";
 import Storage_v2 from "../storage/Storage_v2";
+import { normalizePath } from "../path-utils";
 
 export type extended_Diagnostic = Diagnostic & {
   replace?: string;
@@ -178,7 +179,7 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
         const ext = path.extname(module) as CssModuleExtensions;
         const isRelative = module.startsWith(".");
         if (CSS_MODULE_EXTENSIONS.includes(ext) && module.includes(".module")) {
-          const relativePath = (
+          const relativePath = normalizePath(
             !isRelative
               ? path.resolve(
                   Storage_v2.workSpaceRoot!,
@@ -186,7 +187,7 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
                   module
                 )
               : path.resolve(this.activeFileDir, module)
-          ).replace(/\\/g, "/");
+          );
           if (!Storage_v2.sourceFiles.has(relativePath)) {
             this.diagnostics.push({
               message: `Module Not found '${module}'`,

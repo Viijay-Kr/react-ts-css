@@ -6,6 +6,7 @@ import {
 import path = require("path");
 import { TextDocument, Uri } from "vscode";
 import { TS_MODULE_EXTENSIONS } from "../constants";
+import { normalizePath } from "../path-utils";
 import { Selectors, TsConfig } from "../storage/Storage_v2";
 import { parseCss } from "./v2/css";
 import { isCssModuleDeclaration, parseActiveFile } from "./v2/tsx";
@@ -36,21 +37,23 @@ export class ParserFactory {
     const doesModuleExists = (pathOfSource: string) =>
       sourceFiles.has(pathOfSource);
     if (isRelativePath) {
-      const relativePathOfSource = path.resolve(activeFileDir, source).replace(/\\/g,"/");
+      const relativePathOfSource = normalizePath(
+        path.resolve(activeFileDir, source)
+      );
       if (doesModuleExists(relativePathOfSource)) {
         return relativePathOfSource;
       }
     } else {
-      let absolutePathOfSource = path.resolve(workspaceRoot, source).replace(/\\/g,"/");
+      let absolutePathOfSource = normalizePath(
+        path.resolve(workspaceRoot, source)
+      );
       if (doesModuleExists(absolutePathOfSource)) {
         return absolutePathOfSource;
       }
       // as a last resort find the path using tsconfig.compilerOptions.base or base setting
-      absolutePathOfSource = path.resolve(
-        workspaceRoot,
-        baseDir,
-        source
-      ).replace(/\\/g,"/");
+      absolutePathOfSource = normalizePath(
+        path.resolve(workspaceRoot, baseDir, source)
+      );
       if (doesModuleExists(absolutePathOfSource)) {
         return absolutePathOfSource;
       }
