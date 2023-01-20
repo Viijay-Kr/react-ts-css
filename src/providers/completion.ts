@@ -118,3 +118,35 @@ export class ImportCompletionProvider implements CompletionItemProvider {
     }
   }
 }
+
+export class CssVariablesCompletion implements CompletionItemProvider {
+  provideCompletionItems(
+    document: TextDocument,
+    position: Position,
+    token: CancellationToken,
+    context: CompletionContext
+  ): ProviderResult<CompletionItem[] | CompletionList<CompletionItem>> {
+    try {
+      if (!Settings.cssAutoComplete) {
+        return [];
+      }
+      const provider = new ProviderFactory({
+        providerKind: ProviderKind.Completion,
+        position,
+        document,
+      });
+      const variableSymbols = provider.getCssVariablesForCompletion();
+      const completionList = new CompletionList();
+      variableSymbols.forEach(({ name, value }) => {
+        if (name && value) {
+          completionList.items.push({
+            label: name,
+            detail: value,
+            kind: CompletionItemKind.Variable,
+          });
+        }
+      });
+      return completionList;
+    } catch (e) {}
+  }
+}

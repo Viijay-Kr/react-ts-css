@@ -43,7 +43,8 @@
   ],
   "activationEvents": [
     "onLanguage:typescriptreact",
-    "onLanguage:typescript"
+    "onLanguage:typescript",
+    "onLanguage:css"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -86,6 +87,12 @@
           "default": "src",
           "title": "Base Dir Path",
           "description": "Base directory path inside the project. Defaults to 'src'"
+        },
+        "reactTsScss.cssAutoComplete":{
+          "type":"boolean",
+          "title": "Css Variables AutoComplete",
+          "default":"true",
+          "description": "Auto completion of css variables from various files"
         }
       }
     }

@@ -7,9 +7,12 @@ import {
   TextDocument,
   Range,
   getLESSLanguageService,
+  SymbolInformation,
+  DocumentSymbol,
 } from "vscode-css-languageservice";
 import { CssModuleExtensions } from "../../constants";
 import {
+  CustomPropertyDeclaration,
   MixinDeclaration,
   Node,
   NodeType,
@@ -42,7 +45,18 @@ const getLanguageId = (module: string) => {
       return "css";
   }
 };
-export const parseCss = async (module: string) => {
+export type CssParserResult = {
+  selectors: Map<string, Selector>;
+  eofRange: vscodeRange;
+  variables: {
+    name?: string;
+    value?: string;
+    location: Range;
+  }[];
+};
+export const parseCss = async (
+  module: string
+): Promise<CssParserResult | undefined> => {
   try {
     const languageService = getLanguageService(module);
     const content = (await fs_promises.readFile(module)).toString();
@@ -54,11 +68,12 @@ export const parseCss = async (module: string) => {
     );
     const ast = languageService.parseStylesheet(document);
     const selectors = getSelectors(ast as Stylesheet, document);
+    const variables = getVariables(ast as Stylesheet, document);
     const eofRange = new vscodeRange(
       new Position(document.lineCount + 2, 0),
       new Position(document.lineCount + 2, 0)
     );
-    return { selectors, eofRange };
+    return { selectors, eofRange, variables };
   } catch (e) {
     console.error(e);
   }
@@ -69,6 +84,11 @@ export type Selector = {
   range: Range;
   content: string;
   selectionRange: Range;
+};
+
+export type Variable = {
+  range: Range;
+  content: string;
 };
 
 export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
@@ -172,3 +192,28 @@ function resolveSuffixSelectors(parent: Node | null, suffixes: string): string {
   const suffixSelector = parentSelector.replace(".", "") + suffixes;
   return suffixSelector;
 }
+
+export const getVariables = (ast: Stylesheet, document: TextDocument) => {
+  const variables: CssParserResult["variables"] = [];
+  const resolveVariables = (node: Node) => {
+    if (node.type === NodeType.CustomPropertyDeclaration) {
+      const _node = node as CustomPropertyDeclaration;
+      variables.push({
+        name: _node.property?.getText(),
+        value: _node.value?.getText(),
+        location: Range.create(
+          document.positionAt(_node.offset),
+          document.positionAt(_node.end)
+        ),
+      });
+    }
+    for (const child of node.getChildren()) {
+      resolveVariables(child);
+    }
+  };
+  for (const child of ast.getChildren()) {
+    resolveVariables(child);
+  }
+
+  return variables;
+};

@@ -7,7 +7,7 @@ import path = require("path");
 import { TextDocument, Uri } from "vscode";
 import { TS_MODULE_EXTENSIONS } from "../constants";
 import { normalizePath } from "../path-utils";
-import { Selectors, TsConfig } from "../storage/Storage_v2";
+import Storage_v2, { Selectors, TsConfig } from "../storage/Storage_v2";
 import { parseCss } from "./v2/css";
 import { isCssModuleDeclaration, parseActiveFile } from "./v2/tsx";
 
@@ -16,7 +16,7 @@ export type ParserContext = {
   tsConfig: TsConfig;
   document: TextDocument;
   baseDir: string | undefined;
-  sourceFiles: Map<string, boolean>;
+  sourceFiles: typeof Storage_v2.sourceFiles;
 };
 
 export class ParserFactory {

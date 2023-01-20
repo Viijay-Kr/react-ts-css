@@ -62,6 +62,14 @@ export class Settings {
   public set baseDir(v: string | undefined) {
     workspace.getConfiguration(EXT_NAME).update("baseDir", v);
   }
+
+  public get cssAutoComplete(): boolean | undefined {
+    return getSettings().get("cssAutoComplete");
+  }
+
+  public set cssAutoComplete(v: boolean | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("cssAutoComplete", v);
+  }
 }
 
 export default new Settings();
