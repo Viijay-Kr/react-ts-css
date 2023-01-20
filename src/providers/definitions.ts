@@ -1,12 +1,24 @@
-import { DefinitionLink, DefinitionProvider, Uri, Range } from "vscode";
+import {
+  DefinitionLink,
+  Uri,
+  Range,
+  DefinitionProvider as vscode_DefinitionProvider,
+  CancellationToken,
+  Definition,
+  LocationLink,
+  Position,
+  ProviderResult,
+  TextDocument,
+} from "vscode";
 import Settings from "../settings";
 import { ProviderFactory, ProviderKind } from "./ProviderFactory";
 import { ProviderParams } from "./types";
 
-export const definitionProvider: (
-  params: ProviderParams
-) => DefinitionProvider = () => ({
-  async provideDefinition(document, position) {
+export class DefnitionProvider implements vscode_DefinitionProvider {
+  async provideDefinition(
+    document: TextDocument,
+    position: Position
+  ): Promise<Definition | LocationLink[]> {
     if (!Settings.definition) {
       return [];
     }
@@ -43,6 +55,5 @@ export const definitionProvider: (
       console.error(e);
       return [];
     }
-    return [];
-  },
-});
+  }
+}

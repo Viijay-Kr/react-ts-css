@@ -14,9 +14,12 @@ import StorageInstance, {
   experimental_Storage as StorageClass,
 } from "../../storage/Storage_v2";
 
-import { definitionProvider } from "../../providers/definitions";
-import { hoverProvider } from "../../providers/hover";
-import { selectorsCompletetionProvider } from "../../providers/completion";
+import { DefnitionProvider } from "../../providers/definitions";
+import { HoverProvider } from "../../providers/hover";
+import {
+  ImportCompletionProvider,
+  SelectorsCompletionProvider,
+} from "../../providers/completion";
 import { CompletionList } from "vscode-css-languageservice";
 import { writeFileSync } from "fs";
 import "../../settings";
@@ -34,10 +37,35 @@ suite("Extension Test Suite", async () => {
       "react-app/src/test/TestComponent.tsx"
     )
   );
+
+  const AutoImportComponent = Uri.file(
+    path.join(
+      __dirname,
+      examplesLocation,
+      "react-app/src/test/auto-import/AutoImport.tsx"
+    )
+  );
+
+  const AutoImportComponent1 = Uri.file(
+    path.join(
+      __dirname,
+      examplesLocation,
+      "react-app/src/test/auto-import/AutoImport_1.tsx"
+    )
+  );
+
   const TestCssModulePath = path.join(
     __dirname,
     examplesLocation,
     "react-app/src/test/styles/TestStyles.module.scss"
+  );
+
+  const DiagnosticComponent = Uri.file(
+    path.join(
+      __dirname,
+      examplesLocation,
+      "react-app/src/test/Diagnostics/Diagnostics.tsx"
+    )
   );
 
   workspace.getWorkspaceFolder = () => {
@@ -55,12 +83,6 @@ suite("Extension Test Suite", async () => {
         "react-app"
       );
     });
-    test("should provide diagnostics for missing selector", async () => {
-      const document = await workspace.openTextDocument(TestComponentUri);
-      await window.showTextDocument(document);
-      const diagnostics = await StorageInstance.bootStrap();
-      assert.equal(diagnostics?.length, 1);
-    });
   });
 
   suite("Provider Factory", async () => {
@@ -70,12 +92,9 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         await StorageInstance.bootStrap();
 
-        const definition = definitionProvider({});
+        const definition = new DefnitionProvider();
         const position = new Position(6, 34);
-        const result = await definition.provideDefinition(document, position, {
-          isCancellationRequested: false,
-          onCancellationRequested: () => new Disposable(() => {}),
-        });
+        const result = await definition.provideDefinition(document, position);
 
         assert.equal(Array.isArray(result) ? result.length : [], 1);
         StorageInstance.flushStorage();
@@ -86,12 +105,9 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         await StorageInstance.bootStrap();
 
-        const definition = definitionProvider({});
+        const definition = new DefnitionProvider();
         const position = new Position(4, 34);
-        const result = await definition.provideDefinition(document, position, {
-          isCancellationRequested: false,
-          onCancellationRequested: () => new Disposable(() => {}),
-        });
+        const result = await definition.provideDefinition(document, position);
         if (Array.isArray(result)) {
           assert.equal(result.length, 0);
         }
@@ -103,35 +119,23 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         await StorageInstance.bootStrap();
 
-        const definition = definitionProvider({});
+        const definition = new DefnitionProvider();
         const suffixResult = (await definition.provideDefinition(
           document,
-          new Position(7, 37),
-          {
-            isCancellationRequested: false,
-            onCancellationRequested: () => new Disposable(() => {}),
-          }
+          new Position(7, 37)
         )) as LocationLink[];
         assert.equal(suffixResult[0].targetRange.start.line + 1, 12);
 
         const nestedChild = (await definition.provideDefinition(
           document,
-          new Position(10, 39),
-          {
-            isCancellationRequested: false,
-            onCancellationRequested: () => new Disposable(() => {}),
-          }
+          new Position(10, 39)
         )) as LocationLink[];
 
         assert.equal(nestedChild[0].targetRange.start.line + 1, 4);
 
         const sibling = (await definition.provideDefinition(
           document,
-          new Position(11, 41),
-          {
-            isCancellationRequested: false,
-            onCancellationRequested: () => new Disposable(() => {}),
-          }
+          new Position(11, 41)
         )) as LocationLink[];
         assert.equal(sibling[0].targetRange.start.line + 1, 8);
       });
@@ -143,12 +147,9 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         await StorageInstance.bootStrap();
 
-        const hover = hoverProvider({});
+        const hover = new HoverProvider();
         const position = new Position(6, 34);
-        const result = await hover.provideHover(document, position, {
-          isCancellationRequested: false,
-          onCancellationRequested: () => new Disposable(() => {}),
-        });
+        const result = await hover.provideHover(document, position);
         assert.notEqual(result, undefined);
         assert.equal(
           // @ts-ignore
@@ -163,12 +164,9 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         await StorageInstance.bootStrap();
 
-        const hover = hoverProvider({});
+        const hover = new HoverProvider();
         const position = new Position(4, 34);
-        const result = await hover.provideHover(document, position, {
-          isCancellationRequested: false,
-          onCancellationRequested: () => new Disposable(() => {}),
-        });
+        const result = await hover.provideHover(document, position);
         assert.equal(result, undefined);
         StorageInstance.flushStorage();
       });
@@ -178,14 +176,10 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         await StorageInstance.bootStrap();
 
-        const definition = hoverProvider({});
+        const definition = new HoverProvider();
         const result = (await definition.provideHover(
           document,
-          new Position(7, 37),
-          {
-            isCancellationRequested: false,
-            onCancellationRequested: () => new Disposable(() => {}),
-          }
+          new Position(7, 37)
         )) as Hover;
         // @ts-ignore
         assert.equal(result.contents[1].includes("&-test-suffix"), true);
@@ -196,14 +190,10 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         await StorageInstance.bootStrap();
 
-        const definition = hoverProvider({});
+        const definition = new HoverProvider();
         const result = (await definition.provideHover(
           document,
-          new Position(14, 37),
-          {
-            isCancellationRequested: false,
-            onCancellationRequested: () => new Disposable(() => {}),
-          }
+          new Position(14, 37)
         )) as Hover;
         // @ts-ignore
         assert.equal(result.contents[1].includes("testCamelCase"), true);
@@ -216,7 +206,7 @@ suite("Extension Test Suite", async () => {
 
         await StorageInstance.bootStrap();
 
-        const completion = selectorsCompletetionProvider({});
+        const completion = new SelectorsCompletionProvider();
         const position = new Position(6, 31);
         const list = (await completion.provideCompletionItems(
           document,
@@ -247,7 +237,7 @@ suite("Extension Test Suite", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
         await StorageInstance.bootStrap();
 
-        const completion = selectorsCompletetionProvider({});
+        const completion = new SelectorsCompletionProvider();
         const position = new Position(6, 31);
         const list = (await completion.provideCompletionItems(
           document,
@@ -281,7 +271,7 @@ suite("Extension Test Suite", async () => {
         writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
 
         await StorageInstance.bootStrap();
-        const completion = selectorsCompletetionProvider({});
+        const completion = new SelectorsCompletionProvider();
         writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
         const position = new Position(6, 31);
         const list = (await completion.provideCompletionItems(
@@ -300,6 +290,50 @@ suite("Extension Test Suite", async () => {
         writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
         assert.equal(list.items.length, 6);
         StorageInstance.flushStorage();
+      });
+
+      test("should provide import completions on accessing styles identifier", async () => {
+        const document = await workspace.openTextDocument(AutoImportComponent);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const completion = new ImportCompletionProvider();
+        const position = new Position(6, 31);
+        const list = await completion.provideCompletionItems(
+          document,
+          position
+        );
+        assert.equal(list?.items.length, 3);
+        StorageInstance.flushStorage();
+      });
+
+      test("should not provide import completions of already imported module on accessing styles identifier", async () => {
+        const document = await workspace.openTextDocument(AutoImportComponent1);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const completion = new ImportCompletionProvider();
+        const position = new Position(6, 31);
+        const list = await completion.provideCompletionItems(
+          document,
+          position
+        );
+        assert.equal(list?.items.length, 2);
+        StorageInstance.flushStorage();
+      });
+    });
+
+    suite("diagnostics provider", () => {
+      test("should provide diagnostics for missing selector", async () => {
+        const document = await workspace.openTextDocument(TestComponentUri);
+        await window.showTextDocument(document);
+        const diagnostics = await StorageInstance.bootStrap();
+        assert.equal(diagnostics?.length, 1);
+      });
+
+      test("should provide diagnostics for in correct css module import", async () => {
+        const document = await workspace.openTextDocument(DiagnosticComponent);
+        await window.showTextDocument(document);
+        const diagnostics = await StorageInstance.bootStrap();
+        assert.equal(diagnostics?.length, 2);
       });
     });
   });

@@ -7,15 +7,21 @@ import {
   Position,
   TextEdit,
   CompletionTriggerKind,
+  CancellationToken,
+  CompletionContext,
+  ProviderResult,
+  TextDocument,
 } from "vscode";
 import Settings from "../settings";
 import { ProviderFactory, ProviderKind } from "./ProviderFactory";
-import { ProviderParams } from "./types";
 
-export const selectorsCompletetionProvider: (
-  params: ProviderParams
-) => CompletionItemProvider = () => ({
-  async provideCompletionItems(document, position, _token, _context) {
+export class SelectorsCompletionProvider implements CompletionItemProvider {
+  provideCompletionItems(
+    document: TextDocument,
+    position: Position,
+    _token: CancellationToken,
+    _context: CompletionContext
+  ): ProviderResult<CompletionItem[] | CompletionList<CompletionItem>> {
     if (!Settings.autoComplete) {
       return;
     }
@@ -83,11 +89,11 @@ export const selectorsCompletetionProvider: (
       console.info(e);
     }
     return [];
-  },
-});
+  }
+}
 
-export const importsCompletionProvider: () => CompletionItemProvider = () => ({
-  async provideCompletionItems(document, position, _token, _context) {
+export class ImportCompletionProvider implements CompletionItemProvider {
+  async provideCompletionItems(document: TextDocument, position: Position) {
     if (!Settings.autoComplete || !Settings.autoImport) {
       return;
     }
@@ -98,15 +104,17 @@ export const importsCompletionProvider: () => CompletionItemProvider = () => ({
         document,
       });
       const items = await provider.getImportForCompletions();
-      return items.map((c, index) => ({
-        label: c.label,
-        detail: `auto import from ./${c.shortPath}`,
-        kind: CompletionItemKind.Module,
-        additionalTextEdits: c.additionalEdits,
-      }));
+      return new CompletionList(
+        items.map((c, index) => ({
+          label: c.label,
+          detail: `auto import from ./${c.shortPath}`,
+          kind: CompletionItemKind.Module,
+          additionalTextEdits: c.additionalEdits,
+        }))
+      );
     } catch (e) {
       console.error(e);
-      return [];
+      return;
     }
-  },
-});
+  }
+}

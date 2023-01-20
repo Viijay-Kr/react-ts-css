@@ -15,6 +15,7 @@ import {
   isStringLiteral,
 } from "@babel/types";
 import { basename, parse as parsePath, relative } from "path";
+import { normalizePath } from "../path-utils";
 
 export enum ProviderKind {
   Definition = 1,
@@ -150,7 +151,7 @@ export class ProviderFactory {
     const activeFileuri = this.document.uri.fsPath;
     const activePathInfo = parsePath(activeFileuri);
     const parsedResult = Storage_v2.getParsedResultByFilePath();
-    const currentDir = activePathInfo.dir;
+    const currentDir = normalizePath(activePathInfo.dir);
     const importStatements = parsedResult?.import_statements;
     const lastImportStatement = importStatements?.[importStatements.length - 1];
 
@@ -159,7 +160,9 @@ export class ProviderFactory {
     ) => {
       const modulePathInfo = parsePath(module);
       const activePathInfo = parsePath(activeFileuri);
-      const relativePath = relative(activePathInfo.dir, modulePathInfo.dir);
+      const relativePath = normalizePath(
+        relative(activePathInfo.dir, modulePathInfo.dir)
+      );
       const newText = `import styles from '${
         relativePath === "" ? "./" : relativePath
       }${modulePathInfo.base}';\n`;
