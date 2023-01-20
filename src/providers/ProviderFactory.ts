@@ -7,6 +7,7 @@ import {
   TextEdit,
   languages,
   DiagnosticSeverity,
+  SymbolKind,
 } from "vscode";
 import Storage_v2 from "../storage/Storage_v2";
 import {
@@ -16,6 +17,8 @@ import {
 } from "@babel/types";
 import { basename, parse as parsePath, relative } from "path";
 import { normalizePath } from "../path-utils";
+import { DocumentSymbol, SymbolInformation } from "vscode-css-languageservice";
+import { CssParserResult } from "../parser/v2/css";
 
 export enum ProviderKind {
   Definition = 1,
@@ -213,5 +216,22 @@ export class ProviderFactory {
       }
       return acc;
     }, []);
+  }
+
+  public getCssVariablesForCompletion() {
+    const module = normalizePath(this.document.uri.fsPath);
+    const variables: CssParserResult["variables"] = [];
+    if (module.endsWith(".css")) {
+      const cssModules = Array.from(Storage_v2.sourceFiles.keys()).filter((c) =>
+        c.endsWith(".css")
+      );
+      for (const m of cssModules) {
+        const node = Storage_v2.sourceFiles.get(m);
+        if (node) {
+          variables.push(...node.variables);
+        }
+      }
+    }
+    return variables;
   }
 }

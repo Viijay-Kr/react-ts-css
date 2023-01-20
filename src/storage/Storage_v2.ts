@@ -12,7 +12,7 @@ import {
 import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../constants";
 import { ParserResult } from "../parser/v2/tsx";
 import * as fsg from "fast-glob";
-import { Selector } from "../parser/v2/css";
+import { CssParserResult, parseCss, Selector } from "../parser/v2/css";
 import { promises as fs_promises } from "node:fs";
 import Settings from "../settings";
 import { ParserFactory } from "../parser/ParserFactory";
@@ -32,7 +32,7 @@ export type Selectors = {
 };
 
 // Full file path of the active opened file
-type SourceFiles = Map<string, boolean>;
+type SourceFiles = Map<string, CssParserResult>;
 
 export type ParsedResult = Map<FileName, ParserResult & Selectors>;
 
@@ -107,16 +107,23 @@ export class experimental_Storage {
    * Called every time when a new file is created in the workspace
    * @param files readonly [Uri](#vscode.Uri)[]
    */
-  public addSourceFiles(files: readonly Uri[]) {
-    files.forEach((f) => {
-      if (
-        CSS_MODULE_EXTENSIONS.includes(
-          path.extname(f.path) as CssModuleExtensions
-        )
-      ) {
-        this._sourceFiles.set(f.path, true);
-      }
+  public async addSourceFiles(files: readonly Uri[]) {
+    files.forEach(async (f) => {
+      await this.storeCssParserResult(f.path);
     });
+  }
+
+  public async storeCssParserResult(module: string) {
+    if (
+      CSS_MODULE_EXTENSIONS.includes(
+        path.extname(module) as CssModuleExtensions
+      )
+    ) {
+      const result = await parseCss(module);
+      if (result) {
+        this._sourceFiles.set(module, result);
+      }
+    }
   }
 
   /**
@@ -182,9 +189,11 @@ export class experimental_Storage {
         ignore: ["node_modules", "build", "dist", "coverage"],
         absolute: true,
       });
-      files.forEach((v) => {
-        this._sourceFiles.set(v, true);
-      });
+      await Promise.all(
+        files.map(async (v) => {
+          await this.storeCssParserResult(v);
+        })
+      );
     }
   }
 

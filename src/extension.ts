@@ -6,14 +6,22 @@ import { HoverProvider } from "./providers/hover";
 import {
   SelectorsCompletionProvider,
   ImportCompletionProvider,
+  CssVariablesCompletion,
 } from "./providers/completion";
 import Settings, { EXT_NAME, getSettings } from "./settings";
 import Storage_V2 from "./storage/Storage_v2";
 import { DiagnosticCodeAction } from "./providers/code-actions";
 
-const documentSelector = [
+const tsDocumentSelector = [
   { scheme: "file", language: "typescriptreact" },
   { scheme: "file", language: "typescript" },
+];
+
+const cssDocumentSelector = [
+  {
+    scheme: "file",
+    language: "css",
+  },
 ];
 
 workspace.onDidCreateFiles((e) => {
@@ -41,32 +49,38 @@ export async function activate(context: ExtensionContext): Promise<void> {
   try {
     await Storage_V2.bootStrap();
     const _definitionProvider = languages.registerDefinitionProvider(
-      documentSelector,
+      tsDocumentSelector,
       new DefnitionProvider()
     );
     const _hoverProvider = languages.registerHoverProvider(
-      documentSelector,
+      tsDocumentSelector,
       new HoverProvider()
     );
     const _selectorsCompletionProvider =
       languages.registerCompletionItemProvider(
-        documentSelector,
+        tsDocumentSelector,
         new SelectorsCompletionProvider(),
         ".",
         "'",
         "["
       );
     const _importsCompletionProvider = languages.registerCompletionItemProvider(
-      documentSelector,
+      tsDocumentSelector,
       new ImportCompletionProvider()
     );
     const _codeActionsProvider = languages.registerCodeActionsProvider(
-      documentSelector,
+      tsDocumentSelector,
       new DiagnosticCodeAction(context)
+    );
+
+    const _cssVariablesCompletion = languages.registerCompletionItemProvider(
+      cssDocumentSelector,
+      new CssVariablesCompletion()
     );
 
     context.subscriptions.push(_selectorsCompletionProvider);
     context.subscriptions.push(_importsCompletionProvider);
+    context.subscriptions.push(_cssVariablesCompletion);
     context.subscriptions.push(_definitionProvider);
     context.subscriptions.push(_hoverProvider);
     context.subscriptions.push(_codeActionsProvider);
