@@ -116,6 +116,7 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
           return "";
         })();
         if (
+          selector !== "" &&
           !selectors.selectors.has(selector) &&
           !Storage_v2.ignoredDiagnostics.has(selector)
         ) {
@@ -177,13 +178,15 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
         const ext = path.extname(module) as CssModuleExtensions;
         const isRelative = module.startsWith(".");
         if (CSS_MODULE_EXTENSIONS.includes(ext) && module.includes(".module")) {
-          const relativePath = (!isRelative
-            ? path.resolve(
-                Storage_v2.workSpaceRoot!,
-                this.baseDir ?? "",
-                module
-              )
-            : path.resolve(this.activeFileDir, module)).replace(/\\/g,'/');
+          const relativePath = (
+            !isRelative
+              ? path.resolve(
+                  Storage_v2.workSpaceRoot!,
+                  this.baseDir ?? "",
+                  module
+                )
+              : path.resolve(this.activeFileDir, module)
+          ).replace(/\\/g, "/");
           if (!Storage_v2.sourceFiles.has(relativePath)) {
             this.diagnostics.push({
               message: `Module Not found '${module}'`,
