@@ -38,8 +38,6 @@
 
 .card {
   padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  color: var(--color-white);
+  background-color: var(--color-yellow);
 }

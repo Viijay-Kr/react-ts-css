@@ -1,32 +1,19 @@
 import {
-  Diagnostic,
   MarkdownString,
   Position,
   Range,
   TextDocument,
   TextEdit,
-  languages,
-  DiagnosticSeverity,
-  SymbolKind,
 } from "vscode";
-import Storage_v2 from "../storage/Storage_v2";
+import Store from "../../store/Store";
 import {
   isIdentifier,
   isImportDeclaration,
   isStringLiteral,
 } from "@babel/types";
 import { basename, parse as parsePath, relative } from "path";
-import { normalizePath } from "../path-utils";
-import { DocumentSymbol, SymbolInformation } from "vscode-css-languageservice";
-import { CssParserResult } from "../parser/v2/css";
-
-export enum ProviderKind {
-  Definition = 1,
-  Completion = 2,
-  Hover = 3,
-  CODE_ACTIONS = 4,
-  Invalid = -1,
-}
+import { normalizePath } from "../../path-utils";
+import { ProviderKind } from "../types";
 
 export interface CompletionItemType {
   label: string;
@@ -35,15 +22,11 @@ export interface CompletionItemType {
   additionalEdits?: TextEdit[];
 }
 
-export interface SelectorCompletionItem extends CompletionItemType {
-  type?: "root" | "suffix" | "child" | "sibling";
-}
-
 export interface ImportCompletionItem extends CompletionItemType {
   type?: "module";
   shortPath: string;
 }
-export class ProviderFactory {
+export class TSProviderFactory {
   public providerKind: ProviderKind = ProviderKind.Invalid;
   /** Current Active Position in the Document */
   public position: Position;
@@ -60,19 +43,19 @@ export class ProviderFactory {
     if (options.document) {
       this.document = options.document;
     } else {
-      this.document = Storage_v2.getActiveTextDocument();
+      this.document = Store.getActiveTextDocument();
     }
   }
 
   public getMatchedSelector() {
-    const accessorAtOffset = Storage_v2.getAccessorAtOffset(
+    const accessorAtOffset = Store.getAccessorAtOffset(
       this.document,
       this.document.offsetAt(this.position)
     );
     if (!accessorAtOffset) {
       return;
     }
-    const allSelectors = Storage_v2.getSelectorsByIdentifier(
+    const allSelectors = Store.getSelectorsByIdentifier(
       accessorAtOffset.object.name
     );
     if (allSelectors) {
@@ -99,7 +82,7 @@ export class ProviderFactory {
 
   public getOriginWordRange() {
     const document = this.document;
-    const nodeAtOffset = Storage_v2.getAccessorAtOffset(
+    const nodeAtOffset = Store.getAccessorAtOffset(
       this.document,
       document.offsetAt(this.position)
     );
@@ -124,7 +107,7 @@ export class ProviderFactory {
       new Position(this.position.line, this.position.character),
       new Position(this.position.line, this.position.character)
     );
-    const node = Storage_v2.getParsedResultByFilePath();
+    const node = Store.getParsedResultByFilePath();
     let natched_identifier = "";
     if (node) {
       for (const identifier of node.style_identifiers) {
@@ -147,13 +130,13 @@ export class ProviderFactory {
     if (!natched_identifier) {
       return;
     }
-    return Storage_v2.getSelectorsByIdentifier(natched_identifier);
+    return Store.getSelectorsByIdentifier(natched_identifier);
   }
 
   public async getImportForCompletions() {
     const activeFileuri = this.document.uri.fsPath;
     const activePathInfo = parsePath(activeFileuri);
-    const parsedResult = Storage_v2.getParsedResultByFilePath();
+    const parsedResult = Store.getParsedResultByFilePath();
     const currentDir = normalizePath(activePathInfo.dir);
     const importStatements = parsedResult?.import_statements;
     const lastImportStatement = importStatements?.[importStatements.length - 1];
@@ -201,37 +184,31 @@ export class ProviderFactory {
       return false;
     };
 
-    return Array.from(Storage_v2.sourceFiles.keys()).reduce<
-      ImportCompletionItem[]
-    >((acc, uri) => {
-      const shortPath = basename(uri);
-      if (shouldInclude(uri)) {
-        return acc.concat({
-          label: "styles",
-          type: "module",
-          shortPath,
-          extras: uri,
-          additionalEdits: buildAdditionalEdit(uri),
-        });
-      }
-      return acc;
-    }, []);
+    return Array.from(Store.sourceFiles.keys()).reduce<ImportCompletionItem[]>(
+      (acc, uri) => {
+        const shortPath = basename(uri);
+        if (shouldInclude(uri)) {
+          return acc.concat({
+            label: "styles",
+            type: "module",
+            shortPath,
+            extras: uri,
+            additionalEdits: buildAdditionalEdit(uri),
+          });
+        }
+        return acc;
+      },
+      []
+    );
   }
 
-  public getCssVariablesForCompletion() {
-    const module = normalizePath(this.document.uri.fsPath);
-    const variables: CssParserResult["variables"] = [];
-    if (module.endsWith(".css")) {
-      const cssModules = Array.from(Storage_v2.sourceFiles.keys()).filter((c) =>
-        c.endsWith(".css")
-      );
-      for (const m of cssModules) {
-        const node = Storage_v2.sourceFiles.get(m);
-        if (node) {
-          variables.push(...node.variables);
-        }
-      }
+  public getOriginWordAtRange() {
+    const offset = this.document.offsetAt(this.position);
+    let i = offset - 1;
+    const text = this.document.getText();
+    while (i >= 0 && ' \t\n\r":{[()]},*>+'.indexOf(text.charAt(i)) === -1) {
+      i--;
     }
-    return variables;
+    return text.substring(i + 1, offset);
   }
 }

@@ -9,14 +9,18 @@ import {
   Range,
   workspace,
 } from "vscode";
-import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../constants";
+import {
+  CssModuleExtensions,
+  CSS_MODULE_EXTENSIONS,
+  TS_MODULE_EXTENSIONS,
+} from "../constants";
 import { ParserResult } from "../parser/v2/tsx";
 import * as fsg from "fast-glob";
 import { CssParserResult, parseCss, Selector } from "../parser/v2/css";
 import { promises as fs_promises } from "node:fs";
 import Settings from "../settings";
 import { ParserFactory } from "../parser/ParserFactory";
-import { DiagnosticsProvider } from "../providers/diagnostics";
+import { DiagnosticsProvider } from "../providers/ts/diagnostics";
 
 type FileName = string;
 type StyleIdentifier = Identifier["name"];
@@ -34,6 +38,13 @@ export type Selectors = {
 // Full file path of the active opened file
 type SourceFiles = Map<string, CssParserResult>;
 
+type BootstrapParams = {
+  initialBootup?: boolean;
+  bootOnchange?: boolean;
+  isDirty?: boolean;
+  changedDocument?: TextDocument;
+};
+
 export type ParsedResult = Map<FileName, ParserResult & Selectors>;
 
 export type TsConfig = {
@@ -46,7 +57,7 @@ export type IgnoreDiagnostis = Map<
   string, // Selector
   Range // Range of the Selector
 >;
-export class experimental_Storage {
+export class Store {
   public parsedResult: ParsedResult = new Map();
   protected _sourceFiles: SourceFiles = new Map();
   /** Root path of the workspace */
@@ -60,6 +71,15 @@ export class experimental_Storage {
       baseUrl: "",
     },
   };
+
+  constructor() {
+    const uri = window.activeTextEditor?.document?.uri;
+    if (uri) {
+      const _uri = workspace.getWorkspaceFolder(uri)?.uri;
+      const workspaceRoot = _uri?.fsPath;
+      this.workSpaceRoot = workspaceRoot;
+    }
+  }
 
   public get activeTextEditor(): TextEditor {
     const editor = window.activeTextEditor;
@@ -109,21 +129,23 @@ export class experimental_Storage {
    */
   public async addSourceFiles(files: readonly Uri[]) {
     files.forEach(async (f) => {
-      await this.storeCssParserResult(f.path);
+      if (
+        CSS_MODULE_EXTENSIONS.includes(
+          path.extname(f.fsPath) as CssModuleExtensions
+        )
+      ) {
+        await this.storeCssParserResult(f.path);
+      }
     });
   }
 
   public async storeCssParserResult(module: string) {
-    if (
-      CSS_MODULE_EXTENSIONS.includes(
-        path.extname(module) as CssModuleExtensions
-      )
-    ) {
+    try {
       const result = await parseCss(module);
       if (result) {
         this._sourceFiles.set(module, result);
       }
-    }
+    } catch (e) {}
   }
 
   /**
@@ -267,4 +289,4 @@ export class experimental_Storage {
     this.provideDiagnostics();
   }
 }
-export default new experimental_Storage();
+export default new Store();

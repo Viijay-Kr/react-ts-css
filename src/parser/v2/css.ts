@@ -1,14 +1,21 @@
 import { promises as fs_promises } from "fs";
 import path = require("path");
-import { Position, Range as vscodeRange } from "vscode";
+import {
+  Position,
+  Range as vscodeRange,
+  Uri,
+  TextDocument as vscode_TextDocument,
+  Color,
+} from "vscode";
 import {
   getCSSLanguageService,
   getSCSSLanguageService,
   TextDocument,
   Range,
   getLESSLanguageService,
-  SymbolInformation,
-  DocumentSymbol,
+  Stylesheet as unsafe_Stylesheet,
+  ColorInformation,
+  ColorPresentation,
 } from "vscode-css-languageservice";
 import { CssModuleExtensions } from "../../constants";
 import {
@@ -17,11 +24,11 @@ import {
   Node,
   NodeType,
   RuleSet,
-  SimpleSelector,
   Stylesheet,
 } from "../../css-node.types";
+import { isColorString } from "../utils";
 
-const getLanguageService = (module: string) => {
+export const getLanguageService = (module: string) => {
   switch (path.extname(module) as CssModuleExtensions) {
     case ".css":
       return getCSSLanguageService();
@@ -33,7 +40,7 @@ const getLanguageService = (module: string) => {
       return getCSSLanguageService();
   }
 };
-const getLanguageId = (module: string) => {
+export const getLanguageId = (module: string) => {
   switch (path.extname(module) as CssModuleExtensions) {
     case ".css":
       return "css";
@@ -48,12 +55,11 @@ const getLanguageId = (module: string) => {
 export type CssParserResult = {
   selectors: Map<string, Selector>;
   eofRange: vscodeRange;
-  variables: {
-    name?: string;
-    value?: string;
-    location: Range;
-  }[];
+  variables: Variable[];
+  ast: Stylesheet;
+  colors: ColorInformation[];
 };
+
 export const parseCss = async (
   module: string
 ): Promise<CssParserResult | undefined> => {
@@ -69,11 +75,12 @@ export const parseCss = async (
     const ast = languageService.parseStylesheet(document);
     const selectors = getSelectors(ast as Stylesheet, document);
     const variables = getVariables(ast as Stylesheet, document);
+    const colors = languageService.findDocumentColors(document, ast);
     const eofRange = new vscodeRange(
       new Position(document.lineCount + 2, 0),
       new Position(document.lineCount + 2, 0)
     );
-    return { selectors, eofRange, variables };
+    return { selectors, eofRange, variables, ast: ast as Stylesheet, colors };
   } catch (e) {
     console.error(e);
   }
@@ -87,8 +94,10 @@ export type Selector = {
 };
 
 export type Variable = {
-  range: Range;
-  content: string;
+  name?: string;
+  value?: string;
+  kind: "color" | "normal";
+  location: { range: Range; uri: Uri };
 };
 
 export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
@@ -201,10 +210,14 @@ export const getVariables = (ast: Stylesheet, document: TextDocument) => {
       variables.push({
         name: _node.property?.getText(),
         value: _node.value?.getText(),
-        location: Range.create(
-          document.positionAt(_node.offset),
-          document.positionAt(_node.end)
-        ),
+        kind: isColorString(_node.value?.getText() ?? "") ? "color" : "normal",
+        location: {
+          range: Range.create(
+            document.positionAt(_node.value?.offset ?? _node.offset),
+            document.positionAt(_node.value?.end ?? _node.end)
+          ),
+          uri: Uri.file(document.uri),
+        },
       });
     }
     for (const child of node.getChildren()) {
@@ -216,4 +229,16 @@ export const getVariables = (ast: Stylesheet, document: TextDocument) => {
   }
 
   return variables;
+};
+
+export const createStyleSheet = (document: vscode_TextDocument): Stylesheet => {
+  const _document = TextDocument.create(
+    document.uri.path,
+    getLanguageId(document.uri.path),
+    1,
+    document.getText()
+  );
+  const languageService = getLanguageService(document.uri.path);
+  const ast = languageService.parseStylesheet(_document);
+  return ast as Stylesheet;
 };

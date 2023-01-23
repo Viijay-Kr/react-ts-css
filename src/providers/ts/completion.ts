@@ -12,8 +12,9 @@ import {
   ProviderResult,
   TextDocument,
 } from "vscode";
-import Settings from "../settings";
-import { ProviderFactory, ProviderKind } from "./ProviderFactory";
+import Settings from "../../settings";
+import { ProviderKind } from "../types";
+import { TSProviderFactory } from "./TSProviderFactory";
 
 export class SelectorsCompletionProvider implements CompletionItemProvider {
   provideCompletionItems(
@@ -69,7 +70,7 @@ export class SelectorsCompletionProvider implements CompletionItemProvider {
         return completionItem;
       };
       try {
-        const provider = new ProviderFactory({
+        const provider = new TSProviderFactory({
           providerKind: ProviderKind.Completion,
           position,
           document,
@@ -98,7 +99,7 @@ export class ImportCompletionProvider implements CompletionItemProvider {
       return;
     }
     try {
-      const provider = new ProviderFactory({
+      const provider = new TSProviderFactory({
         providerKind: ProviderKind.Completion,
         position,
         document,
@@ -116,37 +117,5 @@ export class ImportCompletionProvider implements CompletionItemProvider {
       console.error(e);
       return;
     }
-  }
-}
-
-export class CssVariablesCompletion implements CompletionItemProvider {
-  provideCompletionItems(
-    document: TextDocument,
-    position: Position,
-    token: CancellationToken,
-    context: CompletionContext
-  ): ProviderResult<CompletionItem[] | CompletionList<CompletionItem>> {
-    try {
-      if (!Settings.cssAutoComplete) {
-        return [];
-      }
-      const provider = new ProviderFactory({
-        providerKind: ProviderKind.Completion,
-        position,
-        document,
-      });
-      const variableSymbols = provider.getCssVariablesForCompletion();
-      const completionList = new CompletionList();
-      variableSymbols.forEach(({ name, value }) => {
-        if (name && value) {
-          completionList.items.push({
-            label: name,
-            detail: value,
-            kind: CompletionItemKind.Variable,
-          });
-        }
-      });
-      return completionList;
-    } catch (e) {}
   }
 }

@@ -3,16 +3,14 @@ import {
   Uri,
   Range,
   DefinitionProvider as vscode_DefinitionProvider,
-  CancellationToken,
   Definition,
   LocationLink,
   Position,
-  ProviderResult,
   TextDocument,
 } from "vscode";
-import Settings from "../settings";
-import { ProviderFactory, ProviderKind } from "./ProviderFactory";
-import { ProviderParams } from "./types";
+import Settings from "../../settings";
+import { TSProviderFactory } from "./TSProviderFactory";
+import { ProviderKind } from "./../types";
 
 export class DefnitionProvider implements vscode_DefinitionProvider {
   async provideDefinition(
@@ -23,7 +21,7 @@ export class DefnitionProvider implements vscode_DefinitionProvider {
       return [];
     }
     try {
-      const provider = new ProviderFactory({
+      const provider = new TSProviderFactory({
         position,
         providerKind: ProviderKind.Definition,
         document: document,
