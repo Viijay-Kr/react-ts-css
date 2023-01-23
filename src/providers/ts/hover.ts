@@ -6,9 +6,10 @@ import {
   Position,
   TextDocument,
 } from "vscode";
-import Settings from "../settings";
-import Storage_v2 from "../storage/Storage_v2";
-import { ProviderFactory, ProviderKind } from "./ProviderFactory";
+import Settings from "../../settings";
+import Store from "../../store/Store";
+import { ProviderKind } from "../types";
+import { TSProviderFactory } from "./TSProviderFactory";
 
 export class HoverProvider implements vscode_HoverProvider {
   async provideHover(
@@ -19,7 +20,7 @@ export class HoverProvider implements vscode_HoverProvider {
       return;
     }
     try {
-      const provider = new ProviderFactory({
+      const provider = new TSProviderFactory({
         position,
         providerKind: ProviderKind.Hover,
         document: document,
@@ -32,7 +33,7 @@ export class HoverProvider implements vscode_HoverProvider {
         const content = target.content;
         const language = path.extname(matchedSelector.uri).replace(".", "");
         const filePath = path.relative(
-          Storage_v2.workSpaceRoot ?? "",
+          Store.workSpaceRoot ?? "",
           matchedSelector.uri
         );
         const linenum = target.range.start.line + 1;

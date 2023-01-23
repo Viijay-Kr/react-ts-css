@@ -1,6 +1,6 @@
 import path = require("path");
 import * as vscode from "vscode";
-import Storage_v2 from "../storage/Storage_v2";
+import Store from "../../store/Store";
 import {
   DiagnosticCodeActions,
   DiagnosticNonCodeActions,
@@ -29,7 +29,7 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
 
   // TODO: type args
   private async ignoreWarningCommand(...args: [vscode.Range, string]) {
-    Storage_v2.collectIgnoredDiagnostics([args[0], args[1]]);
+    Store.collectIgnoredDiagnostics([args[0], args[1]]);
   }
 
   public provideCodeActions(
@@ -60,7 +60,7 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
     );
     const edit = new vscode.WorkspaceEdit();
     edit.replace(
-      Storage_v2.activeTextEditor.document.uri,
+      Store.activeTextEditor.document.uri,
       diagnostic.range,
       diagnostic.replace ?? ""
     );

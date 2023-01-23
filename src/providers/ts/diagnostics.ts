@@ -15,10 +15,10 @@ import {
   Range,
   Uri,
 } from "vscode";
-import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../constants";
-import { Selector } from "../parser/v2/css";
-import Storage_v2 from "../storage/Storage_v2";
-import { normalizePath } from "../path-utils";
+import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../../constants";
+import { Selector } from "../../parser/v2/css";
+import Store from "../../store/Store";
+import { normalizePath } from "../../path-utils";
 
 export type extended_Diagnostic = Diagnostic & {
   replace?: string;
@@ -26,7 +26,7 @@ export type extended_Diagnostic = Diagnostic & {
 };
 
 export type DiagnosticsContext = {
-  parsedResult: ReturnType<typeof Storage_v2.getParsedResultByFilePath>;
+  parsedResult: ReturnType<typeof Store.getParsedResultByFilePath>;
   baseDir: string | undefined;
   activeFileDir: string | undefined;
   activeFileUri: Uri;
@@ -77,7 +77,7 @@ export class DiagnosticsProvider {
 class Diagnostics {
   public diagnostics: Array<extended_Diagnostic> = [];
   protected readonly parsedResult: ReturnType<
-    typeof Storage_v2.getParsedResultByFilePath
+    typeof Store.getParsedResultByFilePath
   >;
   protected readonly baseDir: string | undefined;
   public readonly activeFileDir: string;
@@ -119,7 +119,7 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
         if (
           selector !== "" &&
           !selectors.selectors.has(selector) &&
-          !Storage_v2.ignoredDiagnostics.has(selector)
+          !Store.ignoredDiagnostics.has(selector)
         ) {
           const closestMatchingSelector =
             SelectorRelatedDiagnostics.findClosestMatchingSelector(
@@ -130,7 +130,7 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
             ? `Did you mean '${closestMatchingSelector}'?`
             : "";
           const relativePath = path.relative(
-            Storage_v2.workSpaceRoot ?? "",
+            Store.workSpaceRoot ?? "",
             selectors.uri
           );
           this.diagnostics.push({
@@ -181,14 +181,10 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
         if (CSS_MODULE_EXTENSIONS.includes(ext) && module.includes(".module")) {
           const relativePath = normalizePath(
             !isRelative
-              ? path.resolve(
-                  Storage_v2.workSpaceRoot!,
-                  this.baseDir ?? "",
-                  module
-                )
+              ? path.resolve(Store.workSpaceRoot!, this.baseDir ?? "", module)
               : path.resolve(this.activeFileDir, module)
           );
-          if (!Storage_v2.sourceFiles.has(relativePath)) {
+          if (!Store.sourceFiles.has(relativePath)) {
             this.diagnostics.push({
               message: `Module Not found '${module}'`,
               source: "React TS CSS",

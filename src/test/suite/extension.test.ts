@@ -10,19 +10,18 @@ import {
   window,
   workspace,
 } from "vscode";
-import StorageInstance, {
-  experimental_Storage as StorageClass,
-} from "../../storage/Storage_v2";
+import StorageInstance from "../../store/Store";
 
-import { DefnitionProvider } from "../../providers/definitions";
-import { HoverProvider } from "../../providers/hover";
+import { DefnitionProvider } from "../../providers/ts/definitions";
+import { HoverProvider } from "../../providers/ts/hover";
 import {
   ImportCompletionProvider,
   SelectorsCompletionProvider,
-} from "../../providers/completion";
+} from "../../providers/ts/completion";
 import { CompletionList } from "vscode-css-languageservice";
 import { writeFileSync } from "fs";
 import "../../settings";
+import { CssVariablesCompletion } from "../../providers/css/completion";
 const examplesLocation = "../../../examples/";
 
 suite("Extension Test Suite", async () => {
@@ -85,7 +84,7 @@ suite("Extension Test Suite", async () => {
     });
   });
 
-  suite("Provider Factory", async () => {
+  suite("CSS module features", async () => {
     suite("definition provider", () => {
       test("should provide definitions when definition command is triggered at a relavent position [Class identifier]", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
@@ -334,6 +333,64 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         const diagnostics = await StorageInstance.bootStrap();
         assert.equal(diagnostics?.length, 2);
+      });
+    });
+  });
+
+  suite("Css language features", async () => {
+    suite("Completions", () => {
+      const AppCssUri = path.join(
+        __dirname,
+        examplesLocation,
+        "react-app/src/App.css"
+      );
+      const IndexCssUri = path.join(
+        __dirname,
+        examplesLocation,
+        "react-app/src/index.css"
+      );
+      test("provide completions for css variables across files", async () => {
+        const document = await workspace.openTextDocument(AppCssUri);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const provider = new CssVariablesCompletion();
+        const position = new Position(6, 31);
+        const result = provider.provideCompletionItems(document, position);
+        assert.equal((result?.items.length ?? 0) > 1, true);
+      });
+      test("completion items should resolve item to `var(${name})` if no `var` key word exists", async () => {
+        const document = await workspace.openTextDocument(AppCssUri);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const provider = new CssVariablesCompletion();
+        const position = new Position(6, 31);
+        const result = provider.provideCompletionItems(document, position);
+        assert.equal(
+          result?.items[0].insertText?.toString().includes("var"),
+          true
+        );
+      });
+
+      test("completions items should not resolve to `var${name}` when var keyword exists", async () => {
+        const document = await workspace.openTextDocument(AppCssUri);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const provider = new CssVariablesCompletion();
+        const position = new Position(46, 14);
+        const result = provider.provideCompletionItems(document, position);
+        assert.equal(
+          result?.items[0].insertText?.toString().includes("var"),
+          false
+        );
+      });
+      test("dont provide completions for css variables from same file", async () => {
+        const document = await workspace.openTextDocument(IndexCssUri);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const provider = new CssVariablesCompletion();
+        const position = new Position(6, 31);
+        const result = provider.provideCompletionItems(document, position);
+        assert.equal(result?.items.length, 0);
       });
     });
   });

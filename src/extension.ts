@@ -1,16 +1,17 @@
 "use strict";
 
 import { ExtensionContext, window, workspace, languages } from "vscode";
-import { DefnitionProvider } from "./providers/definitions";
-import { HoverProvider } from "./providers/hover";
+import { DefnitionProvider } from "./providers/ts/definitions";
+import { HoverProvider } from "./providers/ts/hover";
 import {
   SelectorsCompletionProvider,
   ImportCompletionProvider,
-  CssVariablesCompletion,
-} from "./providers/completion";
+} from "./providers/ts/completion";
 import Settings, { EXT_NAME, getSettings } from "./settings";
-import Storage_V2 from "./storage/Storage_v2";
-import { DiagnosticCodeAction } from "./providers/code-actions";
+import Store from "./store/Store";
+import { DiagnosticCodeAction } from "./providers/ts/code-actions";
+import { DocumentColorProvider } from "./providers/css/colors";
+import { CssVariablesCompletion } from "./providers/css/completion";
 
 const tsDocumentSelector = [
   { scheme: "file", language: "typescriptreact" },
@@ -25,15 +26,15 @@ const cssDocumentSelector = [
 ];
 
 workspace.onDidCreateFiles((e) => {
-  Storage_V2.addSourceFiles(e.files);
+  Store.addSourceFiles(e.files);
 });
 
-workspace.onDidChangeTextDocument(() => {
-  Storage_V2.bootStrap();
+workspace.onDidChangeTextDocument((e) => {
+  Store.bootStrap();
 });
 
 window.onDidChangeActiveTextEditor((e) => {
-  Storage_V2.bootStrap();
+  Store.bootStrap();
 });
 
 workspace.onDidChangeConfiguration((e) => {
@@ -47,7 +48,7 @@ workspace.onDidChangeConfiguration((e) => {
 
 export async function activate(context: ExtensionContext): Promise<void> {
   try {
-    await Storage_V2.bootStrap();
+    await Store.bootStrap();
     const _definitionProvider = languages.registerDefinitionProvider(
       tsDocumentSelector,
       new DefnitionProvider()
@@ -75,7 +76,13 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
     const _cssVariablesCompletion = languages.registerCompletionItemProvider(
       cssDocumentSelector,
-      new CssVariablesCompletion()
+      new CssVariablesCompletion(),
+      "-"
+    );
+
+    const _cssColorProviders = languages.registerColorProvider(
+      cssDocumentSelector,
+      new DocumentColorProvider()
     );
 
     context.subscriptions.push(_selectorsCompletionProvider);
@@ -84,6 +91,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     context.subscriptions.push(_definitionProvider);
     context.subscriptions.push(_hoverProvider);
     context.subscriptions.push(_codeActionsProvider);
+    context.subscriptions.push(_cssColorProviders);
   } catch (e) {
     console.error(e);
     window.showWarningMessage(
@@ -93,5 +101,5 @@ export async function activate(context: ExtensionContext): Promise<void> {
 }
 
 export function deactivate() {
-  Storage_V2.flushStorage();
+  Store.flushStorage();
 }

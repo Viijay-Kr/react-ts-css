@@ -13,14 +13,13 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-  --color-color-black: #000;
-  --color-blue: #000;
-  --color-yellow: #000;
-  --color-green: #000;
+  --color-black: hsl(0, 62%, 39%);
+  --color-blue: aliceblue;
+  --color-yellow: yellow;
+  --color-white: white;
+  --space-1-rem: 1rem;
 }
 
 body {
-  background-color: var(--color-blue);
-
-  color:var()
+  color: var(--color-black);
 }
