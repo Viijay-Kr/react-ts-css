@@ -98,7 +98,7 @@ export class CSSProviderFactory {
     const styleSheet = createStyleSheet(this.document);
     const offset = this.document.offsetAt(this.position);
     const cssmodule = Store.sourceFiles.get(
-      normalizePath(this.document.uri.path)
+      normalizePath(this.document.uri.fsPath)
     );
     if (cssmodule) {
       const node = styleSheet;
@@ -143,7 +143,7 @@ export class CSSProviderFactory {
           const args = (node as Function).getArguments();
           for (const [v] of colorVariables.entries()) {
             if (v.name === args.getText()) {
-              const source = Store.sourceFiles.get(v.location.uri.path);
+              const source = Store.sourceFiles.get(normalizePath(v.location.uri.fsPath));
               if (source) {
                 const match = source.colors.find((c) =>
                   rangeStrictEqual(c.range, v.location.value_range)
