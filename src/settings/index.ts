@@ -70,6 +70,21 @@ export class Settings {
   public set cssAutoComplete(v: boolean | undefined) {
     workspace.getConfiguration(EXT_NAME).update("cssAutoComplete", v);
   }
+
+  public get cssDefinitions(): boolean | undefined {
+    return getSettings().get("cssDefinitions");
+  }
+
+  public set cssDefinitions(v: boolean | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("cssDefinitions", v);
+  }
+  public get cssSyntaxColor(): boolean | undefined {
+    return getSettings().get("cssSyntaxColor");
+  }
+
+  public set cssSyntaxColor(v: boolean | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("cssSyntaxColor", v);
+  }
 }
 
 export default new Settings();

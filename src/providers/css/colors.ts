@@ -9,11 +9,15 @@ import {
   Range,
   TextDocument,
 } from "vscode";
+import Settings from "../../settings";
 import { ProviderKind } from "../types";
 import { CSSProviderFactory } from "./CSSProviderFactory";
 
 export class CssDocumentColorProvider implements _DocumentColorProvider {
   provideDocumentColors(document: TextDocument): ColorInformation[] {
+    if (!Settings.cssSyntaxColor) {
+      return [];
+    }
     const provider = new CSSProviderFactory({
       providerKind: ProviderKind.Colors,
       document,
@@ -26,6 +30,9 @@ export class CssDocumentColorProvider implements _DocumentColorProvider {
     context: { readonly document: TextDocument; readonly range: Range },
     token: CancellationToken
   ): ColorPresentation[] {
+    if (!Settings.cssSyntaxColor) {
+      return [];
+    }
     const provider = new CSSProviderFactory({
       providerKind: ProviderKind.Colors,
       document: context.document,

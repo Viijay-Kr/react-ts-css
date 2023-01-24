@@ -28,7 +28,10 @@
     "Linting",
     "Diagnostics",
     "Code Actions",
-    "CSS"
+    "CSS",
+    "CSS variables autoComplete",
+    "CSS variables Definitions",
+    "CSS syntax coloring"
   ],
   "icon": "images/icon.png",
   "galleryBanner": {
@@ -90,9 +93,21 @@
         },
         "reactTsScss.cssAutoComplete":{
           "type":"boolean",
-          "title": "Css Variables AutoComplete",
+          "title": "Autocomplete CSS variables",
           "default":"true",
           "description": "Auto completion of css variables from various files"
+        },
+        "reactTsScss.cssDefinitions":{
+          "type":"boolean",
+          "title": "Go to CSS variables definition",
+          "default":"true",
+          "description": "Definition provider for css variables from various files"
+        },
+        "reactTsScss.cssSyntaxColor":{
+          "type":"boolean",
+          "title": "Syntax Coloring for CSS variables",
+          "default":"true",
+          "description": "Color preview and presentation for CSS variables"
         }
       }
     }
