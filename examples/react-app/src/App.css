@@ -41,3 +41,8 @@
   color: var(--color-white);
   background-color: var(--color-yellow);
 }
+
+.read-the-docs {
+  display: flex;
+  color: var();
+}

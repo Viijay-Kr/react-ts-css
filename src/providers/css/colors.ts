@@ -12,11 +12,8 @@ import {
 import { ProviderKind } from "../types";
 import { CSSProviderFactory } from "./CSSProviderFactory";
 
-export class DocumentColorProvider implements _DocumentColorProvider {
-  provideDocumentColors(
-    document: TextDocument,
-    token: CancellationToken
-  ): ProviderResult<ColorInformation[]> {
+export class CssDocumentColorProvider implements _DocumentColorProvider {
+  provideDocumentColors(document: TextDocument): ColorInformation[] {
     const provider = new CSSProviderFactory({
       providerKind: ProviderKind.Colors,
       document,

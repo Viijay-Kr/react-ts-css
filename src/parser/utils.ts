@@ -28,7 +28,7 @@ export const toColorCode = (color: string) => {
 };
 
 export const generateVariableKey = (v: Variable) => {
-  return `${v.name}_${v.location.range.start.line}_${v.location.range.start.character}_${v.location.range.end.line}_${v.location.range.end.character}`;
+  return `${v.name}_${v.location.value_range.start.line}_${v.location.value_range.start.character}_${v.location.value_range.end.line}_${v.location.value_range.end.character}`;
 };
 
 export const rangeStrictEqual = (source: Range, target: Range) => {

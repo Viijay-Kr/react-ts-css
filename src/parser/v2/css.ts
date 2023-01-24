@@ -97,7 +97,12 @@ export type Variable = {
   name?: string;
   value?: string;
   kind: "color" | "normal";
-  location: { range: Range; uri: Uri };
+  location: {
+    value_range: Range;
+    uri: Uri;
+    full_range: Range;
+    property_range: Range;
+  };
 };
 
 export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
@@ -204,7 +209,7 @@ function resolveSuffixSelectors(parent: Node | null, suffixes: string): string {
 
 export const getVariables = (ast: Stylesheet, document: TextDocument) => {
   const variables: CssParserResult["variables"] = [];
-  const resolveVariables = (node: Node) => {
+  ast.accept((node) => {
     if (node.type === NodeType.CustomPropertyDeclaration) {
       const _node = node as CustomPropertyDeclaration;
       variables.push({
@@ -212,21 +217,24 @@ export const getVariables = (ast: Stylesheet, document: TextDocument) => {
         value: _node.value?.getText(),
         kind: isColorString(_node.value?.getText() ?? "") ? "color" : "normal",
         location: {
-          range: Range.create(
+          value_range: Range.create(
             document.positionAt(_node.value?.offset ?? _node.offset),
             document.positionAt(_node.value?.end ?? _node.end)
+          ),
+          full_range: Range.create(
+            document.positionAt(_node.offset),
+            document.positionAt(_node.end)
+          ),
+          property_range: Range.create(
+            document.positionAt(_node.property?.offset ?? _node.offset),
+            document.positionAt(_node.property?.end ?? _node.end)
           ),
           uri: Uri.file(document.uri),
         },
       });
     }
-    for (const child of node.getChildren()) {
-      resolveVariables(child);
-    }
-  };
-  for (const child of ast.getChildren()) {
-    resolveVariables(child);
-  }
+    return true;
+  });
 
   return variables;
 };
