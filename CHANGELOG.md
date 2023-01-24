@@ -1,3 +1,9 @@
+## [1.6.0]
+- CSS Language Features 
+  - Completion of CSS Variables
+  - Go to Definitions of CSS variables
+  - Syntax coloring for CSS variables
+- Minor Refactoring of providers into their own language providers
 ## [1.5.5]
 - Minor Refactorings of Providers
 ## [1.5.4]

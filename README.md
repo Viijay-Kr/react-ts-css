@@ -4,8 +4,9 @@
 <img height="24" src="images/version.png" />
 
 VS Code extension that enables CSS modules IntelliSense for your React projects written in TypeScript.
+Currently supports CSS, SCSS, Less modules with the following capabilities
 
-Currently supports CSS, SCSS, Less modules with the following capabilities:
+This extension also supports CSS language features which are not supported by built in vscode [code css langauge fetures](https://github.com/microsoft/vscode-css-languageservice). Check [CSS language features](#css-langauge-features) for more info
 
 > This extension is unique in terms of support for major types of [Casings](#casings) and different types of CSS class selectors
 > 
@@ -15,37 +16,23 @@ Currently supports CSS, SCSS, Less modules with the following capabilities:
 > - Suffixed selectors ([SCSS only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
 > - Deeply nested suffix selectors
 
+## TS/TSX Language Features
 ### [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
 
-- Go to any type of selector definition from your React components
-  
-  <img src='./assets/definitions.gif' alt="definitions" />
+- Go to any type of selector definition from your React components - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/definitions.gif)
 
 ### [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
-- Peek CSS properties of a selector on hover
-
-  <img src='./assets/hover.gif' alt="hover" />
+- Peek CSS properties of a selector on hover - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/hover.gif)
 
 ### [Completions](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
-- Completion of selectors 
-
-  <img src='./assets/autocomplete.gif' alt="completions" />
-
-- Completion of style identifiers with automatic import of closest (S)CSS module
-
-  <img src='./assets/auto-import.gif' alt="auto-import-on-completions" />
+- Completion of selectors - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/autocomplete.gif)
+- Completion of style identifiers with automatic import of closest (S)CSS module - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/auto-import.gif)
 
 ### [Diagnostics](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic)
-- Useful diagnostics information are provided for missing selector
-
-  <img src="./assets/missing-selector.png" alt="missing-selector-warning" />
-
-- Module not found error is also provided for non existing CSS modules
-
-  <img src="./assets/missing-module.png" alt="missing-module" />
-
+- Useful diagnostics information are provided for missing selector - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/missing-selector.png)
+- Module not found error is also provided for non existing CSS modules - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/missing-module.png)
 - Settings to change diagnostics
   - `reactTsCSS.diagnostics` - Toggle to turn off diagnostics
   - `reactTsScss.tsconfig` - Base TS Config path in the project.Useful for resolving path aliases. Defaults to './tsconfig.json'
@@ -56,9 +43,18 @@ Currently supports CSS, SCSS, Less modules with the following capabilities:
 - Code Action to quick fix misspelled selectors
 - Code Action to add a non existing selector to the corresponding CSS/SCSS module
 - Code Action to ignore warnings temporarily
-   
-  <img src="./assets/code-actions.gif" alt="code-actions" />
+- [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/code-actions.gif)
 
+## CSS Langauge Features
+ [Demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/css-variables.gif)
+### Variable Completion
+- Completion of variables across all the css modules 
+### [Variable Definitions](https://code.visualstudio.com/docs/languages/css#_go-to-declaration-and-find-references) 
+- Definition of variables across all the css modules
+### [Syntax Colors and Presentation](https://code.visualstudio.com/docs/languages/css#_syntax-coloring-color-preview)
+- Color Presentations and color information for variables across all the css modules
+
+> VS codes built in support for CSS Langauge is limited to the current active file.So the above features are limited to active file and hence any access to variables from different modules won't work until you install React CSS modules
 ## Casings
 
 This extensions supports selectors written in:
@@ -73,13 +69,16 @@ Defaults
 
 ```json
 {
-  "reactTsCSS.peek": true, // Hover
-  "reactTsCSS.autoComplete": true, // Completion
-  "reactTsCSS.autoImport": true, // Auto import modules
-  "reactTsCSS.definition": true, // Definition
-  "reactTsCSS.tsconfig":"./tsconfig.json", // TS config path in workspace
-  "reactTsCSS.baseDir":"src", // Root directory of your application
-  "reactTsCSS.diagnostics":true, // Diagnostics
+  "reactTsCSS.peek": true, 
+  "reactTsCSS.autoComplete": true, 
+  "reactTsCSS.autoImport": true, 
+  "reactTsCSS.definition": true, 
+  "reactTsCSS.tsconfig":"./tsconfig.json", 
+  "reactTsCSS.baseDir":"src", 
+  "reactTsCSS.diagnostics":true, 
+  "reactTsCSS.cssAutoComplete":true, 
+  "reactTsCSS.cssDefinitions":true, 
+  "reactTsCSS.cssSyntaxColor":true, 
 }
 ```
 

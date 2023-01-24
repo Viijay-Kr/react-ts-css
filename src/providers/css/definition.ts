@@ -7,6 +7,7 @@ import {
   ProviderResult,
   TextDocument,
 } from "vscode";
+import Settings from "../../settings";
 import { ProviderKind } from "../types";
 import { CSSProviderFactory } from "./CSSProviderFactory";
 
@@ -15,6 +16,9 @@ export class CssDefinitionProvider implements _DefinitionProvider {
     document: TextDocument,
     position: Position
   ): LocationLink[] {
+    if (!Settings.cssDefinitions) {
+      return [];
+    }
     const provider = new CSSProviderFactory({
       document,
       position,
