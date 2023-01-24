@@ -10,8 +10,9 @@ import {
 import Settings, { EXT_NAME, getSettings } from "./settings";
 import Store from "./store/Store";
 import { DiagnosticCodeAction } from "./providers/ts/code-actions";
-import { DocumentColorProvider } from "./providers/css/colors";
+import { CssDocumentColorProvider } from "./providers/css/colors";
 import { CssVariablesCompletion } from "./providers/css/completion";
+import { CssDefinitionProvider } from "./providers/css/definition";
 
 const tsDocumentSelector = [
   { scheme: "file", language: "typescriptreact" },
@@ -82,7 +83,12 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
     const _cssColorProviders = languages.registerColorProvider(
       cssDocumentSelector,
-      new DocumentColorProvider()
+      new CssDocumentColorProvider()
+    );
+
+    const _cssDefinitionProvider = languages.registerDefinitionProvider(
+      cssDocumentSelector,
+      new CssDefinitionProvider()
     );
 
     context.subscriptions.push(_selectorsCompletionProvider);
@@ -92,6 +98,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     context.subscriptions.push(_hoverProvider);
     context.subscriptions.push(_codeActionsProvider);
     context.subscriptions.push(_cssColorProviders);
+    context.subscriptions.push(_cssDefinitionProvider);
   } catch (e) {
     console.error(e);
     window.showWarningMessage(

@@ -22,6 +22,8 @@ import { CompletionList } from "vscode-css-languageservice";
 import { writeFileSync } from "fs";
 import "../../settings";
 import { CssVariablesCompletion } from "../../providers/css/completion";
+import { CssDefinitionProvider } from "../../providers/css/definition";
+import { CssDocumentColorProvider } from "../../providers/css/colors";
 const examplesLocation = "../../../examples/";
 
 suite("Extension Test Suite", async () => {
@@ -338,17 +340,17 @@ suite("Extension Test Suite", async () => {
   });
 
   suite("Css language features", async () => {
+    const AppCssUri = path.join(
+      __dirname,
+      examplesLocation,
+      "react-app/src/App.css"
+    );
+    const IndexCssUri = path.join(
+      __dirname,
+      examplesLocation,
+      "react-app/src/index.css"
+    );
     suite("Completions", () => {
-      const AppCssUri = path.join(
-        __dirname,
-        examplesLocation,
-        "react-app/src/App.css"
-      );
-      const IndexCssUri = path.join(
-        __dirname,
-        examplesLocation,
-        "react-app/src/index.css"
-      );
       test("provide completions for css variables across files", async () => {
         const document = await workspace.openTextDocument(AppCssUri);
         await window.showTextDocument(document);
@@ -391,6 +393,37 @@ suite("Extension Test Suite", async () => {
         const position = new Position(6, 31);
         const result = provider.provideCompletionItems(document, position);
         assert.equal(result?.items.length, 0);
+      });
+    });
+    suite("Definitions", () => {
+      test("provide definitions for variables across different files", async () => {
+        const document = await workspace.openTextDocument(AppCssUri);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const provider = new CssDefinitionProvider();
+        const position = new Position(40, 21);
+        const result = provider.provideDefinition(document, position);
+        assert.equal(result.length > 0, true);
+      });
+
+      test("dont provide definitions for variables within the same file", async () => {
+        const document = await workspace.openTextDocument(IndexCssUri);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const provider = new CssDefinitionProvider();
+        const position = new Position(23, 20);
+        const result = provider.provideDefinition(document, position);
+        assert.equal(result.length === 0, true);
+      });
+    });
+    suite("Colors", () => {
+      test("provide color information for variables across different files", async () => {
+        const document = await workspace.openTextDocument(AppCssUri);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const provider = new CssDocumentColorProvider();
+        const result = provider.provideDocumentColors(document);
+        assert.equal(result.length > 0, true);
       });
     });
   });

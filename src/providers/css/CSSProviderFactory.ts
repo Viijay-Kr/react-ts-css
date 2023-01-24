@@ -8,6 +8,8 @@ import {
   Range,
   ColorPresentation,
   TextDocument,
+  LocationLink,
+  DefinitionLink,
 } from "vscode";
 import {
   createStyleSheet,
@@ -144,7 +146,7 @@ export class CSSProviderFactory {
               const source = Store.sourceFiles.get(v.location.uri.path);
               if (source) {
                 const match = source.colors.find((c) =>
-                  rangeStrictEqual(c.range, v.location.range)
+                  rangeStrictEqual(c.range, v.location.value_range)
                 );
                 if (match) {
                   colorInformation.push({
@@ -176,5 +178,38 @@ export class CSSProviderFactory {
     const ls = getLanguageService(this.document.uri.path);
     // @ts-ignore
     return ls.getColorPresentations(_document, stylesheet, color, range);
+  }
+
+  public provideDefinitions(): LocationLink[] {
+    const nodeAtOffset = this.getNodeAtOffset();
+    const candidates: LocationLink[] = [];
+    const variables = Array.from(Store.sourceFiles.entries())
+      .map(([, value]) => value.variables)
+      .flat();
+    for (const v of variables) {
+      if (
+        v.name === nodeAtOffset?.getText() &&
+        v.location.uri.path !== this.document.uri.path // Let VS code take care of resolving variables from the active module
+      ) {
+        candidates.push({
+          originSelectionRange: new Range(
+            this.document.positionAt(nodeAtOffset!.offset),
+            this.document.positionAt(nodeAtOffset!.end)
+          ),
+          targetUri: v.location.uri,
+          targetRange: new Range(
+            new Position(
+              v.location.full_range.start.line,
+              v.location.full_range.start.character
+            ),
+            new Position(
+              v.location.full_range.end.line,
+              v.location.full_range.end.character
+            )
+          ),
+        });
+      }
+    }
+    return candidates;
   }
 }
