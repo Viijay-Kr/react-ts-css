@@ -1,0 +1,53 @@
+.normal-selector {
+    display: block;
+
+    &-suffix {
+        display: flex;
+
+        &-nested-suffix {
+            display: contents;
+        }
+    }
+
+    &.sibling-selector {
+        display: block;
+    }
+
+    .child-selector {
+        display: flex;
+    }
+}
+
+@mixin mixin-flex-row {
+    .flex-row {
+        display: flex;
+        flex-direction: column;
+
+        &-center {
+            align-items: center;
+            justify-content: center;
+        }
+    }
+}
+
+@media (max-width: 1023px) {
+    .desktop {
+        max-width: 1000px;
+    }
+}
+
+@media (prefers-reduced-motion) {
+    .thirteen::before {
+        animation: none;
+    }
+
+    .card:hover span {
+        transform: none;
+    }
+}
+
+%placeholder {
+    .place-holder {
+        display: flex;
+    }
+}

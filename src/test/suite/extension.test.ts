@@ -24,6 +24,7 @@ import "../../settings";
 import { CssVariablesCompletion } from "../../providers/css/completion";
 import { CssDefinitionProvider } from "../../providers/css/definition";
 import { CssDocumentColorProvider } from "../../providers/css/colors";
+import { normalizePath } from "../../path-utils";
 const examplesLocation = "../../../examples/";
 
 suite("Extension Test Suite", async () => {
@@ -86,7 +87,7 @@ suite("Extension Test Suite", async () => {
     });
   });
 
-  suite("CSS module features", async () => {
+  suite("TSX/TS module features", async () => {
     suite("definition provider", () => {
       test("should provide definitions when definition command is triggered at a relavent position [Class identifier]", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
@@ -336,6 +337,81 @@ suite("Extension Test Suite", async () => {
         const diagnostics = await StorageInstance.bootStrap();
         assert.equal(diagnostics?.length, 2);
       });
+    });
+  });
+
+  suite("Selector Possibilities", () => {
+    const SelectorCssModule = path.join(
+      __dirname,
+      examplesLocation,
+      "react-app/src/test/VariousSelectors/VariousSelectors.module.scss"
+    );
+    test("should include normal selectors [no relationship or bound to any rules]", async () => {
+      const document = await workspace.openTextDocument(SelectorCssModule);
+      await window.showTextDocument(document);
+      await StorageInstance.bootStrap();
+      const node = StorageInstance.sourceFiles.get(
+        normalizePath(SelectorCssModule)
+      );
+      assert.notEqual(node, undefined);
+      const selectors = node!.selectors;
+      assert.equal(
+        selectors.get("normal-selector")?.selector,
+        "normal-selector"
+      );
+      assert.equal(
+        selectors.get("sibling-selector")?.selector,
+        "sibling-selector"
+      );
+    });
+    test("should include  selectors from mixins and media queries", async () => {
+      const document = await workspace.openTextDocument(SelectorCssModule);
+      await window.showTextDocument(document);
+      await StorageInstance.bootStrap();
+      const node = StorageInstance.sourceFiles.get(
+        normalizePath(SelectorCssModule)
+      );
+      assert.notEqual(node, undefined);
+      const selectors = node!.selectors;
+      assert.equal(selectors.get("flex-row")?.selector, "flex-row");
+      assert.equal(selectors.get("desktop")?.selector, "desktop");
+      assert.equal(selectors.get("thirteen")?.selector, "thirteen");
+      assert.equal(selectors.get("card")?.selector, "card");
+    });
+
+    test("should include selectors from placeholders", async () => {
+      const document = await workspace.openTextDocument(SelectorCssModule);
+      await window.showTextDocument(document);
+      await StorageInstance.bootStrap();
+      const node = StorageInstance.sourceFiles.get(
+        normalizePath(SelectorCssModule)
+      );
+      assert.notEqual(node, undefined);
+      const selectors = node!.selectors;
+      assert.equal(selectors.get("place-holder")?.selector, "place-holder");
+    });
+
+    test("should include suffixed selectors at any depth", async () => {
+      const document = await workspace.openTextDocument(SelectorCssModule);
+      await window.showTextDocument(document);
+      await StorageInstance.bootStrap();
+      const node = StorageInstance.sourceFiles.get(
+        normalizePath(SelectorCssModule)
+      );
+      assert.notEqual(node, undefined);
+      const selectors = node!.selectors;
+      assert.equal(
+        selectors.get("normal-selector-suffix")?.selector,
+        "normal-selector-suffix"
+      );
+      assert.equal(
+        selectors.get("normal-selector-suffix-nested-suffix")?.selector,
+        "normal-selector-suffix-nested-suffix"
+      );
+      assert.equal(
+        selectors.get("flex-row-center")?.selector,
+        "flex-row-center"
+      );
     });
   });
 
