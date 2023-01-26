@@ -20,6 +20,7 @@ import {
 import { CssModuleExtensions } from "../../constants";
 import {
   CustomPropertyDeclaration,
+  Media,
   MixinDeclaration,
   Node,
   NodeType,
@@ -133,53 +134,53 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
   };
 
   function resolveSelectors(node: Node, parent: Node | null) {
-    if (node.type === NodeType.Ruleset) {
-      const selectorNodeList = (node as RuleSet).getSelectors();
-      for (const selectorNode of selectorNodeList.getChildren()) {
-        for (const simpleSelector of selectorNode.getChildren()) {
-          if (simpleSelector.type === NodeType.SimpleSelector) {
-            let selector = simpleSelector.getText();
-            let isInvalid = false;
-            if (selector.startsWith("&-")) {
-              selector =
-                resolveSuffixSelectors(parent, "") + selector.replace("&", "");
-            } else if (selector.startsWith("&.")) {
-              selector = selector.replace(/&./gi, "");
-            } else if (selector.startsWith("& .")) {
-              selector = selector.replace(/& ./gi, "");
-            } else if (selector.startsWith(".")) {
-              selector = selector.replace(".", "");
-            } else {
-              isInvalid = true;
-            }
-            if (selector.indexOf(":") > -1) {
-              selector = selector.split(":")[0];
-            }
-            if (selector.indexOf(".") > -1) {
-              for (const _selector of selector.split(".")) {
-                insertSelector(selectorNode, node, _selector);
+    switch (node.type) {
+      case NodeType.Ruleset: {
+        const selectorNodeList = (node as RuleSet).getSelectors();
+        for (const selectorNode of selectorNodeList.getChildren()) {
+          for (const simpleSelector of selectorNode.getChildren()) {
+            if (simpleSelector.type === NodeType.SimpleSelector) {
+              let selector = simpleSelector.getText();
+              let isInvalid = false;
+              if (selector.startsWith("&-")) {
+                selector =
+                  resolveSuffixSelectors(parent, "") +
+                  selector.replace("&", "");
+              } else if (selector.startsWith("&.")) {
+                selector = selector.replace(/&./gi, "");
+              } else if (selector.startsWith("& .")) {
+                selector = selector.replace(/& ./gi, "");
+              } else if (selector.startsWith(".")) {
+                selector = selector.replace(".", "");
+              } else {
+                isInvalid = true;
               }
-            } else {
-              if (!isInvalid) {
-                insertSelector(selectorNode, node, selector);
+              if (selector.indexOf(":") > -1) {
+                selector = selector.split(":")[0];
+              }
+              if (selector.indexOf(".") > -1) {
+                for (const _selector of selector.split(".")) {
+                  insertSelector(selectorNode, node, _selector);
+                }
+              } else {
+                if (!isInvalid) {
+                  insertSelector(selectorNode, node, selector);
+                }
               }
             }
           }
         }
+        break;
       }
-      const declarations = (node as RuleSet).declarations;
-      if (declarations) {
-        for (const child of declarations.getChildren()) {
-          resolveSelectors(child, node);
-        }
-      }
+      case NodeType.MixinDeclaration:
+      case NodeType.Media:
+        break;
     }
-    if (node.type === NodeType.MixinDeclaration) {
-      const declarations = (node as MixinDeclaration).declarations;
-      if (declarations) {
-        for (const child of declarations.getChildren()) {
-          resolveSelectors(child, node);
-        }
+    const declarations = (node as RuleSet | MixinDeclaration | Media)
+      .declarations;
+    if (declarations) {
+      for (const child of declarations.getChildren()) {
+        resolveSelectors(child, node);
       }
     }
   }
