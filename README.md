@@ -15,6 +15,12 @@ This extension also supports CSS language features which are not supported by bu
 > - Nested selectors
 > - Suffixed selectors ([SCSS only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
 > - Deeply nested suffix selectors
+>
+> Almost all the project scaffolders such as vite , next js and CRA adds css module declration  to the project by injecting it in '.d.ts' file (for instance inside `node_modules/vite/client.d.ts` added by vite,). Typescript treats these definitions as definition provider for Style properties. This results in a useless defintion result when VS `Code Go to Definition` is tiggered. Check this [issue](https://github.com/Viijay-Kr/react-ts-css/issues/68).
+> 
+> This extension gives you an option to avoid that  result  using a typescript plugin [typescript-cleanup-defs](https://www.npmjs.com/package/typescript-cleanup-definitions) that can filter out those definitions results. Check the plugin for more details
+>
+> Override this plugin using the setting `reactTsScss.typecriptCleanUpDefs`
 
 ## TS/TSX Language Features
 ### [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
@@ -79,6 +85,12 @@ Defaults
   "reactTsCSS.cssAutoComplete":true, 
   "reactTsCSS.cssDefinitions":true, 
   "reactTsCSS.cssSyntaxColor":true, 
+  "reactTsCSS.typecriptCleanUpDefs":true, 
+  "reactTsCSS.cleanUpDefs": [
+     "node_modules/vite/client.d.ts",
+    "node_modules/next/types/global.d.ts",
+    "node_modules/react-scripts/lib/react-app.d.ts"
+  ]
 }
 ```
 
