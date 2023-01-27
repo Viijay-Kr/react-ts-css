@@ -1,3 +1,6 @@
+## [1.6.2]
+- Fixed Multiple Entries on Go to Definition
+  - Unnecessary definition results from declaration modules for css classes can be avoided - Closes [#68](https://github.com/Viijay-Kr/react-ts-css/issues/68)
 ## [1.6.1]
 - CSS Parser
   - Resolve selectors inside media queries - Closed [#66](https://github.com/Viijay-Kr/react-ts-css/issues/66) 

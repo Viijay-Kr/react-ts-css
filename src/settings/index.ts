@@ -15,12 +15,12 @@ export class Settings {
     getSettings().update("autoComplete", v);
   }
 
-  public get peek(): boolean | undefined {
+  public get peekProperties(): boolean | undefined {
     return getSettings().get("peekProperties");
   }
 
-  public set peek(v: boolean | undefined) {
-    workspace.getConfiguration(EXT_NAME).update("peek", v);
+  public set peekProperties(v: boolean | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("peekProperties", v);
   }
 
   public get definition(): boolean | undefined {
@@ -78,12 +78,29 @@ export class Settings {
   public set cssDefinitions(v: boolean | undefined) {
     workspace.getConfiguration(EXT_NAME).update("cssDefinitions", v);
   }
+
   public get cssSyntaxColor(): boolean | undefined {
     return getSettings().get("cssSyntaxColor");
   }
 
   public set cssSyntaxColor(v: boolean | undefined) {
     workspace.getConfiguration(EXT_NAME).update("cssSyntaxColor", v);
+  }
+
+  public get typecriptCleanUpDefs(): boolean | undefined {
+    return getSettings().get("typecriptCleanUpDefs");
+  }
+
+  public set typecriptCleanUpDefs(v: boolean | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("typecriptCleanUpDefs", v);
+  }
+
+  public get cleanUpDefs(): Array<string> | undefined {
+    return getSettings().get("cleanUpDefs");
+  }
+
+  public set cleanUpDefs(v: Array<string> | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("cleanUpDefs", v);
   }
 }
 

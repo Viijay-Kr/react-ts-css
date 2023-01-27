@@ -11,5 +11,6 @@
   // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
   "typescript.tsc.autoDetect": "off",
   "reactTsScss.autoComplete": true,
-  "reactTsScss.definition": true
+  "reactTsScss.definition": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

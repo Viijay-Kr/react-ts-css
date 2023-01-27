@@ -9,6 +9,9 @@
       "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
+      "env": {
+        "TSS_DEBUG": "5859"
+      },
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--disable-extensions"
@@ -30,6 +33,16 @@
         "${workspaceFolder}/dist/**/*.js"
       ],
       "preLaunchTask": "tasks: watch-tests"
+    },
+    {
+      "name": "Attach to TS Server",
+      "type": "node",
+      "request": "attach",
+      "port": 5667,
+      "sourceMaps": true,
+      "outFiles": [
+        "/Volumes/VijayK/private/rtcss-tsplugin/node_modules/typescript/bin/tsserver"
+      ]
     }
   ]
 }

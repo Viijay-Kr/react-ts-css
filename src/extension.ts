@@ -1,6 +1,12 @@
 "use strict";
 
-import { ExtensionContext, window, workspace, languages } from "vscode";
+import {
+  ExtensionContext,
+  window,
+  workspace,
+  languages,
+  extensions,
+} from "vscode";
 import { DefnitionProvider } from "./providers/ts/definitions";
 import { HoverProvider } from "./providers/ts/hover";
 import {
@@ -38,17 +44,39 @@ window.onDidChangeActiveTextEditor((e) => {
   Store.bootStrap();
 });
 
-workspace.onDidChangeConfiguration((e) => {
-  const affected = e.affectsConfiguration(EXT_NAME);
-  if (affected) {
-    Settings.autoComplete = getSettings().get("autoComplete");
-    Settings.definition = getSettings().get("definition");
-    Settings.peek = getSettings().get("peek");
-  }
-});
-
 export async function activate(context: ExtensionContext): Promise<void> {
+  workspace.onDidChangeConfiguration(async (e) => {
+    const affected = e.affectsConfiguration(EXT_NAME);
+    if (affected) {
+      Settings.autoComplete = getSettings().get("autoComplete");
+      Settings.definition = getSettings().get("definition");
+      Settings.peekProperties = getSettings().get("peekProperties");
+      Settings.cssAutoComplete = getSettings().get("cssAutoComplete");
+      Settings.tsconfig = getSettings().get("tsconfig");
+      Settings.cssDefinitions = getSettings().get("cssDefinitions");
+      Settings.diagnostics = getSettings().get("diagnostics");
+      Settings.baseDir = getSettings().get("baseDir");
+      Settings.cssSyntaxColor = getSettings().get("cssSyntaxColor");
+      Settings.typecriptCleanUpDefs = getSettings().get("typecriptCleanUpDefs");
+      Settings.cleanUpDefs = getSettings().get("cleanUpDefs");
+      await syncTsPlugin();
+    }
+  });
+  const syncTsPlugin = async () => {
+    const ext = extensions.getExtension("vscode.typescript-language-features");
+    if (ext) {
+      await ext.activate();
+      const tsAPi = ext.exports.getAPI(0);
+      tsAPi.configurePlugin("typescript-cleanup-definitions", {
+        name: "typescript-cleanup-definitions",
+        modules: Settings.cleanUpDefs,
+        enable: Settings.typecriptCleanUpDefs,
+      });
+    }
+  };
+
   try {
+    await syncTsPlugin();
     await Store.bootStrap();
     const _definitionProvider = languages.registerDefinitionProvider(
       tsDocumentSelector,
