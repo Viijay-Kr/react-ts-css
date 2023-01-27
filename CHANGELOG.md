@@ -1,3 +1,6 @@
+## [1.6.1]
+- CSS Parser
+  - Resolve selectors inside media queries - Closed [#66](https://github.com/Viijay-Kr/react-ts-css/issues/66) 
 ## [1.6.0]
 - CSS Language Features 
   - Completion of CSS Variables
