@@ -16,7 +16,7 @@ This extension also supports CSS language features which are not supported by bu
 > - Suffixed selectors ([SCSS only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
 > - Deeply nested suffix selectors
 >
-> Almost all the project scaffolders such as vite , next js and CRA adds css module declration  to the project by injecting it in '.d.ts' file (for instance inside `node_modules/vite/client.d.ts` added by vite,). Typescript treats these definitions as definition provider for Style properties. This results in a useless defintion result when VS `Code Go to Definition` is tiggered. Check this [issue](https://github.com/Viijay-Kr/react-ts-css/issues/68).
+> Almost all project scaffolders such as Vite, Next.js and CRA add css module declaration to the project by injecting it in a `.d.ts` file (for instance inside `node_modules/vite/client.d.ts` added by Vite). TypeScript treats these definitions as definition provider for Style properties. This results in a useless definition result when VS Code `Go to Definition` is triggered. Check this [issue](https://github.com/Viijay-Kr/react-ts-css/issues/68).
 > 
 > This extension gives you an option to avoid that  result  using a typescript plugin [typescript-cleanup-defs](https://www.npmjs.com/package/typescript-cleanup-definitions) that can filter out those definitions results. Check the plugin for more details
 >
