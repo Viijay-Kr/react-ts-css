@@ -16,7 +16,7 @@ export class HoverProvider implements vscode_HoverProvider {
     document: TextDocument,
     position: Position
   ): Promise<Hover | undefined> {
-    if (!Settings.peek) {
+    if (!Settings.peekProperties) {
       return;
     }
     try {

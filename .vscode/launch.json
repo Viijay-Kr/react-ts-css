@@ -9,6 +9,9 @@
       "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
+      "env": {
+        "TSS_DEBUG": "5859"
+      },
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--disable-extensions"

@@ -15,5 +15,5 @@ export const TestComponent = () => {
       <span className={TestStyles.testCamelCase}></span>
       <span className={TestStyles["non-existing-selector"]}></span>
     </div>
-  );
+  )
 };
