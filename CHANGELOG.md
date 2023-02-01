@@ -1,3 +1,5 @@
+## [1.6.3]
+- Maybe fix dependency injection of typescript-cleanup-definitions - May be Closes [#68](https://github.com/Viijay-Kr/react-ts-css/issues/68)
 ## [1.6.2]
 - Fixed Multiple Entries on Go to Definition
   - Unnecessary definition results from declaration modules for css classes can be avoided - Closes [#68](https://github.com/Viijay-Kr/react-ts-css/issues/68)
