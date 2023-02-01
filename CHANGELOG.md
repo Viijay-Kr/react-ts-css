@@ -1,3 +1,5 @@
+## [1.6.4]
+- Not ignoring node_modules from .vscodeignore - May be Closes [#68](https://github.com/Viijay-Kr/react-ts-css/issues/68)
 ## [1.6.3]
 - Maybe fix dependency injection of typescript-cleanup-definitions - May be Closes [#68](https://github.com/Viijay-Kr/react-ts-css/issues/68)
 ## [1.6.2]
