@@ -1,3 +1,5 @@
+## [1.6.6]
+- readme updated to have the right setting name
 ## [1.6.5]
 - Update typescript clean up definitions plugin
   - Refinement of definitions results by the plugin - See [#1](https://github.com/Viijay-Kr/typescript-cleanup-defs/pull/1)

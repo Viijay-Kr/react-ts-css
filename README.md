@@ -20,7 +20,7 @@ This extension also supports CSS language features which are not supported by bu
 > 
 > This extension gives you an option to eliminate the useless results by using the TypeScript plugin [typescript-cleanup-defs](https://www.npmjs.com/package/typescript-cleanup-definitions) that can filter out those definitions results. Check the plugin for more details.
 >
-> Override this plugin using the setting `reactTsScss.typecriptCleanUpDefs`
+> Override this plugin using the setting `reactTsScss.tsCleanUpDefs`
 
 
 <h2>Capabilities</h2>
