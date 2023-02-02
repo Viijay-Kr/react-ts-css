@@ -1,10 +1,10 @@
-# React CSS modules
+<h1>React CSS modules</h1>
 
-<img height="24"  src="images/build.png" /> <img src="images/license.png" height="24" /> <img src="images/tests.png" height="24" />
-<img height="24" src="images/version.png" />
+<img height="24"  src="images/build.png" /> <a href="https://github.com/Viijay-Kr/react-ts-css/blob/main/LICENSE" target="__blank"><img src="images/license.png" height="24" /></a> <img src="images/tests.png" height="24" />
+<a href="https://marketplace.visualstudio.com/items?itemName=viijay-kr.react-ts-css" target="__blank"><img height="24" src="images/version.png" /></a>
 
 VS Code extension that enables CSS modules IntelliSense for your React projects written in TypeScript.
-Currently supports CSS, SCSS, Less modules with the following capabilities
+Currently supports CSS, SCSS, Less modules 
 
 This extension also supports CSS language features which are not supported by built in vscode [code css langauge fetures](https://github.com/microsoft/vscode-css-languageservice). Check [CSS language features](#css-langauge-features) for more info
 
@@ -21,6 +21,23 @@ This extension also supports CSS language features which are not supported by bu
 > This extension gives you an option to eliminate the useless results by using the TypeScript plugin [typescript-cleanup-defs](https://www.npmjs.com/package/typescript-cleanup-definitions) that can filter out those definitions results. Check the plugin for more details.
 >
 > Override this plugin using the setting `reactTsScss.typecriptCleanUpDefs`
+
+
+<h2>Capabilities</h2>
+
+- [TS/TSX Language Features](#tstsx-language-features)
+  - [Definitions](#definitions)
+  - [Hover](#hover)
+  - [Completions](#completions)
+  - [Diagnostics](#diagnostics)
+  - [Code Actions](#code-actions)
+- [CSS Langauge Features](#css-langauge-features)
+  - [Variable Completion](#variable-completion)
+  - [Variable Definitions](#variable-definitions)
+  - [Syntax Colors and Presentation](#syntax-colors-and-presentation)
+- [Casings](#casings)
+- [Settings](#settings)
+- [Roadmap](#roadmap)
 
 ## TS/TSX Language Features
 ### [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
@@ -66,8 +83,9 @@ This extension also supports CSS language features which are not supported by bu
 This extensions supports selectors written in:
 
 1. snake_case
-2. camelCase 
-3. kebab-case
+2. PascalCase
+3. camelCase 
+4. kebab-case
 
 ## Settings
 
@@ -85,11 +103,13 @@ Defaults
   "reactTsCSS.cssAutoComplete":true, 
   "reactTsCSS.cssDefinitions":true, 
   "reactTsCSS.cssSyntaxColor":true, 
-  "reactTsCSS.typecriptCleanUpDefs":true, 
+  "reactTsCSS.tsCleanUpDefs":true, 
   "reactTsCSS.cleanUpDefs": [
-     "node_modules/vite/client.d.ts",
-    "node_modules/next/types/global.d.ts",
-    "node_modules/react-scripts/lib/react-app.d.ts"
+      "*.module.css",
+      "*.module.scss",
+      "*.module.sass",
+      "*.module.less",
+      "*.module.styl"
   ]
 }
 ```

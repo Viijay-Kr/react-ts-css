@@ -1,3 +1,9 @@
+## [1.6.5]
+- Update typescript clean up definitions plugin
+  - Refinement of definitions results by the plugin - See [#1](https://github.com/Viijay-Kr/typescript-cleanup-defs/pull/1)
+- Changes to existings settings
+  - `typecriptCleanUpDefs` is changed to `tsCleanUpDefs`
+  - `cleanUpDefs` now takes a list of module extensions as default values
 ## [1.6.4]
 - Not ignoring node_modules from .vscodeignore - May be Closes [#68](https://github.com/Viijay-Kr/react-ts-css/issues/68)
 ## [1.6.3]
