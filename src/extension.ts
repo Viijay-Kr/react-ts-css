@@ -57,7 +57,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
       Settings.diagnostics = getSettings().get("diagnostics");
       Settings.baseDir = getSettings().get("baseDir");
       Settings.cssSyntaxColor = getSettings().get("cssSyntaxColor");
-      Settings.typecriptCleanUpDefs = getSettings().get("typecriptCleanUpDefs");
+      Settings.tsCleanUpDefs = getSettings().get("typecriptCleanUpDefs");
       Settings.cleanUpDefs = getSettings().get("cleanUpDefs");
       await syncTsPlugin();
     }
@@ -70,7 +70,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
       tsAPi.configurePlugin("typescript-cleanup-definitions", {
         name: "typescript-cleanup-definitions",
         modules: Settings.cleanUpDefs,
-        enable: Settings.typecriptCleanUpDefs,
+        enable: Settings.tsCleanUpDefs,
       });
     }
   };

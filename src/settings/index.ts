@@ -87,12 +87,12 @@ export class Settings {
     workspace.getConfiguration(EXT_NAME).update("cssSyntaxColor", v);
   }
 
-  public get typecriptCleanUpDefs(): boolean | undefined {
-    return getSettings().get("typecriptCleanUpDefs");
+  public get tsCleanUpDefs(): boolean | undefined {
+    return getSettings().get("tsCleanUpDefs");
   }
 
-  public set typecriptCleanUpDefs(v: boolean | undefined) {
-    workspace.getConfiguration(EXT_NAME).update("typecriptCleanUpDefs", v);
+  public set tsCleanUpDefs(v: boolean | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("tsCleanUpDefs", v);
   }
 
   public get cleanUpDefs(): Array<string> | undefined {

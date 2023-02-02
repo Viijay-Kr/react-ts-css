@@ -2,7 +2,7 @@
   "name": "react-ts-css",
   "displayName": "React CSS modules",
   "description": "React CSS modules - VS code extension for CSS modules support in React projects written in typescript.Supports Definitions, Hover , Completion Providers and Diagnostics",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "author": "Viijay-Kr",
   "publisher": "viijay-kr",
   "homepage": "https://github.com/Viijay-Kr/react-ts-css/blob/main/README.md",
@@ -109,7 +109,7 @@
           "default": true,
           "description": "Color preview and presentation for CSS variables"
         },
-        "reactTsScss.typecriptCleanUpDefs": {
+        "reactTsScss.tsCleanUpDefs": {
           "type": "boolean",
           "title": "Enable/Disable Typescript cleanup definitions plugin",
           "description": "Typescript cleanup definitions plugin can be disabled with this setting. 'reactTsScss.cleanUpDefs' will have no effect when this setting is false",
@@ -117,13 +117,15 @@
         },
         "reactTsScss.cleanUpDefs": {
           "type": "array",
-          "title": "Typescript Cleanup Definitions",
+          "title": "Cleanup Definitions From Modules",
           "scope": "window",
-          "description": "Add a declaration file to skip definition results from this file. Useful for skipping unnecessary defintions from boilder plate projects",
+          "description": "Add a set of blob that represents extension of a module to skip Go to definition results from. Useful for skipping unnecessary defintions from boiler plate projects",
           "default": [
-            "node_modules/vite/client.d.ts",
-            "node_modules/next/types/global.d.ts",
-            "node_modules/react-scripts/lib/react-app.d.ts"
+            "*.module.css",
+            "*.module.scss",
+            "*.module.sass",
+            "*.module.less",
+            "*.module.styl"
           ]
         }
       }
@@ -174,7 +176,7 @@
     "sinon": "^14.0.1"
   },
   "dependencies": {
-    "typescript-cleanup-definitions": "^1.0.4",
+    "typescript-cleanup-definitions": "^1.1.0",
     "@babel/parser": "^7.19.3",
     "@babel/traverse": "^7.19.3",
     "closest-match": "^1.3.3",
