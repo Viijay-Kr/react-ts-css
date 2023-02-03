@@ -25,6 +25,7 @@ import { CssVariablesCompletion } from "../../providers/css/completion";
 import { CssDefinitionProvider } from "../../providers/css/definition";
 import { CssDocumentColorProvider } from "../../providers/css/colors";
 import { normalizePath } from "../../path-utils";
+import { ReferenceProvider } from "../../providers/css/references";
 const examplesLocation = "../../../examples/";
 
 suite("Extension Test Suite", async () => {
@@ -350,7 +351,7 @@ suite("Extension Test Suite", async () => {
       const document = await workspace.openTextDocument(SelectorCssModule);
       await window.showTextDocument(document);
       await StorageInstance.bootStrap();
-      const node = StorageInstance.sourceFiles.get(
+      const node = StorageInstance.cssModules.get(
         normalizePath(SelectorCssModule)
       );
       assert.notEqual(node, undefined);
@@ -368,7 +369,7 @@ suite("Extension Test Suite", async () => {
       const document = await workspace.openTextDocument(SelectorCssModule);
       await window.showTextDocument(document);
       await StorageInstance.bootStrap();
-      const node = StorageInstance.sourceFiles.get(
+      const node = StorageInstance.cssModules.get(
         normalizePath(SelectorCssModule)
       );
       assert.notEqual(node, undefined);
@@ -383,7 +384,7 @@ suite("Extension Test Suite", async () => {
       const document = await workspace.openTextDocument(SelectorCssModule);
       await window.showTextDocument(document);
       await StorageInstance.bootStrap();
-      const node = StorageInstance.sourceFiles.get(
+      const node = StorageInstance.cssModules.get(
         normalizePath(SelectorCssModule)
       );
       assert.notEqual(node, undefined);
@@ -395,7 +396,7 @@ suite("Extension Test Suite", async () => {
       const document = await workspace.openTextDocument(SelectorCssModule);
       await window.showTextDocument(document);
       await StorageInstance.bootStrap();
-      const node = StorageInstance.sourceFiles.get(
+      const node = StorageInstance.cssModules.get(
         normalizePath(SelectorCssModule)
       );
       assert.notEqual(node, undefined);
@@ -500,6 +501,32 @@ suite("Extension Test Suite", async () => {
         const provider = new CssDocumentColorProvider();
         const result = provider.provideDocumentColors(document);
         assert.equal(result.length > 0, true);
+      });
+    });
+
+    suite("References", () => {
+      test("provide references for a selector at a given position", async () => {
+        const document = await workspace.openTextDocument(TestCssModulePath);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const provider = new ReferenceProvider();
+        const result = await provider.provideReferences(
+          document,
+          new Position(3, 11)
+        );
+        assert.equal((result ?? []).length > 0, true);
+      });
+      test("provide references for a suffix selector at a given position", async () => {
+        const document = await workspace.openTextDocument(TestCssModulePath);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const provider = new ReferenceProvider();
+        const result = await provider.provideReferences(
+          document,
+          new Position(11, 11)
+        );
+        assert.equal(result?.[0].range.start.line, 7);
+        assert.equal(result?.[1].range.start.line, 13);
       });
     });
   });

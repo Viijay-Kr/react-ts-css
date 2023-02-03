@@ -19,6 +19,7 @@ import { DiagnosticCodeAction } from "./providers/ts/code-actions";
 import { CssDocumentColorProvider } from "./providers/css/colors";
 import { CssVariablesCompletion } from "./providers/css/completion";
 import { CssDefinitionProvider } from "./providers/css/definition";
+import { ReferenceProvider } from "./providers/css/references";
 
 const tsDocumentSelector = [
   { scheme: "file", language: "typescriptreact" },
@@ -29,6 +30,18 @@ const cssDocumentSelector = [
   {
     scheme: "file",
     language: "css",
+  },
+];
+
+const cssModulesDocumentSelector = [
+  ...cssDocumentSelector,
+  {
+    scheme: "file",
+    language: "scss",
+  },
+  {
+    scheme: "file",
+    language: "less",
   },
 ];
 
@@ -119,6 +132,11 @@ export async function activate(context: ExtensionContext): Promise<void> {
       new CssDefinitionProvider()
     );
 
+    const _cssReferenceProvider = languages.registerReferenceProvider(
+      cssModulesDocumentSelector,
+      new ReferenceProvider()
+    );
+
     context.subscriptions.push(_selectorsCompletionProvider);
     context.subscriptions.push(_importsCompletionProvider);
     context.subscriptions.push(_cssVariablesCompletion);
@@ -127,6 +145,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     context.subscriptions.push(_codeActionsProvider);
     context.subscriptions.push(_cssColorProviders);
     context.subscriptions.push(_cssDefinitionProvider);
+    context.subscriptions.push(_cssReferenceProvider);
   } catch (e) {
     console.error(e);
     window.showWarningMessage(

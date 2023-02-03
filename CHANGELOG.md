@@ -1,3 +1,6 @@
+## [1.7.0]
+- Reference Provider for Selectors - Closes [#74](https://github.com/Viijay-Kr/react-ts-css/issues/74)
+  - Find reference of a selector across various TS/TSX modules
 ## [1.6.6]
 - readme updated to have the right setting name
 ## [1.6.5]

@@ -55,26 +55,23 @@ export class TSProviderFactory {
     if (!accessorAtOffset) {
       return;
     }
-    const allSelectors = Store.getSelectorsByIdentifier(
+    const style_reference = Store.getStyleReferenceByIdentifier(
       accessorAtOffset.object.name
     );
-    if (allSelectors) {
+    if (style_reference) {
+      const selectors = Store.cssModules.get(style_reference?.uri)?.selectors;
       if (isIdentifier(accessorAtOffset.property)) {
-        const selector = allSelectors.selectors.get(
-          accessorAtOffset.property.name
-        );
+        const selector = selectors?.get(accessorAtOffset.property.name);
         return {
           selector,
-          uri: allSelectors.uri,
+          uri: style_reference.uri,
         };
       }
       if (isStringLiteral(accessorAtOffset.property)) {
-        const selector = allSelectors.selectors.get(
-          accessorAtOffset.property.value
-        );
+        const selector = selectors?.get(accessorAtOffset.property.value);
         return {
           selector,
-          uri: allSelectors.uri,
+          uri: style_reference.uri,
         };
       }
     }
@@ -101,16 +98,16 @@ export class TSProviderFactory {
     );
   }
 
-  public getSelecotorsForCompletion() {
+  public getSelectorsForCompletion() {
     const document = this.document;
     const currentRange = new Range(
       new Position(this.position.line, this.position.character),
       new Position(this.position.line, this.position.character)
     );
-    const node = Store.getParsedResultByFilePath();
+    const tsModule = Store.getActiveTsModule();
     let natched_identifier = "";
-    if (node) {
-      for (const identifier of node.style_identifiers) {
+    if (tsModule) {
+      for (const identifier of tsModule.style_identifiers) {
         const wordToMatch = document.getText(
           currentRange.with(
             new Position(
@@ -130,13 +127,17 @@ export class TSProviderFactory {
     if (!natched_identifier) {
       return;
     }
-    return Store.getSelectorsByIdentifier(natched_identifier);
+    const style_reference =
+      Store.getStyleReferenceByIdentifier(natched_identifier);
+    if (style_reference) {
+      return Store.cssModules.get(style_reference.uri)?.selectors;
+    }
   }
 
   public async getImportForCompletions() {
     const activeFileuri = this.document.uri.fsPath;
     const activePathInfo = parsePath(activeFileuri);
-    const parsedResult = Store.getParsedResultByFilePath();
+    const parsedResult = Store.getActiveTsModule();
     const currentDir = normalizePath(activePathInfo.dir);
     const importStatements = parsedResult?.import_statements;
     const lastImportStatement = importStatements?.[importStatements.length - 1];
@@ -184,7 +185,7 @@ export class TSProviderFactory {
       return false;
     };
 
-    return Array.from(Store.sourceFiles.keys()).reduce<ImportCompletionItem[]>(
+    return Array.from(Store.cssModules.keys()).reduce<ImportCompletionItem[]>(
       (acc, uri) => {
         const shortPath = basename(uri);
         if (shouldInclude(uri)) {

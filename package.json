@@ -2,7 +2,7 @@
   "name": "react-ts-css",
   "displayName": "React CSS modules",
   "description": "React CSS modules - VS code extension for CSS modules support in React projects written in typescript.Supports Definitions, Hover , Completion Providers and Diagnostics",
-  "version": "1.6.6",
+  "version": "1.7.0",
   "author": "Viijay-Kr",
   "publisher": "viijay-kr",
   "homepage": "https://github.com/Viijay-Kr/react-ts-css/blob/main/README.md",
@@ -17,6 +17,11 @@
   "keywords": [
     "CSS modules",
     "Go to class selector",
+    "suffix selector completion",
+    "go to suffix selector definition",
+    "kebab case support",
+    "snake case support",
+    "pascal case support",
     "React CSS modules",
     "Go to nested selector",
     "Definitions",
@@ -28,6 +33,7 @@
     "Linting",
     "Diagnostics",
     "Code Actions",
+    "Selector References",
     "CSS",
     "CSS variables autoComplete",
     "CSS variables Definitions",
@@ -47,7 +53,9 @@
   "activationEvents": [
     "onLanguage:typescriptreact",
     "onLanguage:typescript",
-    "onLanguage:css"
+    "onLanguage:css",
+    "onLanguage:scss",
+    "onLanguage:less"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -62,7 +70,7 @@
         "reactTsScss.autoComplete": {
           "type": "boolean",
           "default": true,
-          "description": "Selectors Auto completion"
+          "description": "Auto completion of selectors"
         },
         "reactTsScss.autoImport": {
           "type": "boolean",
@@ -72,7 +80,12 @@
         "reactTsScss.definition": {
           "type": "boolean",
           "default": true,
-          "description": "Go to definition of scoped and cyclic selectors"
+          "description": "Go to definition of any kind of selector"
+        },
+        "reactTsScss.references": {
+          "type": "boolean",
+          "default": true,
+          "description": "Find all references of a selector across various TS/TSX files"
         },
         "reactTsScss.diagnostics": {
           "type": "boolean",

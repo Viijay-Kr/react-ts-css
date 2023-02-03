@@ -31,6 +31,14 @@ export class Settings {
     workspace.getConfiguration(EXT_NAME).update("definition", v);
   }
 
+  public get references(): boolean | undefined {
+    return getSettings().get("references");
+  }
+
+  public set references(v: boolean | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("references", v);
+  }
+
   public get autoImport(): boolean | undefined {
     return getSettings().get("autoImport");
   }

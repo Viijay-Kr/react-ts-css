@@ -76,10 +76,10 @@ export class SelectorsCompletionProvider implements CompletionItemProvider {
           document,
         });
         // provider.preProcessSelectorCompletions();
-        const selectors = provider.getSelecotorsForCompletion();
+        const selectors = provider.getSelectorsForCompletion();
         if (selectors) {
           const completionList = new CompletionList(
-            Array.from(selectors.selectors.keys()).map((key) =>
+            Array.from(selectors.keys()).map((key) =>
               toCompletionItem({ label: key })
             )
           );

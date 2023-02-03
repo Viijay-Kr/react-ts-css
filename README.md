@@ -31,27 +31,32 @@ This extension also supports CSS language features which are not supported by bu
   - [Completions](#completions)
   - [Diagnostics](#diagnostics)
   - [Code Actions](#code-actions)
-- [CSS Langauge Features](#css-langauge-features)
-  - [Variable Completion](#variable-completion)
-  - [Variable Definitions](#variable-definitions)
-  - [Syntax Colors and Presentation](#syntax-colors-and-presentation)
+- [CSS/SCSS/Less Langauge Features](#cssscssless-langauge-features)
+  - [Variable Completion - **\[Only CSS\]**](#variable-completion---only-css)
+  - [Variable Definitions - **\[Only CSS\]**](#variable-definitions---only-css)
+  - [Syntax Colors and Presentation - **\[Only CSS\]**](#syntax-colors-and-presentation---only-css)
+  - [Reference Provider](#reference-provider)
 - [Casings](#casings)
 - [Settings](#settings)
 - [Roadmap](#roadmap)
+- [Contribution](#contribution)
 
 ## TS/TSX Language Features
 ### [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
 
 - Go to any type of selector definition from your React components - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/definitions.gif)
+  - `reactTsCSS.definition` - setting for this feature
 
 ### [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
 - Peek CSS properties of a selector on hover - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/hover.gif)
+  -  `reactTsCSS.peek` - setting for this feature
 
 ### [Completions](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
 - Completion of selectors - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/autocomplete.gif)
 - Completion of style identifiers with automatic import of closest (S)CSS module - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/auto-import.gif)
+  - `reactTsCSS.autoComplete` - setting for this feature
 
 ### [Diagnostics](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic)
 - Useful diagnostics information are provided for missing selector - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/missing-selector.png)
@@ -67,17 +72,25 @@ This extension also supports CSS language features which are not supported by bu
 - Code Action to add a non existing selector to the corresponding CSS/SCSS module
 - Code Action to ignore warnings temporarily
 - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/code-actions.gif)
+  - `reactTsCSS.diagnostics` - setting for this feature
 
-## CSS Langauge Features
+## CSS/SCSS/Less Langauge Features
  [Demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/css-variables.gif)
-### Variable Completion
+### Variable Completion - **[Only CSS]**
 - Completion of variables across all the css modules 
-### [Variable Definitions](https://code.visualstudio.com/docs/languages/css#_go-to-declaration-and-find-references) 
+  - `reactTsCSS.cssAutoComplete` - setting for this feature
+### [Variable Definitions](https://code.visualstudio.com/docs/languages/css#_go-to-declaration-and-find-references) - **[Only CSS]**
 - Definition of variables across all the css modules
-### [Syntax Colors and Presentation](https://code.visualstudio.com/docs/languages/css#_syntax-coloring-color-preview)
+  -  `reactTsCSS.cssDefinitions` - setting for this feature
+### [Syntax Colors and Presentation](https://code.visualstudio.com/docs/languages/css#_syntax-coloring-color-preview) - **[Only CSS]**
 - Color Presentations and color information for variables across all the css modules
-
+  - `reactTsCSS.cssSyntaxColor` - setting for this feature
 > VS codes built in support for CSS Langauge is limited to the current active file.So the above features are limited to active file and hence any access to variables from different modules won't work until you install React CSS modules
+
+### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation) 
+- Find all the references of a selector across various TS/TSX files - [Demo](assets/references.gif)
+  - `reactTsCSS.references` - setting for this feature
+  
 ## Casings
 
 This extensions supports selectors written in:
@@ -97,6 +110,7 @@ Defaults
   "reactTsCSS.autoComplete": true, 
   "reactTsCSS.autoImport": true, 
   "reactTsCSS.definition": true, 
+  "reactTsCSS.references": true, 
   "reactTsCSS.tsconfig":"./tsconfig.json", 
   "reactTsCSS.baseDir":"src", 
   "reactTsCSS.diagnostics":true, 
@@ -119,5 +133,7 @@ Defaults
 1. Plain selectors without any reference is a `no op` in the current version and is expected to be added in coming versions
 2. Current support is limited to TypeScript and TypeScript React - JSX support is considered for upcoming releases
 3. Support for stylus will be added in the future versions
-4. [Reference Provider](https://code.visualstudio.com/api/references/vscode-api#ReferenceProvider) - Find all references of a selector from inside a CSS module
-5. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated
+4. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated
+
+## Contribution
+Check out the contribution [guide](CONTRIBUTING.md)
