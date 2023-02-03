@@ -230,7 +230,7 @@ export class CSSProviderFactory {
 
   public getReferences({ valueOnly }: { valueOnly: boolean }) {
     const filePath = normalizePath(this.document.uri.fsPath);
-    const selectors = Store.cssModules.get(this.document.uri.fsPath)?.selectors;
+    const selectors = Store.cssModules.get(filePath)?.selectors;
     const candidates: Location[] = [];
     const range = this.document.getWordRangeAtPosition(this.position);
     const references = Store.cssModules.get(filePath)?.references;
