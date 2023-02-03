@@ -39,3 +39,12 @@ export const rangeStrictEqual = (source: Range, target: Range) => {
     source.end.character === target.end.character
   );
 };
+
+export const rangeLooseEqual = (source: Range, target: Range) => {
+  return (
+    source.start.line === target.start.line &&
+    source.start.character >= target.start.character &&
+    source.end.line === target.end.line &&
+    source.end.character <= target.end.character
+  );
+};

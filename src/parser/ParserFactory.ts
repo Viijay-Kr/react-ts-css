@@ -7,16 +7,15 @@ import path = require("path");
 import { TextDocument, Uri } from "vscode";
 import { TS_MODULE_EXTENSIONS } from "../constants";
 import { normalizePath } from "../path-utils";
-import Store, { TsConfig, Selectors } from "../store/Store";
+import Store, { TsConfig, StyleReferences } from "../store/Store";
 import { parseCss } from "./v2/css";
 import { isCssModuleDeclaration, parseActiveFile } from "./v2/tsx";
 
 export type ParserContext = {
   workspaceRoot: string | undefined;
   tsConfig: TsConfig;
-  document: TextDocument;
   baseDir: string | undefined;
-  sourceFiles: typeof Store.sourceFiles;
+  cssModules: typeof Store.cssModules;
 };
 
 export class ParserFactory {
@@ -25,14 +24,13 @@ export class ParserFactory {
     this.context = ctx;
   }
 
-  private resolveCssFilePath(source: string) {
+  private resolveCssFilePath(source: string, filePath: string) {
     const {
-      document,
-      sourceFiles,
+      cssModules: sourceFiles,
       workspaceRoot = "",
       baseDir = "",
     } = this.context;
-    const activeFileDir = path.dirname(document.uri.fsPath);
+    const activeFileDir = path.dirname(filePath);
     const isRelativePath = source.startsWith(".");
     const doesModuleExists = (pathOfSource: string) =>
       sourceFiles.has(pathOfSource);
@@ -59,19 +57,20 @@ export class ParserFactory {
       }
     }
   }
-  async parse() {
-    const { workspaceRoot, document } = this.context;
-    if (TS_MODULE_EXTENSIONS.includes(path.extname(document.uri.fsPath))) {
-      const parsedResult = await parseActiveFile(document.getText());
+  async parse({ filePath, content }: { filePath: string; content: string }) {
+    const { workspaceRoot } = this.context;
+    if (TS_MODULE_EXTENSIONS.includes(path.extname(filePath))) {
+      const parsedResult = await parseActiveFile(content);
       if (parsedResult && workspaceRoot) {
-        const selectors: Selectors["selectors"] = new Map();
+        const style_references: StyleReferences["style_references"] = new Map();
         for (const statements of parsedResult.import_statements) {
           if (
             isImportDeclaration(statements) &&
             isCssModuleDeclaration(statements.source.value)
           ) {
             const sourceCssFile = this.resolveCssFilePath(
-              statements.source.value
+              statements.source.value,
+              filePath
             );
             if (sourceCssFile) {
               const result = await this.buildSelectorsSet(sourceCssFile);
@@ -84,9 +83,7 @@ export class ParserFactory {
                 }
               }
               if (result && styleIdentifier) {
-                selectors.set(styleIdentifier, {
-                  selectors: result.selectors,
-                  rangeAtEof: result.eofRange,
+                style_references.set(styleIdentifier, {
                   uri: sourceCssFile,
                 });
               }
@@ -95,7 +92,7 @@ export class ParserFactory {
         }
         return {
           parsedResult,
-          selectors,
+          style_references,
         };
       }
     }

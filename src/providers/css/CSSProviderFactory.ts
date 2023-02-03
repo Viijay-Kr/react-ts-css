@@ -9,7 +9,8 @@ import {
   ColorPresentation,
   TextDocument,
   LocationLink,
-  DefinitionLink,
+  Location,
+  Uri,
 } from "vscode";
 import {
   createStyleSheet,
@@ -23,6 +24,7 @@ import Store from "../../store/Store";
 import { Function, Node, NodeType, Stylesheet } from "../../css-node.types";
 import {
   isColorString,
+  rangeLooseEqual,
   rangeStrictEqual,
   toColorCode,
 } from "../../parser/utils";
@@ -31,6 +33,13 @@ import {
   Range as css_Range,
 } from "vscode-css-languageservice";
 import { ProviderKind } from "../types";
+import {
+  isIdentifier,
+  isImportDeclaration,
+  isImportDefaultSpecifier,
+  isStringLiteral,
+} from "@babel/types";
+import path = require("path");
 
 export class CSSProviderFactory {
   public providerKind: ProviderKind = ProviderKind.Invalid;
@@ -58,11 +67,11 @@ export class CSSProviderFactory {
     const variables: CssParserResult["variables"] = [];
     const thisDocPath = this.document.uri.fsPath;
     if (module.endsWith(".css")) {
-      const cssModules = Array.from(Store.sourceFiles.keys()).filter((c) =>
+      const cssModules = Array.from(Store.cssModules.keys()).filter((c) =>
         c.endsWith(".css")
       );
       for (const m of cssModules) {
-        const node = Store.sourceFiles.get(m);
+        const node = Store.cssModules.get(m);
         if (node) {
           variables.push(...node.variables);
         }
@@ -97,7 +106,7 @@ export class CSSProviderFactory {
   public getNodeAtOffset(): Node | undefined {
     const styleSheet = createStyleSheet(this.document);
     const offset = this.document.offsetAt(this.position);
-    const cssmodule = Store.sourceFiles.get(
+    const cssmodule = Store.cssModules.get(
       normalizePath(this.document.uri.fsPath)
     );
     if (cssmodule) {
@@ -127,7 +136,7 @@ export class CSSProviderFactory {
   public provideColorInformation(): ColorInformation[] {
     const colorInformation: ColorInformation[] = [];
     const colorVariables: Set<Variable> = new Set();
-    for (const [, value] of Store.sourceFiles.entries()) {
+    for (const [, value] of Store.cssModules.entries()) {
       value.variables.forEach((v) => {
         if (v.kind === "color") {
           colorVariables.add(v);
@@ -143,7 +152,9 @@ export class CSSProviderFactory {
           const args = (node as Function).getArguments();
           for (const [v] of colorVariables.entries()) {
             if (v.name === args.getText()) {
-              const source = Store.sourceFiles.get(normalizePath(v.location.uri.fsPath));
+              const source = Store.cssModules.get(
+                normalizePath(v.location.uri.fsPath)
+              );
               if (source) {
                 const match = source.colors.find((c) =>
                   rangeStrictEqual(c.range, v.location.value_range)
@@ -183,7 +194,7 @@ export class CSSProviderFactory {
   public provideDefinitions(): LocationLink[] {
     const nodeAtOffset = this.getNodeAtOffset();
     const candidates: LocationLink[] = [];
-    const variables = Array.from(Store.sourceFiles.entries())
+    const variables = Array.from(Store.cssModules.entries())
       .map(([, value]) => value.variables)
       .flat();
     for (const v of variables) {
@@ -208,6 +219,95 @@ export class CSSProviderFactory {
             )
           ),
         });
+      }
+    }
+    return candidates;
+  }
+
+  public provideReferences(): Location[] {
+    return this.getReferences({ valueOnly: false });
+  }
+
+  public getReferences({ valueOnly }: { valueOnly: boolean }) {
+    const filePath = normalizePath(this.document.uri.fsPath);
+    const selectors = Store.cssModules.get(filePath)?.selectors;
+    const candidates: Location[] = [];
+    const range = this.document.getWordRangeAtPosition(this.position);
+    const references = Store.cssModules.get(filePath)?.references;
+    let selector;
+    if (selectors) {
+      for (const [, value] of selectors.entries()) {
+        if (range && value.range) {
+          if (rangeLooseEqual(range, value.range)) {
+            selector = value.selector;
+          }
+        }
+      }
+    }
+    if (references) {
+      if (selector) {
+        for (const [, reference] of references.entries()) {
+          const tsModule = Store.getTsModuleByPath(reference);
+          if (tsModule) {
+            const importDeclaration = tsModule.import_statements.find((s) => {
+              if (isImportDeclaration(s)) {
+                const value = s.source.value;
+                if (value.includes(path.basename(filePath))) {
+                  return true;
+                }
+              }
+            });
+            const styleIdentifier = (() => {
+              if (isImportDeclaration(importDeclaration)) {
+                const specifier = importDeclaration.specifiers[0];
+                if (isImportDefaultSpecifier(specifier)) {
+                  return specifier.local.name;
+                }
+              }
+            })();
+
+            for (const accessor of tsModule.style_accessors) {
+              let _selector;
+              if (isStringLiteral(accessor.property)) {
+                _selector = accessor.property.value;
+              } else if (isIdentifier(accessor.property)) {
+                _selector = accessor.property.name;
+              }
+              if (
+                selector === _selector &&
+                styleIdentifier === accessor.object.name
+              ) {
+                const preferedRange = (() => {
+                  if (valueOnly) {
+                    return new Range(
+                      new Position(
+                        accessor.property.loc!.start.line - 1,
+                        accessor.property.loc!.start.column
+                      ),
+                      new Position(
+                        accessor.property.loc!.end.line - 1,
+                        accessor.property.loc!.end.column
+                      )
+                    );
+                  }
+                  return new Range(
+                    new Position(
+                      accessor.object.loc!.start.line - 1,
+                      accessor.object.loc!.start.column
+                    ),
+                    new Position(
+                      accessor.property.loc!.end.line - 1,
+                      accessor.property.loc!.end.column
+                    )
+                  );
+                })();
+                candidates.push(
+                  new Location(Uri.file(reference), preferedRange)
+                );
+              }
+            }
+          }
+        }
       }
     }
     return candidates;

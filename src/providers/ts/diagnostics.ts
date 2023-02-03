@@ -26,7 +26,7 @@ export type extended_Diagnostic = Diagnostic & {
 };
 
 export type DiagnosticsContext = {
-  parsedResult: ReturnType<typeof Store.getParsedResultByFilePath>;
+  parsedResult: ReturnType<typeof Store.getActiveTsModule>;
   baseDir: string | undefined;
   activeFileDir: string | undefined;
   activeFileUri: Uri;
@@ -76,9 +76,7 @@ export class DiagnosticsProvider {
 
 class Diagnostics {
   public diagnostics: Array<extended_Diagnostic> = [];
-  protected readonly parsedResult: ReturnType<
-    typeof Store.getParsedResultByFilePath
-  >;
+  protected readonly parsedResult: ReturnType<typeof Store.getActiveTsModule>;
   protected readonly baseDir: string | undefined;
   public readonly activeFileDir: string;
   constructor(context: DiagnosticsContext) {
@@ -105,8 +103,12 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
   runDiagnostics() {
     for (const accessor of this.parsedResult?.style_accessors ?? []) {
       const { property, object } = accessor;
-      const selectors = this.parsedResult?.selectors.get(object.name);
-      if (selectors) {
+      const style_reference = this.parsedResult?.style_references.get(
+        object.name
+      );
+      if (style_reference) {
+        const selectors = Store.cssModules.get(style_reference.uri)?.selectors;
+        const rangeAtEof = Store.cssModules.get(style_reference.uri)?.eofRange;
         const selector = (() => {
           if (isStringLiteral(property)) {
             return property.value;
@@ -118,20 +120,21 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
         })();
         if (
           selector !== "" &&
-          !selectors.selectors.has(selector) &&
+          selectors &&
+          !selectors.has(selector) &&
           !Store.ignoredDiagnostics.has(selector)
         ) {
           const closestMatchingSelector =
             SelectorRelatedDiagnostics.findClosestMatchingSelector(
               selector,
-              selectors.selectors
+              selectors
             );
           let additionalSelector = closestMatchingSelector
             ? `Did you mean '${closestMatchingSelector}'?`
             : "";
           const relativePath = path.relative(
             Store.workSpaceRoot ?? "",
-            selectors.uri
+            style_reference.uri
           );
           this.diagnostics.push({
             message: `Selector '${selector}' does not exist in '${relativePath}'.${additionalSelector}`,
@@ -145,7 +148,7 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
               : selector,
             relatedInformation: [
               new DiagnosticRelatedInformation(
-                new Location(Uri.file(selectors.uri), selectors.rangeAtEof),
+                new Location(Uri.file(style_reference.uri), rangeAtEof!),
                 "Add this selector to " + relativePath
               ),
             ],
@@ -184,7 +187,7 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
               ? path.resolve(Store.workSpaceRoot!, this.baseDir ?? "", module)
               : path.resolve(this.activeFileDir, module)
           );
-          if (!Store.sourceFiles.has(relativePath)) {
+          if (!Store.cssModules.has(relativePath)) {
             this.diagnostics.push({
               message: `Module Not found '${module}'`,
               source: "React TS CSS",

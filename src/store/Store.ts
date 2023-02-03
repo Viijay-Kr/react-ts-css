@@ -21,31 +21,27 @@ import { promises as fs_promises } from "node:fs";
 import Settings from "../settings";
 import { ParserFactory } from "../parser/ParserFactory";
 import { DiagnosticsProvider } from "../providers/ts/diagnostics";
+import { normalizePath } from "../path-utils";
 
 type FileName = string;
 type StyleIdentifier = Identifier["name"];
-export type Selectors = {
-  selectors: Map<
+
+export type StyleReferences = {
+  style_references: Map<
     StyleIdentifier,
     {
       uri: string;
-      selectors: Map<string, Selector>;
-      rangeAtEof: Range;
     }
   >;
 };
 
+interface CSSReferences {
+  references: Set<FileName>;
+}
 // Full file path of the active opened file
-type SourceFiles = Map<string, CssParserResult>;
-
-type BootstrapParams = {
-  initialBootup?: boolean;
-  bootOnchange?: boolean;
-  isDirty?: boolean;
-  changedDocument?: TextDocument;
-};
-
-export type ParsedResult = Map<FileName, ParserResult & Selectors>;
+type CssModules = Map<string, CssParserResult & CSSReferences>;
+export type ParsedResult = Map<FileName, ParserResult & StyleReferences>;
+export type TsModules = ParsedResult;
 
 export type TsConfig = {
   compilerOptions: {
@@ -58,8 +54,8 @@ export type IgnoreDiagnostis = Map<
   Range // Range of the Selector
 >;
 export class Store {
-  public parsedResult: ParsedResult = new Map();
-  protected _sourceFiles: SourceFiles = new Map();
+  protected _cssModules: CssModules = new Map();
+  protected _tsModules: TsModules = new Map();
   /** Root path of the workspace */
   protected _workSpaceRoot: string | undefined;
   static diagonisticCollection =
@@ -100,8 +96,108 @@ export class Store {
   /**
    * Map of all the css/scss files in the workspace
    */
-  public get sourceFiles(): SourceFiles {
-    return this._sourceFiles;
+  public get cssModules(): CssModules {
+    return this._cssModules;
+  }
+
+  /**
+   * Set the source css files on activation
+   * TODO: store only modules
+   */
+  private async setCssModules() {
+    const uri = window.activeTextEditor?.document?.uri;
+    if (uri) {
+      const _uri = workspace.getWorkspaceFolder(uri)?.uri;
+      const workspaceRoot = _uri?.fsPath;
+      const glob = `**/*.{${CSS_MODULE_EXTENSIONS.map((e) =>
+        e.replace(".", "")
+      ).join(",")}}`;
+      this.workSpaceRoot = workspaceRoot;
+      const files = await fsg(glob, {
+        cwd: workspaceRoot,
+        ignore: ["node_modules", "build", "dist", "coverage"],
+        absolute: true,
+      });
+      await Promise.all(
+        files.map(async (v) => {
+          await this.storeCssParserResult(v);
+        })
+      );
+    }
+  }
+
+  /**
+   * Map of all the ts/tsx files in the workspace
+   */
+  public get tsModules(): TsModules {
+    return this._tsModules;
+  }
+
+  public async setTsModules() {
+    const glob = `**/*.{${TS_MODULE_EXTENSIONS.map((e) =>
+      e.replace(".", "")
+    ).join(",")}}`;
+    const files = await fsg(glob, {
+      cwd: this.workSpaceRoot || __dirname,
+      ignore: [
+        "node_modules",
+        "build",
+        "dist",
+        "coverage",
+        "**/*.stories.tsx",
+        "**/*.stories.ts",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+      ],
+      absolute: true,
+    });
+    const parserFactory = new ParserFactory({
+      workspaceRoot: this.workSpaceRoot,
+      tsConfig: this.tsConfig,
+      baseDir: Settings.baseDir,
+      cssModules: this.cssModules,
+    });
+    return Promise.all(
+      files.map(async (file) => {
+        const content = (await fs_promises.readFile(file)).toString();
+        return await this.storeTsParserResult({
+          filePath: file,
+          content,
+          parserFactory,
+        });
+      })
+    );
+  }
+
+  private async storeTsParserResult({
+    filePath: file,
+    content,
+    parserFactory,
+  }: {
+    filePath: string;
+    parserFactory: ParserFactory;
+    content: string;
+  }) {
+    const result = await parserFactory.parse({
+      filePath: normalizePath(file),
+      content,
+    });
+    if (result) {
+      this.tsModules.set(file, {
+        ...result.parsedResult,
+        style_references: result.style_references,
+      });
+      for (const [, value] of result.style_references) {
+        if (this.cssModules.has(value.uri)) {
+          const module = this.cssModules.get(value.uri);
+          if (module) {
+            module.references.add(file);
+            this.cssModules.set(value.uri, module);
+          }
+        }
+      }
+    }
+    return result;
   }
 
   private async saveTsConfig() {
@@ -143,7 +239,7 @@ export class Store {
     try {
       const result = await parseCss(module);
       if (result) {
-        this._sourceFiles.set(module, result);
+        this._cssModules.set(module, { ...result, references: new Set() });
       }
     } catch (e) {}
   }
@@ -164,59 +260,35 @@ export class Store {
       if (this.activeTextEditor.document.isDirty) {
         return;
       }
-      if (!this.sourceFiles.size) {
-        await this.setSourcefiles();
-      }
       if (!this.tsConfig) {
         await this.saveTsConfig();
       }
-      const filePath = this.activeTextEditor.document.uri.fsPath;
-      const uri = this.activeTextEditor.document.uri;
+      if (!this.cssModules.size) {
+        await this.setCssModules();
+      }
+      if (!this.tsModules.size) {
+        await this.setTsModules();
+      }
+      const document = this.activeTextEditor.document;
+      const filePath = document.uri.fsPath;
+      const uri = document.uri;
+      const content = document.getText();
       const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
       const parserFactory = new ParserFactory({
-        document: this.activeTextEditor.document,
         workspaceRoot,
         tsConfig: this.tsConfig,
         baseDir: Settings.baseDir,
-        sourceFiles: this.sourceFiles,
+        cssModules: this.cssModules,
       });
-      const result = await parserFactory.parse();
-      if (result) {
-        this.parsedResult.set(filePath, {
-          ...result.parsedResult,
-          selectors: result.selectors,
-        });
-      }
+      await this.storeTsParserResult({
+        filePath,
+        content,
+        parserFactory,
+      });
       if (Settings.diagnostics) {
         return this.provideDiagnostics();
       }
     } catch (e) {}
-  }
-
-  /**
-   * Set the source css files on activation
-   * TODO: store only modules
-   */
-  private async setSourcefiles() {
-    const uri = window.activeTextEditor?.document?.uri;
-    if (uri) {
-      const _uri = workspace.getWorkspaceFolder(uri)?.uri;
-      const workspaceRoot = _uri?.fsPath;
-      const glob = `**/*.{${CSS_MODULE_EXTENSIONS.map((e) =>
-        e.replace(".", "")
-      ).join(",")}}`;
-      this.workSpaceRoot = workspaceRoot;
-      const files = await fsg(glob, {
-        cwd: workspaceRoot,
-        ignore: ["node_modules", "build", "dist", "coverage"],
-        absolute: true,
-      });
-      await Promise.all(
-        files.map(async (v) => {
-          await this.storeCssParserResult(v);
-        })
-      );
-    }
   }
 
   /**
@@ -225,7 +297,7 @@ export class Store {
    * @returns ParserResult['unsafe_identifiers'] | undefined
    */
   public getAccessorAtOffset(document: TextDocument, offset: number) {
-    const node = this.parsedResult.get(document.fileName);
+    const node = this.tsModules.get(document.fileName);
     if (node) {
       return node.style_accessors?.find(
         ({ property: n, object: o }) =>
@@ -241,14 +313,17 @@ export class Store {
    * @param identfier Identifier['name']
    * @returns Map<string,Selector>
    */
-  public getSelectorsByIdentifier(identfier: Identifier["name"]) {
-    const filePath = this.activeTextEditor.document.uri.fsPath;
-    return this.parsedResult.get(filePath)?.selectors.get(identfier);
+  public getStyleReferenceByIdentifier(identfier: Identifier["name"]) {
+    return this.getActiveTsModule()?.style_references.get(identfier);
   }
 
-  public getParsedResultByFilePath() {
+  public getActiveTsModule() {
     const filePath = this.activeTextEditor.document.uri.fsPath;
-    return this.parsedResult.get(filePath);
+    return this.tsModules.get(filePath);
+  }
+
+  public getTsModuleByPath(file: string) {
+    return this.tsModules.get(file);
   }
 
   /**
@@ -256,12 +331,12 @@ export class Store {
    */
   public flushStorage() {
     this.workSpaceRoot = undefined;
-    this._sourceFiles = new Map();
-    this.parsedResult = new Map();
+    this._cssModules = new Map();
+    this._tsModules = new Map();
   }
 
   private provideDiagnostics() {
-    const parsedResult = this.getParsedResultByFilePath();
+    const parsedResult = this.getActiveTsModule();
     const activeFileDir = path.parse(
       this.activeTextEditor.document.uri.fsPath
     ).dir;
