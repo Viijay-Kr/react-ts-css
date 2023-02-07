@@ -9,7 +9,7 @@ import {
 } from "vscode";
 import Settings from "../../settings";
 import { ProviderKind } from "../types";
-import { CSSProviderFactory } from "./CSSProviderFactory";
+import { CSSProvider } from "./CSSProvider";
 
 export class CssDefinitionProvider implements _DefinitionProvider {
   provideDefinition(
@@ -19,7 +19,7 @@ export class CssDefinitionProvider implements _DefinitionProvider {
     if (!Settings.cssDefinitions) {
       return [];
     }
-    const provider = new CSSProviderFactory({
+    const provider = new CSSProvider({
       document,
       position,
       providerKind: ProviderKind.Definition,

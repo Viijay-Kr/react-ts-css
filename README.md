@@ -36,6 +36,7 @@ This extension also supports CSS language features which are not supported by bu
   - [Variable Definitions - **\[Only CSS\]**](#variable-definitions---only-css)
   - [Syntax Colors and Presentation - **\[Only CSS\]**](#syntax-colors-and-presentation---only-css)
   - [Reference Provider](#reference-provider)
+  - [Code Lens](#code-lens)
 - [Casings](#casings)
 - [Settings](#settings)
 - [Roadmap](#roadmap)
@@ -90,6 +91,11 @@ This extension also supports CSS language features which are not supported by bu
 ### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation) 
 - Find all the references of a selector across various TS/TSX files - [Demo](assets/references.gif)
   - `reactTsCSS.references` - setting for this feature
+
+### [Code Lens](https://code.visualstudio.com/api/language-extensions/programmatic-language-features#codelens-show-actionable-context-information-within-source-code)
+- Useful Code Lens context for selectors based on their references across component files - [Demo](assets/code-lens.gif)
+- A quick alternative to [reactTsCSS.references](#reference-provider)
+  - `reactTsCSS.codelens` - setting for this feature
   
 ## Casings
 
@@ -124,7 +130,8 @@ Defaults
       "*.module.sass",
       "*.module.less",
       "*.module.styl"
-  ]
+  ],
+  "reactTsCSS.codelens":true,
 }
 ```
 

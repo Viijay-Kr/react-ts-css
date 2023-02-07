@@ -1,3 +1,6 @@
+## [1.8.0]
+- Code Lens Provider integration for selector references - Closes [#76](https://github.com/Viijay-Kr/react-ts-css/issues/76)
+- Some minor refactoring/renaming of Providers
 ## [1.7.0]
 - Reference Provider for Selectors - Closes [#74](https://github.com/Viijay-Kr/react-ts-css/issues/74)
   - Find reference of a selector across various TS/TSX modules

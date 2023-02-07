@@ -14,7 +14,7 @@ import {
 } from "vscode";
 import Settings from "../../settings";
 import { ProviderKind } from "../types";
-import { TSProviderFactory } from "./TSProviderFactory";
+import { TSProvider } from "./TSProvider";
 
 export class SelectorsCompletionProvider implements CompletionItemProvider {
   provideCompletionItems(
@@ -70,7 +70,7 @@ export class SelectorsCompletionProvider implements CompletionItemProvider {
         return completionItem;
       };
       try {
-        const provider = new TSProviderFactory({
+        const provider = new TSProvider({
           providerKind: ProviderKind.Completion,
           position,
           document,
@@ -99,7 +99,7 @@ export class ImportCompletionProvider implements CompletionItemProvider {
       return;
     }
     try {
-      const provider = new TSProviderFactory({
+      const provider = new TSProvider({
         providerKind: ProviderKind.Completion,
         position,
         document,

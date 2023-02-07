@@ -110,6 +110,14 @@ export class Settings {
   public set cleanUpDefs(v: Array<string> | undefined) {
     workspace.getConfiguration(EXT_NAME).update("cleanUpDefs", v);
   }
+
+  public get codeLens(): Array<string> | undefined {
+    return getSettings().get("codelens");
+  }
+
+  public set codeLens(v: Array<string> | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("codelens", v);
+  }
 }
 
 export default new Settings();

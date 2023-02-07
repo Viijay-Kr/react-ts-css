@@ -21,17 +21,16 @@ import {
 } from "../../parser/v2/css";
 import { normalizePath } from "../../path-utils";
 import Store from "../../store/Store";
-import { Function, Node, NodeType, Stylesheet } from "../../css-node.types";
+import { Function, Node, NodeType } from "../../css-node.types";
 import {
   isColorString,
   rangeLooseEqual,
   rangeStrictEqual,
   toColorCode,
+  toVsCodePosition,
+  toVsCodeRange,
 } from "../../parser/utils";
-import {
-  TextDocument as css_TextDocument,
-  Range as css_Range,
-} from "vscode-css-languageservice";
+import { TextDocument as css_TextDocument } from "vscode-css-languageservice";
 import { ProviderKind } from "../types";
 import {
   isIdentifier,
@@ -40,13 +39,15 @@ import {
   isStringLiteral,
 } from "@babel/types";
 import path = require("path");
+import { ReferenceCodeLens } from "./codelens";
 
-export class CSSProviderFactory {
+export class CSSProvider {
   public providerKind: ProviderKind = ProviderKind.Invalid;
   /** Current Active Position in the Document */
   public position: Position;
   /** Current Active Text Document in focus */
   public document: TextDocument;
+  public static PEEK_REFERENCES_COMMAND = "peek_lens_references";
 
   public constructor(options: {
     providerKind: ProviderKind;
@@ -225,14 +226,20 @@ export class CSSProviderFactory {
   }
 
   public provideReferences(): Location[] {
-    return this.getReferences({ valueOnly: false });
+    const range = this.document.getWordRangeAtPosition(this.position);
+    return this.getReferences({ valueOnly: false, range });
   }
 
-  public getReferences({ valueOnly }: { valueOnly: boolean }) {
+  public getReferences({
+    valueOnly,
+    range,
+  }: {
+    valueOnly: boolean;
+    range?: Range;
+  }) {
     const filePath = normalizePath(this.document.uri.fsPath);
     const selectors = Store.cssModules.get(filePath)?.selectors;
     const candidates: Location[] = [];
-    const range = this.document.getWordRangeAtPosition(this.position);
     const references = Store.cssModules.get(filePath)?.references;
     let selector;
     if (selectors) {
@@ -311,5 +318,20 @@ export class CSSProviderFactory {
       }
     }
     return candidates;
+  }
+
+  public provideCodeLens(): ReferenceCodeLens[] {
+    const filePath = normalizePath(this.document.uri.fsPath);
+    const selectors = Store.cssModules.get(filePath)?.selectors;
+    const codeLens: ReferenceCodeLens[] = [];
+    if (selectors) {
+      for (const [, _selector] of selectors?.entries()) {
+        const range = toVsCodeRange(_selector.range);
+        codeLens.push(
+          new ReferenceCodeLens(this.document, this.document.fileName, range)
+        );
+      }
+    }
+    return codeLens;
   }
 }

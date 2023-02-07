@@ -29,7 +29,7 @@ export type ParserResult = {
   style_accessors: Accessor[];
 };
 
-export const parseActiveFile = (
+export const parseTypescript = (
   content: string
 ): Promise<ParserResult | undefined> => {
   const ast = parse(content, {

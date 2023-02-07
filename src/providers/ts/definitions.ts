@@ -9,7 +9,7 @@ import {
   TextDocument,
 } from "vscode";
 import Settings from "../../settings";
-import { TSProviderFactory } from "./TSProviderFactory";
+import { TSProvider } from "./TSProvider";
 import { ProviderKind } from "./../types";
 
 export class DefnitionProvider implements vscode_DefinitionProvider {
@@ -21,7 +21,7 @@ export class DefnitionProvider implements vscode_DefinitionProvider {
       return [];
     }
     try {
-      const provider = new TSProviderFactory({
+      const provider = new TSProvider({
         position,
         providerKind: ProviderKind.Definition,
         document: document,

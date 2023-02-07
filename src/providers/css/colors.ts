@@ -11,14 +11,14 @@ import {
 } from "vscode";
 import Settings from "../../settings";
 import { ProviderKind } from "../types";
-import { CSSProviderFactory } from "./CSSProviderFactory";
+import { CSSProvider } from "./CSSProvider";
 
 export class CssDocumentColorProvider implements _DocumentColorProvider {
   provideDocumentColors(document: TextDocument): ColorInformation[] {
     if (!Settings.cssSyntaxColor) {
       return [];
     }
-    const provider = new CSSProviderFactory({
+    const provider = new CSSProvider({
       providerKind: ProviderKind.Colors,
       document,
       position: new Position(0, 0), // providing a dummy position as it not needed for document
@@ -33,7 +33,7 @@ export class CssDocumentColorProvider implements _DocumentColorProvider {
     if (!Settings.cssSyntaxColor) {
       return [];
     }
-    const provider = new CSSProviderFactory({
+    const provider = new CSSProvider({
       providerKind: ProviderKind.Colors,
       document: context.document,
       position: new Position(0, 0), // providing a dummy position as it not needed for document

@@ -4,12 +4,11 @@ import {
   isIdentifier,
 } from "@babel/types";
 import path = require("path");
-import { TextDocument, Uri } from "vscode";
 import { TS_MODULE_EXTENSIONS } from "../constants";
 import { normalizePath } from "../path-utils";
 import Store, { TsConfig, StyleReferences } from "../store/Store";
 import { parseCss } from "./v2/css";
-import { isCssModuleDeclaration, parseActiveFile } from "./v2/tsx";
+import { isCssModuleDeclaration, parseTypescript } from "./v2/ts";
 
 export type ParserContext = {
   workspaceRoot: string | undefined;
@@ -18,7 +17,7 @@ export type ParserContext = {
   cssModules: typeof Store.cssModules;
 };
 
-export class ParserFactory {
+export class Parser {
   context: ParserContext;
   constructor(ctx: ParserContext) {
     this.context = ctx;
@@ -60,7 +59,7 @@ export class ParserFactory {
   async parse({ filePath, content }: { filePath: string; content: string }) {
     const { workspaceRoot } = this.context;
     if (TS_MODULE_EXTENSIONS.includes(path.extname(filePath))) {
-      const parsedResult = await parseActiveFile(content);
+      const parsedResult = await parseTypescript(content);
       if (parsedResult && workspaceRoot) {
         const style_references: StyleReferences["style_references"] = new Map();
         for (const statements of parsedResult.import_statements) {

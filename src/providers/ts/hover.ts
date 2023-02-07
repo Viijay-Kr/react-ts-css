@@ -9,7 +9,7 @@ import {
 import Settings from "../../settings";
 import Store from "../../store/Store";
 import { ProviderKind } from "../types";
-import { TSProviderFactory } from "./TSProviderFactory";
+import { TSProvider } from "./TSProvider";
 
 export class HoverProvider implements vscode_HoverProvider {
   async provideHover(
@@ -20,7 +20,7 @@ export class HoverProvider implements vscode_HoverProvider {
       return;
     }
     try {
-      const provider = new TSProviderFactory({
+      const provider = new TSProvider({
         position,
         providerKind: ProviderKind.Hover,
         document: document,
