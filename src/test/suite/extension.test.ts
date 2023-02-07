@@ -1,6 +1,7 @@
 import * as assert from "assert";
 import * as path from "path";
 import {
+  CancellationToken,
   CompletionTriggerKind,
   Disposable,
   Hover,
@@ -26,6 +27,10 @@ import { CssDefinitionProvider } from "../../providers/css/definition";
 import { CssDocumentColorProvider } from "../../providers/css/colors";
 import { normalizePath } from "../../path-utils";
 import { ReferenceProvider } from "../../providers/css/references";
+import {
+  ReferenceCodeLens,
+  ReferenceCodeLensProvider,
+} from "../../providers/css/codelens";
 const examplesLocation = "../../../examples/";
 
 suite("Extension Test Suite", async () => {
@@ -527,6 +532,32 @@ suite("Extension Test Suite", async () => {
         );
         assert.equal(result?.[0].range.start.line, 7);
         assert.equal(result?.[1].range.start.line, 13);
+      });
+    });
+
+    suite("Code Lens", () => {
+      test("provide reference code lens for a selectors in a document", async () => {
+        const document = await workspace.openTextDocument(TestCssModulePath);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const provider = new ReferenceCodeLensProvider();
+        const result = await provider.provideCodeLenses(document, {
+          isCancellationRequested: false,
+        } as CancellationToken);
+        assert.equal((result ?? []).length > 0, true);
+      });
+      test("provide references for a suffix selector in a document", async () => {
+        const document = await workspace.openTextDocument(TestCssModulePath);
+        await window.showTextDocument(document);
+        await StorageInstance.bootStrap();
+        const provider = new ReferenceCodeLensProvider();
+        const lenses = await provider.provideCodeLenses(document, {
+          isCancellationRequested: false,
+        } as CancellationToken);
+        const result = provider.resolveCodeLens(
+          new ReferenceCodeLens(document, document.fileName, lenses[3].range)
+        );
+        assert.equal(result.command?.command, "editor.action.showReferences");
       });
     });
   });

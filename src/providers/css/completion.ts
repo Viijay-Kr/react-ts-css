@@ -6,7 +6,7 @@ import {
 } from "vscode";
 import Settings from "../../settings";
 import { ProviderKind } from "../types";
-import { CSSProviderFactory } from "./CSSProviderFactory";
+import { CSSProvider } from "./CSSProvider";
 
 export class CssVariablesCompletion implements CompletionItemProvider {
   provideCompletionItems(
@@ -17,7 +17,7 @@ export class CssVariablesCompletion implements CompletionItemProvider {
       if (!Settings.cssAutoComplete) {
         return;
       }
-      const provider = new CSSProviderFactory({
+      const provider = new CSSProvider({
         providerKind: ProviderKind.Completion,
         position,
         document,

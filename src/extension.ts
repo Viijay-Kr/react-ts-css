@@ -20,6 +20,7 @@ import { CssDocumentColorProvider } from "./providers/css/colors";
 import { CssVariablesCompletion } from "./providers/css/completion";
 import { CssDefinitionProvider } from "./providers/css/definition";
 import { ReferenceProvider } from "./providers/css/references";
+import { ReferenceCodeLensProvider } from "./providers/css/codelens";
 
 const tsDocumentSelector = [
   { scheme: "file", language: "typescriptreact" },
@@ -72,6 +73,8 @@ export async function activate(context: ExtensionContext): Promise<void> {
       Settings.cssSyntaxColor = getSettings().get("cssSyntaxColor");
       Settings.tsCleanUpDefs = getSettings().get("typecriptCleanUpDefs");
       Settings.cleanUpDefs = getSettings().get("cleanUpDefs");
+      Settings.references = getSettings().get("references");
+      Settings.codeLens = getSettings().get("codelens");
       await syncTsPlugin();
     }
   });
@@ -137,6 +140,11 @@ export async function activate(context: ExtensionContext): Promise<void> {
       new ReferenceProvider()
     );
 
+    const _cssCodeLensProvider = languages.registerCodeLensProvider(
+      cssModulesDocumentSelector,
+      new ReferenceCodeLensProvider()
+    );
+
     context.subscriptions.push(_selectorsCompletionProvider);
     context.subscriptions.push(_importsCompletionProvider);
     context.subscriptions.push(_cssVariablesCompletion);
@@ -146,6 +154,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     context.subscriptions.push(_cssColorProviders);
     context.subscriptions.push(_cssDefinitionProvider);
     context.subscriptions.push(_cssReferenceProvider);
+    context.subscriptions.push(_cssCodeLensProvider);
   } catch (e) {
     console.error(e);
     window.showWarningMessage(

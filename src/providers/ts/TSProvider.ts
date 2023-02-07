@@ -26,7 +26,7 @@ export interface ImportCompletionItem extends CompletionItemType {
   type?: "module";
   shortPath: string;
 }
-export class TSProviderFactory {
+export class TSProvider {
   public providerKind: ProviderKind = ProviderKind.Invalid;
   /** Current Active Position in the Document */
   public position: Position;

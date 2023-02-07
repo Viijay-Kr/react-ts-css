@@ -1,5 +1,6 @@
 import { parse } from "@babel/parser";
 import { isImportDeclaration, Program } from "@babel/types";
+import * as vscode from "vscode";
 import { Range } from "vscode-css-languageservice";
 import { colors } from "../constants";
 import { Variable } from "./v2/css";
@@ -47,4 +48,15 @@ export const rangeLooseEqual = (source: Range, target: Range) => {
     source.end.line === target.end.line &&
     source.end.character <= target.end.character
   );
+};
+
+export const toVsCodeRange = (range: Range) => {
+  return new vscode.Range(
+    new vscode.Position(range.start.line, range.start.character),
+    new vscode.Position(range.end.line, range.end.character)
+  );
+};
+
+export const toVsCodePosition = (range: Range) => {
+  return new vscode.Position(range.start.line, range.start.character);
 };

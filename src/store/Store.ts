@@ -14,12 +14,12 @@ import {
   CSS_MODULE_EXTENSIONS,
   TS_MODULE_EXTENSIONS,
 } from "../constants";
-import { ParserResult } from "../parser/v2/tsx";
+import { ParserResult } from "../parser/v2/ts";
 import * as fsg from "fast-glob";
 import { CssParserResult, parseCss, Selector } from "../parser/v2/css";
 import { promises as fs_promises } from "node:fs";
 import Settings from "../settings";
-import { ParserFactory } from "../parser/ParserFactory";
+import { Parser } from "../parser/Parser";
 import { DiagnosticsProvider } from "../providers/ts/diagnostics";
 import { normalizePath } from "../path-utils";
 
@@ -151,7 +151,7 @@ export class Store {
       ],
       absolute: true,
     });
-    const parserFactory = new ParserFactory({
+    const parserFactory = new Parser({
       workspaceRoot: this.workSpaceRoot,
       tsConfig: this.tsConfig,
       baseDir: Settings.baseDir,
@@ -175,7 +175,7 @@ export class Store {
     parserFactory,
   }: {
     filePath: string;
-    parserFactory: ParserFactory;
+    parserFactory: Parser;
     content: string;
   }) {
     const result = await parserFactory.parse({
@@ -274,7 +274,7 @@ export class Store {
       const uri = document.uri;
       const content = document.getText();
       const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
-      const parserFactory = new ParserFactory({
+      const parserFactory = new Parser({
         workspaceRoot,
         tsConfig: this.tsConfig,
         baseDir: Settings.baseDir,

@@ -11,5 +11,6 @@ export enum ProviderKind {
   Colors,
   References,
   RenameSelector,
+  CodeLens,
   Invalid,
 }
