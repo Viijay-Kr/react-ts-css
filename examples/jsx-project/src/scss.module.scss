@@ -1,0 +1,11 @@
+.test {
+    display: flex;
+}
+
+.test-child {
+    display: block;
+
+    &-suffix {
+        display: flex;
+    }
+}

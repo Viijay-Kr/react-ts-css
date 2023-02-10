@@ -4,7 +4,7 @@ import {
   isIdentifier,
 } from "@babel/types";
 import path = require("path");
-import { TS_MODULE_EXTENSIONS } from "../constants";
+import { MODULE_EXTENSIONS } from "../constants";
 import { normalizePath } from "../path-utils";
 import Store, { TsConfig, StyleReferences } from "../store/Store";
 import { parseCss } from "./v2/css";
@@ -58,7 +58,7 @@ export class Parser {
   }
   async parse({ filePath, content }: { filePath: string; content: string }) {
     const { workspaceRoot } = this.context;
-    if (TS_MODULE_EXTENSIONS.includes(path.extname(filePath))) {
+    if (MODULE_EXTENSIONS.includes(path.extname(filePath))) {
       const parsedResult = await parseTypescript(content);
       if (parsedResult && workspaceRoot) {
         const style_references: StyleReferences["style_references"] = new Map();

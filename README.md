@@ -3,7 +3,7 @@
 <img height="24"  src="images/build.png" /> <a href="https://github.com/Viijay-Kr/react-ts-css/blob/main/LICENSE" target="__blank"><img src="images/license.png" height="24" /></a> <img src="images/tests.png" height="24" />
 <a href="https://marketplace.visualstudio.com/items?itemName=viijay-kr.react-ts-css" target="__blank"><img height="24" src="images/version.png" /></a>
 
-VS Code extension that enables CSS modules IntelliSense for your React projects written in TypeScript.
+VS Code extension that enables CSS modules IntelliSense for your React projects written in TypeScript/Javascript.
 Currently supports CSS, SCSS, Less modules 
 
 This extension also supports CSS language features which are not supported by built in vscode [code css langauge fetures](https://github.com/microsoft/vscode-css-languageservice). Check [CSS language features](#cssscssless-langauge-features) for more info
@@ -25,7 +25,7 @@ This extension also supports CSS language features which are not supported by bu
 
 <h2>Capabilities</h2>
 
-- [TS/TSX Language Features](#tstsx-language-features)
+- [TS/TSX|JS/JSX Language Features](#tstsxjsjsx-language-features)
   - [Definitions](#definitions)
   - [Hover](#hover)
   - [Completions](#completions)
@@ -42,7 +42,7 @@ This extension also supports CSS language features which are not supported by bu
 - [Roadmap](#roadmap)
 - [Contribution](#contribution)
 
-## TS/TSX Language Features
+## TS/TSX|JS/JSX Language Features
 ### [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
 
 - Go to any type of selector definition from your React components - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/definitions.gif)
@@ -138,9 +138,8 @@ Defaults
 ## Roadmap
 
 1. Plain selectors without any reference is a `no op` in the current version and is expected to be added in coming versions
-2. Current support is limited to TypeScript and TypeScript React - JSX support is considered for upcoming releases
-3. Support for stylus will be added in the future versions
-4. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated
+2. Support for stylus will be added in the future versions
+3. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated
 
 ## Contribution
 Check out the contribution [guide](CONTRIBUTING.md)
