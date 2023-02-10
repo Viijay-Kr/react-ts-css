@@ -22,9 +22,11 @@ import { CssDefinitionProvider } from "./providers/css/definition";
 import { ReferenceProvider } from "./providers/css/references";
 import { ReferenceCodeLensProvider } from "./providers/css/codelens";
 
-const tsDocumentSelector = [
+const documentSelector = [
   { scheme: "file", language: "typescriptreact" },
+  { scheme: "file", language: "javascriptreact" },
   { scheme: "file", language: "typescript" },
+  { scheme: "file", language: "javascript" },
 ];
 
 const cssDocumentSelector = [
@@ -95,27 +97,27 @@ export async function activate(context: ExtensionContext): Promise<void> {
     await syncTsPlugin();
     await Store.bootStrap();
     const _definitionProvider = languages.registerDefinitionProvider(
-      tsDocumentSelector,
+      documentSelector,
       new DefnitionProvider()
     );
     const _hoverProvider = languages.registerHoverProvider(
-      tsDocumentSelector,
+      documentSelector,
       new HoverProvider()
     );
     const _selectorsCompletionProvider =
       languages.registerCompletionItemProvider(
-        tsDocumentSelector,
+        documentSelector,
         new SelectorsCompletionProvider(),
         ".",
         "'",
         "["
       );
     const _importsCompletionProvider = languages.registerCompletionItemProvider(
-      tsDocumentSelector,
+      documentSelector,
       new ImportCompletionProvider()
     );
     const _codeActionsProvider = languages.registerCodeActionsProvider(
-      tsDocumentSelector,
+      documentSelector,
       new DiagnosticCodeAction(context)
     );
 

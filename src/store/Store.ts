@@ -12,7 +12,7 @@ import {
 import {
   CssModuleExtensions,
   CSS_MODULE_EXTENSIONS,
-  TS_MODULE_EXTENSIONS,
+  MODULE_EXTENSIONS,
 } from "../constants";
 import { ParserResult } from "../parser/v2/ts";
 import * as fsg from "fast-glob";
@@ -134,9 +134,9 @@ export class Store {
   }
 
   public async setTsModules() {
-    const glob = `**/*.{${TS_MODULE_EXTENSIONS.map((e) =>
-      e.replace(".", "")
-    ).join(",")}}`;
+    const glob = `**/*.{${MODULE_EXTENSIONS.map((e) => e.replace(".", "")).join(
+      ","
+    )}}`;
     const files = await fsg(glob, {
       cwd: this.workSpaceRoot || __dirname,
       ignore: [
