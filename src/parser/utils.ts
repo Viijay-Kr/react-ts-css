@@ -60,3 +60,27 @@ export const toVsCodeRange = (range: Range) => {
 export const toVsCodePosition = (range: Range) => {
   return new vscode.Position(range.start.line, range.start.character);
 };
+
+export const isSuffix = (selector: string) => {
+  return selector.startsWith("&-") || /^&[a-z|A-Z|0-9]/i.test(selector);
+};
+
+export const isSibling = (selector: string) => {
+  return selector.startsWith("&.");
+};
+
+export const isChild = (selector: string) => {
+  return selector.startsWith("& .");
+};
+
+export const isPsuedo = (selector: string) => {
+  return selector.indexOf(":") > -1;
+};
+
+export const isNormal = (selector: string) => {
+  return selector.startsWith(".");
+};
+
+export const isCombination = (selector: string) => {
+  return selector.indexOf(".") > -1;
+};
