@@ -27,7 +27,15 @@ import {
   RuleSet,
   Stylesheet,
 } from "../../css-node.types";
-import { isColorString } from "../utils";
+import {
+  isChild,
+  isColorString,
+  isCombination,
+  isNormal,
+  isPsuedo,
+  isSibling,
+  isSuffix,
+} from "../utils";
 
 export const getLanguageService = (module: string) => {
   switch (path.extname(module) as CssModuleExtensions) {
@@ -142,23 +150,23 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
             if (simpleSelector.type === NodeType.SimpleSelector) {
               let selector = simpleSelector.getText();
               let isInvalid = false;
-              if (selector.startsWith("&-")) {
+              if (isSuffix(selector)) {
                 selector =
                   resolveSuffixSelectors(parent, "") +
                   selector.replace("&", "");
-              } else if (selector.startsWith("&.")) {
+              } else if (isSibling(selector)) {
                 selector = selector.replace(/&./gi, "");
-              } else if (selector.startsWith("& .")) {
+              } else if (isChild(selector)) {
                 selector = selector.replace(/& ./gi, "");
-              } else if (selector.startsWith(".")) {
+              } else if (isNormal(selector)) {
                 selector = selector.replace(".", "");
               } else {
                 isInvalid = true;
               }
-              if (selector.indexOf(":") > -1) {
+              if (isPsuedo(selector)) {
                 selector = selector.split(":")[0];
               }
-              if (selector.indexOf(".") > -1) {
+              if (isCombination(selector)) {
                 for (const _selector of selector.split(".")) {
                   insertSelector(selectorNode, node, _selector);
                 }
@@ -200,7 +208,7 @@ function resolveSuffixSelectors(parent: Node | null, suffixes: string): string {
     return resolveSuffixSelectors(parent.parent, suffixes);
   }
   const parentSelector = (parent as RuleSet).getSelectors().getText();
-  if (parentSelector.startsWith("&-")) {
+  if (isSuffix(parentSelector)) {
     suffixes = parentSelector.replace("&", "") + suffixes;
     return resolveSuffixSelectors(parent.parent, suffixes);
   }

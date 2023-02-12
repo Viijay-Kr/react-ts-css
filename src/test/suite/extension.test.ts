@@ -419,6 +419,26 @@ suite("Extension Test Suite", async () => {
         "flex-row-center"
       );
     });
+
+    test("should include camelCased suffixed selectors", async () => {
+      const document = await workspace.openTextDocument(SelectorCssModule);
+      await window.showTextDocument(document);
+      await StorageInstance.bootStrap();
+      const node = StorageInstance.cssModules.get(
+        normalizePath(SelectorCssModule)
+      );
+      assert.notEqual(node, undefined);
+      const selectors = node!.selectors;
+      assert.equal(selectors.get("camelCase")?.selector, "camelCase");
+      assert.equal(
+        selectors.get("camelCasesuffix")?.selector,
+        "camelCasesuffix"
+      );
+      assert.equal(
+        selectors.get("camelCasesuffixonemore")?.selector,
+        "camelCasesuffixonemore"
+      );
+    });
   });
 
   suite("Css language features", async () => {

@@ -51,3 +51,15 @@
         display: flex;
     }
 }
+
+.camelCase {
+    display: flex;
+
+    &suffix {
+        display: contents;
+
+        &onemore {
+            display: contents;
+        }
+    }
+}
