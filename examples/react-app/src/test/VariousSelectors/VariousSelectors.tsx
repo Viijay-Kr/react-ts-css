@@ -3,5 +3,6 @@ export const VariousSelector = () => {
   return <div className={styles.camelCasesuffixonemore}>
     <div className={styles.camelCasesuffix}></div>
     <div className={styles.camelCase}></div>
+    <div className={styles['new-selector-added']}></div>
   </div>;
 };

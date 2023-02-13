@@ -1,9 +1,11 @@
+## [1.9.2]
+- Fix newly added selector resolution issue
 ## [1.9.1]
 - Suffix selector without hypen prefix is handled - Fixes [82](https://github.com/Viijay-Kr/react-ts-css/issues/82)
 ## [1.9.0]
 - Javascript language support - Closes [#80](https://github.com/Viijay-Kr/react-ts-css/issues/80)
 ## [1.8.0]
-- Code Lens Provider integration for selector references - Closes [#76](https://github.com/Viijay-Kr/react-ts-css/issues/76)
+- Code Lens Provider integration for selector referenceses [#76](https://github.com/Viijay-Kr/react-ts-css/issues/76)
 - Some minor refactoring/renaming of Providers
 ## [1.7.0]
 - Reference Provider for Selectors - Closes [#74](https://github.com/Viijay-Kr/react-ts-css/issues/74)
