@@ -238,10 +238,11 @@ export class Store {
   public async storeCssParserResult(module: string) {
     try {
       const result = await parseCss(module);
+      const cached = this._cssModules.get(module);
       if (result) {
-        this._cssModules.set(module, { ...result, references: new Set() });
+        this._cssModules.set(module, { ...result, references: cached?.references ?? new Set() });
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -272,23 +273,32 @@ export class Store {
       const document = this.activeTextEditor.document;
       const filePath = document.uri.fsPath;
       const uri = document.uri;
-      const content = document.getText();
-      const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
-      const parserFactory = new Parser({
-        workspaceRoot,
-        tsConfig: this.tsConfig,
-        baseDir: Settings.baseDir,
-        cssModules: this.cssModules,
-      });
-      await this.storeTsParserResult({
-        filePath,
-        content,
-        parserFactory,
-      });
-      if (Settings.diagnostics) {
-        return this.provideDiagnostics();
+
+      if (
+        CSS_MODULE_EXTENSIONS.includes(
+          path.extname(filePath) as CssModuleExtensions
+        )
+      ) {
+        this.storeCssParserResult(filePath);
+      } else {
+        const content = document.getText();
+        const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
+        const parserFactory = new Parser({
+          workspaceRoot,
+          tsConfig: this.tsConfig,
+          baseDir: Settings.baseDir,
+          cssModules: this.cssModules,
+        });
+        await this.storeTsParserResult({
+          filePath,
+          content,
+          parserFactory,
+        });
+        if (Settings.diagnostics) {
+          return this.provideDiagnostics();
+        }
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
