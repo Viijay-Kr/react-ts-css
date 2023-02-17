@@ -240,9 +240,12 @@ export class Store {
       const result = await parseCss(module);
       const cached = this._cssModules.get(module);
       if (result) {
-        this._cssModules.set(module, { ...result, references: cached?.references ?? new Set() });
+        this._cssModules.set(module, {
+          ...result,
+          references: cached?.references ?? new Set(),
+        });
       }
-    } catch (e) { }
+    } catch (e) {}
   }
 
   /**
@@ -268,7 +271,8 @@ export class Store {
         await this.setCssModules();
       }
       if (!this.tsModules.size) {
-        await this.setTsModules();
+        // Don't do this for every tsx file but rather only for active document until code lens is figured out.
+        // await this.setTsModules();
       }
       const document = this.activeTextEditor.document;
       const filePath = document.uri.fsPath;
@@ -298,7 +302,7 @@ export class Store {
           return this.provideDiagnostics();
         }
       }
-    } catch (e) { }
+    } catch (e) {}
   }
 
   /**
