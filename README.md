@@ -4,24 +4,24 @@
 <a href="https://marketplace.visualstudio.com/items?itemName=viijay-kr.react-ts-css" target="__blank"><img height="24" src="images/version.png" /></a>
 
 VS Code extension that enables CSS modules IntelliSense for your React projects written in TypeScript/Javascript.
-Currently supports CSS, SCSS, Less modules 
+Currently supports CSS, SCSS, Less modules
 
 This extension also supports CSS language features which are not supported by built in vscode [code css langauge fetures](https://github.com/microsoft/vscode-css-languageservice). Check [CSS language features](#cssscssless-langauge-features) for more info
 
 > This extension is unique in terms of support for major types of [Casings](#casings) and different types of CSS class selectors
-> 
+>
 > Different types of selectors are supported
+>
 > - Root selectors
 > - Nested selectors
 > - Suffixed selectors ([SCSS only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
 > - Deeply nested suffix selectors
 >
 > Almost all project scaffolders such as Vite, Next.js and CRA add css module declaration to the project by injecting it in a `.d.ts` file (for instance inside `node_modules/vite/client.d.ts` added by Vite). TypeScript treats these definitions as definition provider for Style properties. This results in a useless definition result when VS Code `Go to Definition` is triggered. Check this [issue](https://github.com/Viijay-Kr/react-ts-css/issues/68).
-> 
+>
 > This extension gives you an option to eliminate the useless results by using the TypeScript plugin [typescript-cleanup-defs](https://www.npmjs.com/package/typescript-cleanup-definitions) that can filter out those definitions results. Check the plugin for more details.
 >
 > Override this plugin using the setting `reactTsScss.tsCleanUpDefs`
-
 
 <h2>Capabilities</h2>
 
@@ -35,14 +35,15 @@ This extension also supports CSS language features which are not supported by bu
   - [Variable Completion - **\[Only CSS\]**](#variable-completion---only-css)
   - [Variable Definitions - **\[Only CSS\]**](#variable-definitions---only-css)
   - [Syntax Colors and Presentation - **\[Only CSS\]**](#syntax-colors-and-presentation---only-css)
-  - [Reference Provider](#reference-provider)
-  - [Code Lens](#code-lens)
+  - [Reference Provider (**Experimental**)](#reference-provider)
+  - [Code Lens (**Experimental**))](#code-lens)
 - [Casings](#casings)
 - [Settings](#settings)
 - [Roadmap](#roadmap)
 - [Contribution](#contribution)
 
 ## TS/TSX|JS/JSX Language Features
+
 ### [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
 
 - Go to any type of selector definition from your React components - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/definitions.gif)
@@ -51,7 +52,7 @@ This extension also supports CSS language features which are not supported by bu
 ### [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
 - Peek CSS properties of a selector on hover - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/hover.gif)
-  -  `reactTsCSS.peek` - setting for this feature
+  - `reactTsCSS.peek` - setting for this feature
 
 ### [Completions](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
@@ -60,6 +61,7 @@ This extension also supports CSS language features which are not supported by bu
   - `reactTsCSS.autoComplete` - setting for this feature
 
 ### [Diagnostics](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic)
+
 - Useful diagnostics information are provided for missing selector - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/missing-selector.png)
 - Module not found error is also provided for non existing CSS modules - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/missing-module.png)
 - Settings to change diagnostics
@@ -76,34 +78,47 @@ This extension also supports CSS language features which are not supported by bu
   - `reactTsCSS.diagnostics` - setting for this feature
 
 ## CSS/SCSS/Less Langauge Features
- [Demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/css-variables.gif)
+
+[Demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/css-variables.gif)
+
 ### Variable Completion - **[Only CSS]**
-- Completion of variables across all the css modules 
+
+- Completion of variables across all the css modules
   - `reactTsCSS.cssAutoComplete` - setting for this feature
+
 ### [Variable Definitions](https://code.visualstudio.com/docs/languages/css#_go-to-declaration-and-find-references) - **[Only CSS]**
+
 - Definition of variables across all the css modules
-  -  `reactTsCSS.cssDefinitions` - setting for this feature
+  - `reactTsCSS.cssDefinitions` - setting for this feature
+
 ### [Syntax Colors and Presentation](https://code.visualstudio.com/docs/languages/css#_syntax-coloring-color-preview) - **[Only CSS]**
+
 - Color Presentations and color information for variables across all the css modules
   - `reactTsCSS.cssSyntaxColor` - setting for this feature
-> VS codes built in support for CSS Langauge is limited to the current active file.So the above features are limited to active file and hence any access to variables from different modules won't work until you install React CSS modules
+    > VS codes built in support for CSS Langauge is limited to the current active file.So the above features are limited to active file and hence any access to variables from different modules won't work until you install React CSS modules
 
-### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation) 
+### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation)
+
+> Experimental Feature. his is turned off till some performance problems are identified
+
 - Find all the references of a selector across various TS/TSX files - [Demo](assets/references.gif)
   - `reactTsCSS.references` - setting for this feature
 
 ### [Code Lens](https://code.visualstudio.com/api/language-extensions/programmatic-language-features#codelens-show-actionable-context-information-within-source-code)
+
+> Experimental feature . This is turned off till some performance problems are identified
+
 - Useful Code Lens context for selectors based on their references across component files - [Demo](assets/code-lens.gif)
 - A quick alternative to [reactTsCSS.references](#reference-provider)
   - `reactTsCSS.codelens` - setting for this feature
-  
+
 ## Casings
 
 This extensions supports selectors written in:
 
 1. snake_case
 2. PascalCase
-3. camelCase 
+3. camelCase
 4. kebab-case
 
 ## Settings
@@ -112,26 +127,26 @@ Defaults
 
 ```json
 {
-  "reactTsCSS.peek": true, 
-  "reactTsCSS.autoComplete": true, 
-  "reactTsCSS.autoImport": true, 
-  "reactTsCSS.definition": true, 
-  "reactTsCSS.references": true, 
-  "reactTsCSS.tsconfig":"./tsconfig.json", 
-  "reactTsCSS.baseDir":"src", 
-  "reactTsCSS.diagnostics":true, 
-  "reactTsCSS.cssAutoComplete":true, 
-  "reactTsCSS.cssDefinitions":true, 
-  "reactTsCSS.cssSyntaxColor":true, 
-  "reactTsCSS.tsCleanUpDefs":true, 
+  "reactTsCSS.peek": true,
+  "reactTsCSS.autoComplete": true,
+  "reactTsCSS.autoImport": true,
+  "reactTsCSS.definition": true,
+  "reactTsCSS.references": true,
+  "reactTsCSS.tsconfig": "./tsconfig.json",
+  "reactTsCSS.baseDir": "src",
+  "reactTsCSS.diagnostics": true,
+  "reactTsCSS.cssAutoComplete": true,
+  "reactTsCSS.cssDefinitions": true,
+  "reactTsCSS.cssSyntaxColor": true,
+  "reactTsCSS.tsCleanUpDefs": true,
   "reactTsCSS.cleanUpDefs": [
-      "*.module.css",
-      "*.module.scss",
-      "*.module.sass",
-      "*.module.less",
-      "*.module.styl"
+    "*.module.css",
+    "*.module.scss",
+    "*.module.sass",
+    "*.module.less",
+    "*.module.styl"
   ],
-  "reactTsCSS.codelens":true,
+  "reactTsCSS.codelens": true
 }
 ```
 
@@ -142,4 +157,5 @@ Defaults
 3. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated
 
 ## Contribution
+
 Check out the contribution [guide](CONTRIBUTING.md)
