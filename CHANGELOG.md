@@ -1,3 +1,7 @@
+## [1.9.5]
+
+- updated the version badge
+
 ## [1.9.4]
 
 - Dynamic References to selectors is not considered for diagnostics - Partially fixes [#86](https://github.com/Viijay-Kr/react-ts-css/issues/86)
