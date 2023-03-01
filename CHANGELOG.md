@@ -1,3 +1,7 @@
+## [1.9.4]
+
+- Dynamic References to selectors is not considered for diagnostics - Partially fixes [#86](https://github.com/Viijay-Kr/react-ts-css/issues/86)
+
 ## [1.9.3]
 
 - Disabling References and Code lens due to performance issue

@@ -343,6 +343,20 @@ suite("Extension Test Suite", async () => {
         const diagnostics = await StorageInstance.bootStrap();
         assert.equal(diagnostics?.length, 2);
       });
+
+      test("should not provide dignostics for dynamic slectors", async () => {
+        const DynamicClasses = Uri.file(
+          path.join(
+            __dirname,
+            examplesLocation,
+            "react-app/src/test/DynamicClasses/DynamicClasses.tsx"
+          )
+        );
+        const document = await workspace.openTextDocument(DynamicClasses);
+        await window.showTextDocument(document);
+        const diagnostics = await StorageInstance.bootStrap();
+        assert.equal(diagnostics?.length, 0);
+      });
     });
   });
 
