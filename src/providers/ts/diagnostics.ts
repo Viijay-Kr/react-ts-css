@@ -102,7 +102,7 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
   renameSelector() {}
   runDiagnostics() {
     for (const accessor of this.parsedResult?.style_accessors ?? []) {
-      const { property, object } = accessor;
+      const { property, object, isDynamic } = accessor;
       const style_reference = this.parsedResult?.style_references.get(
         object.name
       );
@@ -119,6 +119,7 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
           return "";
         })();
         if (
+          !isDynamic &&
           selector !== "" &&
           selectors &&
           !selectors.has(selector) &&

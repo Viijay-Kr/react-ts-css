@@ -19,6 +19,7 @@ export const isCssModuleDeclaration = (value: string) => {
 type Accessor = {
   property: StringLiteral | Identifier;
   object: Identifier; // Should always be one of sourceIdentfiers
+  isDynamic?: boolean;
 };
 export type ParserResult = {
   /** A list of default export identifier of a css module */
@@ -72,6 +73,12 @@ export const parseTypescript = (
                 accessors.push({
                   property: path.node.property,
                   object: path.node.object,
+                  isDynamic:
+                    isIdentifier(path.node.property) &&
+                    content.charAt(
+                      // @ts-expect-error
+                      (path.node.property.loc?.start.index! as number) - 1
+                    ) === "[",
                 });
               }
             }
