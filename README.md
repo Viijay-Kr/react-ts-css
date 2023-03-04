@@ -35,8 +35,8 @@ This extension also supports CSS language features which are not supported by bu
   - [Variable Completion - **\[Only CSS\]**](#variable-completion---only-css)
   - [Variable Definitions - **\[Only CSS\]**](#variable-definitions---only-css)
   - [Syntax Colors and Presentation - **\[Only CSS\]**](#syntax-colors-and-presentation---only-css)
-  - [Reference Provider (**Experimental**)](#reference-provider)
-  - [Code Lens (**Experimental**))](#code-lens)
+  - [Reference Provider (**Experimental/Turned OFF**)](#reference-provider)
+  - [Code Lens (**Experimental/Turned OFF**))](#code-lens)
 - [Casings](#casings)
 - [Settings](#settings)
 - [Roadmap](#roadmap)
@@ -99,7 +99,7 @@ This extension also supports CSS language features which are not supported by bu
 
 ### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation)
 
-> Experimental Feature. his is turned off till some performance problems are identified
+> Experimental Feature. This is turned off till some performance problems are identified
 
 - Find all the references of a selector across various TS/TSX files - [Demo](assets/references.gif)
   - `reactTsCSS.references` - setting for this feature

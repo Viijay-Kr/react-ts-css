@@ -1,3 +1,7 @@
+## [1.9.6]
+
+- Fix typo in docs
+
 ## [1.9.5]
 
 - updated the version badge
