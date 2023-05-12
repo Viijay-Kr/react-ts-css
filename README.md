@@ -6,7 +6,7 @@
 VS Code extension that enables CSS modules IntelliSense for your React projects written in TypeScript/JavaScript.
 Currently supports CSS, SCSS, Less modules
 
-This extension also supports CSS language features which are not supported by built-in VS Code [code CSS language features](https://github.com/microsoft/vscode-css-languageservice). Check [CSS language features](#cssscssless-langauge-features) for more info
+This extension also supports CSS language features which are not supported by built-in VS Code [code CSS language features](https://github.com/microsoft/vscode-css-languageservice). Check [CSS language features](#cssscssless-language-features) for more info
 
 > This extension is unique in terms of support for major types of [Casings](#casings) and different types of CSS class selectors
 >
@@ -31,7 +31,7 @@ This extension also supports CSS language features which are not supported by bu
   - [Completions](#completions)
   - [Diagnostics](#diagnostics)
   - [Code Actions](#code-actions)
-- [CSS/SCSS/Less Language Features](#cssscssless-langauge-features)
+- [CSS/SCSS/Less Language Features](#cssscssless-language-features)
   - [Variable Completion - **\[Only CSS\]**](#variable-completion---only-css)
   - [Variable Definitions - **\[Only CSS\]**](#variable-definitions---only-css)
   - [Syntax Colors and Presentation - **\[Only CSS\]**](#syntax-colors-and-presentation---only-css)
