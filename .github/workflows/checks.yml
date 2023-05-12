@@ -2,8 +2,7 @@ name: Check
 
 on:
   pull_request:
-    branches-ignore:
-      - main
+    types: [opened, reopened, edited]
 
 jobs:
   test:
