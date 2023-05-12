@@ -1,9 +1,13 @@
 name: Check
-
 on:
-  push:
-    branches-ignore:
-      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+    branches:
+      - "main"
 
 jobs:
   test:
