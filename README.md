@@ -3,10 +3,10 @@
 <img height="24"  src="images/build.png" /> <a href="https://github.com/Viijay-Kr/react-ts-css/blob/main/LICENSE" target="__blank"><img src="images/license.png" height="24" /></a> <img src="images/tests.png" height="24" />
 <a href="https://marketplace.visualstudio.com/items?itemName=viijay-kr.react-ts-css" target="__blank"><img height="24" src="images/version.png" /></a>
 
-VS Code extension that enables CSS modules IntelliSense for your React projects written in TypeScript/Javascript.
+VS Code extension that enables CSS modules IntelliSense for your React projects written in TypeScript/JavaScript.
 Currently supports CSS, SCSS, Less modules
 
-This extension also supports CSS language features which are not supported by built in vscode [code css langauge fetures](https://github.com/microsoft/vscode-css-languageservice). Check [CSS language features](#cssscssless-langauge-features) for more info
+This extension also supports CSS language features which are not supported by built-in VS Code [code CSS language features](https://github.com/microsoft/vscode-css-languageservice). Check [CSS language features](#cssscssless-langauge-features) for more info
 
 > This extension is unique in terms of support for major types of [Casings](#casings) and different types of CSS class selectors
 >
@@ -31,7 +31,7 @@ This extension also supports CSS language features which are not supported by bu
   - [Completions](#completions)
   - [Diagnostics](#diagnostics)
   - [Code Actions](#code-actions)
-- [CSS/SCSS/Less Langauge Features](#cssscssless-langauge-features)
+- [CSS/SCSS/Less Language Features](#cssscssless-langauge-features)
   - [Variable Completion - **\[Only CSS\]**](#variable-completion---only-css)
   - [Variable Definitions - **\[Only CSS\]**](#variable-definitions---only-css)
   - [Syntax Colors and Presentation - **\[Only CSS\]**](#syntax-colors-and-presentation---only-css)
@@ -66,8 +66,8 @@ This extension also supports CSS language features which are not supported by bu
 - Module not found error is also provided for non existing CSS modules - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/missing-module.png)
 - Settings to change diagnostics
   - `reactTsCSS.diagnostics` - Toggle to turn off diagnostics
-  - `reactTsScss.tsconfig` - Base TS Config path in the project.Useful for resolving path aliases. Defaults to './tsconfig.json'
-  - `reactTsScss.baseDir` - Root directory of your project. Useful if tsconfig doesn't have information about path aliases.Defaults to 'src'
+  - `reactTsScss.tsconfig` - Base TS Config path in the project. Useful for resolving path aliases. Defaults to './tsconfig.json'
+  - `reactTsScss.baseDir` - Root directory of your project. Useful if tsconfig doesn't have information about path aliases. Defaults to 'src'
 
 ### [Code Actions](https://code.visualstudio.com/docs/editor/refactoring#_code-actions-quick-fixes-and-refactorings)
 
@@ -77,7 +77,7 @@ This extension also supports CSS language features which are not supported by bu
 - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/code-actions.gif)
   - `reactTsCSS.diagnostics` - setting for this feature
 
-## CSS/SCSS/Less Langauge Features
+## CSS/SCSS/Less Language Features
 
 [Demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/css-variables.gif)
 
@@ -95,7 +95,7 @@ This extension also supports CSS language features which are not supported by bu
 
 - Color Presentations and color information for variables across all the css modules
   - `reactTsCSS.cssSyntaxColor` - setting for this feature
-    > VS codes built in support for CSS Langauge is limited to the current active file.So the above features are limited to active file and hence any access to variables from different modules won't work until you install React CSS modules
+    > VS codes built in support for CSS Language is limited to the current active file.So the above features are limited to active file and hence any access to variables from different modules won't work until you install React CSS modules
 
 ### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation)
 
