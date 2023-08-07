@@ -19,6 +19,7 @@ import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../../constants";
 import { Selector } from "../../parser/v2/css";
 import Store from "../../store/Store";
 import { normalizePath } from "../../path-utils";
+import Settings from '../../settings';
 
 export type extended_Diagnostic = Diagnostic & {
   replace?: string;
@@ -27,7 +28,7 @@ export type extended_Diagnostic = Diagnostic & {
 
 export type DiagnosticsContext = {
   parsedResult: ReturnType<typeof Store.getActiveTsModule>;
-  baseDir: string | undefined;
+  baseDir?: string | undefined;
   activeFileDir: string | undefined;
   activeFileUri: Uri;
 };
@@ -99,7 +100,7 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
       }
     }
   }
-  renameSelector() {}
+  renameSelector() { }
   runDiagnostics() {
     for (const accessor of this.parsedResult?.style_accessors ?? []) {
       const { property, object, isDynamic } = accessor;
@@ -181,14 +182,23 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
       if (isImportDeclaration(statement)) {
         const module = statement.source.value;
         const ext = path.extname(module) as CssModuleExtensions;
-        const isRelative = module.startsWith(".");
+        const isRelativeImport = module.startsWith(".");
         if (CSS_MODULE_EXTENSIONS.includes(ext) && module.includes(".module")) {
           const relativePath = normalizePath(
-            !isRelative
+            !isRelativeImport
               ? path.resolve(Store.workSpaceRoot!, this.baseDir ?? "", module)
               : path.resolve(this.activeFileDir, module)
           );
-          if (!Store.cssModules.has(relativePath)) {
+          let doesModuleExists = Store.cssModules.has(relativePath);
+          const isAliasImport = module.startsWith(Settings.tsconfigPathPrefix ?? "");
+          if (isAliasImport) {
+            const resolvedModule = Store.resolveCssModuleAlias(module);
+            if (resolvedModule) {
+              doesModuleExists = Store.cssModules.has(resolvedModule);
+            }
+          }
+          if (!doesModuleExists) {
+            // check if its an alias
             this.diagnostics.push({
               message: `Module Not found '${module}'`,
               source: "React TS CSS",

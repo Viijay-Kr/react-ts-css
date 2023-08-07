@@ -6,13 +6,14 @@ import {
 import path = require("path");
 import { MODULE_EXTENSIONS } from "../constants";
 import { normalizePath } from "../path-utils";
-import Store, { TsConfig, StyleReferences } from "../store/Store";
+import Store, { StyleReferences, TsConfigMap } from "../store/Store";
 import { parseCss } from "./v2/css";
 import { isCssModuleDeclaration, parseTypescript } from "./v2/ts";
+import Settings from "../settings";
 
 export type ParserContext = {
   workspaceRoot: string | undefined;
-  tsConfig: TsConfig;
+  tsConfig: TsConfigMap;
   baseDir: string | undefined;
   cssModules: typeof Store.cssModules;
 };
@@ -31,6 +32,7 @@ export class Parser {
     } = this.context;
     const activeFileDir = path.dirname(filePath);
     const isRelativePath = source.startsWith(".");
+    const isTsConfigAlias = source.startsWith(Settings.tsconfigPathPrefix ?? "");
     const doesModuleExists = (pathOfSource: string) =>
       sourceFiles.has(pathOfSource);
     if (isRelativePath) {
@@ -40,6 +42,12 @@ export class Parser {
       if (doesModuleExists(relativePathOfSource)) {
         return relativePathOfSource;
       }
+    } else if (isTsConfigAlias) {
+      const aliasedModule = Store.resolveCssModuleAlias(source);
+      if (aliasedModule && Store.cssModules.has(aliasedModule)) {
+        return aliasedModule;
+      }
+
     } else {
       let absolutePathOfSource = normalizePath(
         path.resolve(workspaceRoot, source)
