@@ -38,15 +38,21 @@ export type StyleReferences = {
 interface CSSReferences {
   references: Set<FileName>;
 }
+
 // Full file path of the active opened file
 type CssModules = Map<string, CssParserResult & CSSReferences>;
 export type ParsedResult = Map<FileName, ParserResult & StyleReferences>;
 export type TsModules = ParsedResult;
 
+export type TsConfigMap = Map<string, TsConfig>;
 export type TsConfig = {
   compilerOptions: {
-    baseUrl: string;
+    baseUrl?: string;
+    paths?: {
+      [key: string]: Array<string>
+    }
   };
+  baseDir: string
 };
 
 export type IgnoreDiagnostis = Map<
@@ -62,11 +68,7 @@ export class Store {
     languages.createDiagnosticCollection("react-ts-css");
   protected diagnosticsProvider: DiagnosticsProvider | undefined;
   public ignoredDiagnostics: IgnoreDiagnostis = new Map();
-  private tsConfig: TsConfig = {
-    compilerOptions: {
-      baseUrl: "",
-    },
-  };
+  private tsConfig: TsConfigMap = new Map();
 
   constructor() {
     const uri = window.activeTextEditor?.document?.uri;
@@ -202,17 +204,46 @@ export class Store {
 
   private async saveTsConfig() {
     try {
-      if (Settings.tsconfig) {
-        const contents = (
-          await fs_promises.readFile(
-            path.resolve(this.workSpaceRoot ?? "", Settings.tsconfig)
-          )
-        ).toString();
-        const tsconfig = JSON.parse(contents);
-        this.tsConfig = tsconfig;
+      if (Settings.tsconfig?.length) {
+        await Promise.allSettled(Settings.tsconfig.map(async config => {
+          const contents = (
+            await fs_promises.readFile(
+              path.resolve(this.workSpaceRoot ?? "", config)
+            )
+          ).toString();
+          this.tsConfig.set(config, { ...JSON.parse(contents), baseDir: path.join(this.workSpaceRoot ?? "", path.dirname(config)) } as TsConfig);
+        }));
       } else {
         throw new Error("Unable to resolve tsconfig.json");
       }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  private async saveTsConfigAutomatically() {
+    try {
+      const configs = await fsg("**/*/tsconfig.json", {
+        ignore: [
+          "node_modules",
+          "build",
+          "dist",
+          "coverage",
+          "**/*.stories.tsx",
+          "**/*.stories.ts",
+          "**/*.test.ts",
+          "**/*.test.tsx",
+        ],
+        cwd: this.workSpaceRoot
+      });
+      await Promise.allSettled(configs.map(async config => {
+        const contents = (
+          await fs_promises.readFile(
+            path.resolve(this.workSpaceRoot ?? "", config)
+          )
+        ).toString();
+        this.tsConfig.set(config, { ...JSON.parse(contents), baseDir: path.join(this.workSpaceRoot ?? "", path.dirname(config)) } as TsConfig);
+      }));
     } catch (e) {
       console.log(e);
     }
@@ -245,7 +276,33 @@ export class Store {
           references: cached?.references ?? new Set(),
         });
       }
-    } catch (e) {}
+    } catch (e) { }
+  }
+
+  resolveCssModuleAlias(source: string): string | undefined {
+    const activeFileDir = path.dirname(this.getActiveTextDocument().fileName);
+    for (const [, config] of this.tsConfig) {
+      if (activeFileDir.includes(config.baseDir)) {
+        const alias = path.dirname(source);
+        const module_name = path.basename(source);
+        const paths = config.compilerOptions.paths;
+        for (const [_path, values] of Object.entries(paths ?? {})) {
+          const tsconfig_alias_path_dir = path.dirname(_path);
+          let final_path = '';
+          if (alias === tsconfig_alias_path_dir) {
+            const alias_value = values[0].replace("*", "");
+            final_path = path.join(config.baseDir, alias_value, module_name);
+          } else if (alias.indexOf(tsconfig_alias_path_dir) === 0) {
+            const alias_value = values[0].replace("*", "");
+            final_path = path.join(config.baseDir, alias_value, alias.replace(tsconfig_alias_path_dir, ""), module_name);
+          }
+          if (this.cssModules.has(final_path)) {
+            return final_path;
+          };
+        };
+      }
+    };
+    return;
   }
 
   /**
@@ -264,9 +321,8 @@ export class Store {
       if (this.activeTextEditor.document.isDirty) {
         return;
       }
-      if (!this.tsConfig) {
-        await this.saveTsConfig();
-      }
+      // await this.saveTsConfig();
+      await this.saveTsConfigAutomatically();
       if (!this.cssModules.size) {
         await this.setCssModules();
       }
@@ -302,7 +358,7 @@ export class Store {
           return this.provideDiagnostics();
         }
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   /**
@@ -354,13 +410,11 @@ export class Store {
     const activeFileDir = path.parse(
       this.activeTextEditor.document.uri.fsPath
     ).dir;
-    const baseDir = this.tsConfig.compilerOptions.baseUrl || Settings.baseDir;
     const activeFileUri = this.activeTextEditor.document.uri;
     if (Settings.diagnostics) {
       this.diagnosticsProvider = new DiagnosticsProvider({
         parsedResult,
         activeFileDir,
-        baseDir,
         activeFileUri,
       });
       this.diagnosticsProvider.runDiagnostics();
