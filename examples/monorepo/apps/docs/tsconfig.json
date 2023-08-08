@@ -8,7 +8,7 @@
       ],
       "@component-styles/*": [
         "styles/components/*"
-      ]
+      ],
     }
   },
   "include": [
