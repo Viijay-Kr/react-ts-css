@@ -55,14 +55,6 @@ export class Settings {
     workspace.getConfiguration(EXT_NAME).update("diagnostics", v);
   }
 
-  public get tsconfig(): string[] | undefined {
-    return getSettings().get("tsconfig");
-  }
-
-  public set tsconfig(v: string[] | undefined) {
-    workspace.getConfiguration(EXT_NAME).update("tsconfig", v);
-  }
-
   public get tsconfigPathPrefix(): string | undefined {
     return getSettings().get("tsconfigPathPrefix");
   }

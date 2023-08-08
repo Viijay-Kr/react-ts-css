@@ -68,7 +68,6 @@ export async function activate(context: ExtensionContext): Promise<void> {
       Settings.definition = getSettings().get("definition");
       Settings.peekProperties = getSettings().get("peekProperties");
       Settings.cssAutoComplete = getSettings().get("cssAutoComplete");
-      Settings.tsconfig = getSettings().get("tsconfig");
       Settings.tsconfigPathPrefix = getSettings().get("tsconfigPathPrefix");
       Settings.cssDefinitions = getSettings().get("cssDefinitions");
       Settings.diagnostics = getSettings().get("diagnostics");

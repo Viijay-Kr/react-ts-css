@@ -94,19 +94,11 @@
           "default": true,
           "description": "Provide Diagnostics and Code Actions for non existing selectors and non existing css modules"
         },
-        "reactTsScss.tsconfig": {
-          "type": "array",
-          "title": "TS Config Path",
-          "default": [
-            "./tsconfig.json"
-          ],
-          "description": "A List of Locations of tsconfig.json inside the project. This config is used to resolve path aliases by the extension"
-        },
         "reactTsScss.tsconfigPathPrefix": {
           "type": "string",
           "title": "TS Config Path Prefix",
           "default": "",
-          "description": "TS Config path alias prefix. Set this to the matching prefix in your Ts Config path option"
+          "description": "TS Config path alias prefix. Set this to the matching prefix in your Ts Config path options"
         },
         "reactTsScss.baseDir": {
           "type": "string",

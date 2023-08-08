@@ -49,10 +49,10 @@ export type TsConfig = {
   compilerOptions: {
     baseUrl?: string;
     paths?: {
-      [key: string]: Array<string>
-    }
+      [key: string]: Array<string>;
+    };
   };
-  baseDir: string
+  baseDir: string;
 };
 
 export type IgnoreDiagnostis = Map<
@@ -202,28 +202,9 @@ export class Store {
     return result;
   }
 
-  private async saveTsConfig() {
-    try {
-      if (Settings.tsconfig?.length) {
-        await Promise.allSettled(Settings.tsconfig.map(async config => {
-          const contents = (
-            await fs_promises.readFile(
-              path.resolve(this.workSpaceRoot ?? "", config)
-            )
-          ).toString();
-          this.tsConfig.set(config, { ...JSON.parse(contents), baseDir: path.join(this.workSpaceRoot ?? "", path.dirname(config)) } as TsConfig);
-        }));
-      } else {
-        throw new Error("Unable to resolve tsconfig.json");
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
   private async saveTsConfigAutomatically() {
     try {
-      const configs = await fsg("**/*/tsconfig.json", {
+      const configs = await fsg(["**/*/tsconfig.json", "tsconfig.json"], {
         ignore: [
           "node_modules",
           "build",
@@ -234,18 +215,25 @@ export class Store {
           "**/*.test.ts",
           "**/*.test.tsx",
         ],
-        cwd: this.workSpaceRoot
+        cwd: this.workSpaceRoot,
       });
-      await Promise.allSettled(configs.map(async config => {
-        const contents = (
-          await fs_promises.readFile(
-            path.resolve(this.workSpaceRoot ?? "", config)
-          )
-        ).toString();
-        this.tsConfig.set(config, { ...JSON.parse(contents), baseDir: path.join(this.workSpaceRoot ?? "", path.dirname(config)) } as TsConfig);
-      }));
+      await Promise.allSettled(
+        configs.map(async (config) => {
+          const contents = (
+            await fs_promises.readFile(
+              path.resolve(this.workSpaceRoot ?? "", config)
+            )
+          ).toString();
+          this.tsConfig.set(config, {
+            ...JSON.parse(contents),
+            baseDir: normalizePath(
+              path.join(this.workSpaceRoot ?? "", path.dirname(config))
+            ),
+          } as TsConfig);
+        })
+      );
     } catch (e) {
-      console.log(e);
+      // Catch errors here
     }
   }
 
@@ -276,32 +264,46 @@ export class Store {
           references: cached?.references ?? new Set(),
         });
       }
-    } catch (e) { }
+    } catch (e) {}
   }
 
   resolveCssModuleAlias(source: string): string | undefined {
     const activeFileDir = path.dirname(this.getActiveTextDocument().fileName);
     for (const [, config] of this.tsConfig) {
       if (activeFileDir.includes(config.baseDir)) {
-        const alias = path.dirname(source);
+        const alias = normalizePath(path.dirname(source));
         const module_name = path.basename(source);
         const paths = config.compilerOptions.paths;
         for (const [_path, values] of Object.entries(paths ?? {})) {
-          const tsconfig_alias_path_dir = path.dirname(_path);
-          let final_path = '';
+          const tsconfig_alias_path_dir = normalizePath(path.dirname(_path));
+          let final_path = "";
           if (alias === tsconfig_alias_path_dir) {
             const alias_value = values[0].replace("*", "");
-            final_path = path.join(config.baseDir, alias_value, module_name);
+            final_path = normalizePath(
+              path.join(
+                config.baseDir,
+                config.compilerOptions.baseUrl ?? "",
+                alias_value,
+                module_name
+              )
+            );
           } else if (alias.indexOf(tsconfig_alias_path_dir) === 0) {
             const alias_value = values[0].replace("*", "");
-            final_path = path.join(config.baseDir, alias_value, alias.replace(tsconfig_alias_path_dir, ""), module_name);
+            final_path = normalizePath(
+              path.join(
+                config.baseDir,
+                alias_value,
+                alias.replace(tsconfig_alias_path_dir, ""),
+                module_name
+              )
+            );
           }
           if (this.cssModules.has(final_path)) {
             return final_path;
-          };
-        };
+          }
+        }
       }
-    };
+    }
     return;
   }
 
@@ -358,7 +360,7 @@ export class Store {
           return this.provideDiagnostics();
         }
       }
-    } catch (e) { }
+    } catch (e) {}
   }
 
   /**

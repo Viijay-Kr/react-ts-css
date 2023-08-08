@@ -19,7 +19,7 @@ import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../../constants";
 import { Selector } from "../../parser/v2/css";
 import Store from "../../store/Store";
 import { normalizePath } from "../../path-utils";
-import Settings from '../../settings';
+import Settings from "../../settings";
 
 export type extended_Diagnostic = Diagnostic & {
   replace?: string;
@@ -100,7 +100,7 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
       }
     }
   }
-  renameSelector() { }
+  renameSelector() {}
   runDiagnostics() {
     for (const accessor of this.parsedResult?.style_accessors ?? []) {
       const { property, object, isDynamic } = accessor;
@@ -190,8 +190,7 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
               : path.resolve(this.activeFileDir, module)
           );
           let doesModuleExists = Store.cssModules.has(relativePath);
-          const isAliasImport = module.startsWith(Settings.tsconfigPathPrefix ?? "");
-          if (isAliasImport) {
+          if (!doesModuleExists) {
             const resolvedModule = Store.resolveCssModuleAlias(module);
             if (resolvedModule) {
               doesModuleExists = Store.cssModules.has(resolvedModule);

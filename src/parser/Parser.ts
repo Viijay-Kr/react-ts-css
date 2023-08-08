@@ -32,7 +32,9 @@ export class Parser {
     } = this.context;
     const activeFileDir = path.dirname(filePath);
     const isRelativePath = source.startsWith(".");
-    const isTsConfigAlias = source.startsWith(Settings.tsconfigPathPrefix ?? "");
+    const isTsConfigAlias = source.startsWith(
+      Settings.tsconfigPathPrefix ?? ""
+    );
     const doesModuleExists = (pathOfSource: string) =>
       sourceFiles.has(pathOfSource);
     if (isRelativePath) {
@@ -42,12 +44,6 @@ export class Parser {
       if (doesModuleExists(relativePathOfSource)) {
         return relativePathOfSource;
       }
-    } else if (isTsConfigAlias) {
-      const aliasedModule = Store.resolveCssModuleAlias(source);
-      if (aliasedModule && Store.cssModules.has(aliasedModule)) {
-        return aliasedModule;
-      }
-
     } else {
       let absolutePathOfSource = normalizePath(
         path.resolve(workspaceRoot, source)
@@ -55,7 +51,12 @@ export class Parser {
       if (doesModuleExists(absolutePathOfSource)) {
         return absolutePathOfSource;
       }
+
       // as a last resort find the path using tsconfig.compilerOptions.base or base setting
+      const aliasedModule = Store.resolveCssModuleAlias(source);
+      if (aliasedModule && Store.cssModules.has(aliasedModule)) {
+        return aliasedModule;
+      }
       absolutePathOfSource = normalizePath(
         path.resolve(workspaceRoot, baseDir, source)
       );
