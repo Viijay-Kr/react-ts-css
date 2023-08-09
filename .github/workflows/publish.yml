@@ -19,9 +19,7 @@ jobs:
     name: Publish Open VSX
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    env:
-      OPENVSX_PAT: ${{ secrets.OPENVSX_PAT }}
     steps:
       - uses: actions/checkout@v3
       - run: npm install
-      - run: npm run publish:openvsx
+      - run: npm run publish:openvsx -- -p ${{ secrets.OPENVSX_PAT }}

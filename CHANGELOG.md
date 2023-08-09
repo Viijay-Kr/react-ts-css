@@ -1,3 +1,7 @@
+## [2.0.0]
+
+- Fix open vsx publish job
+
 ## [1.9.9]
 
 - Publish to Open VSX
