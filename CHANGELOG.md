@@ -1,3 +1,9 @@
+## [2.1.0]
+
+- TS Config path alias support
+  - Support in monorepo setup
+  - Support in polyrepo setup
+
 ## [2.0.0]
 
 - Fix open vsx publish job

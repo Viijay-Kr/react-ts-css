@@ -32,9 +32,6 @@ export class Parser {
     } = this.context;
     const activeFileDir = path.dirname(filePath);
     const isRelativePath = source.startsWith(".");
-    const isTsConfigAlias = source.startsWith(
-      Settings.tsconfigPathPrefix ?? ""
-    );
     const doesModuleExists = (pathOfSource: string) =>
       sourceFiles.has(pathOfSource);
     if (isRelativePath) {

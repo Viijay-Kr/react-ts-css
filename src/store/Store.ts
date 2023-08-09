@@ -109,14 +109,16 @@ export class Store {
   private async setCssModules() {
     const uri = window.activeTextEditor?.document?.uri;
     if (uri) {
-      const _uri = workspace.getWorkspaceFolder(uri)?.uri;
-      const workspaceRoot = _uri?.fsPath;
+      if (!this.workSpaceRoot) {
+        const _uri = workspace.getWorkspaceFolder(uri)?.uri;
+        const workspaceRoot = _uri?.fsPath;
+        this.workSpaceRoot = workspaceRoot;
+      }
       const glob = `**/*.{${CSS_MODULE_EXTENSIONS.map((e) =>
         e.replace(".", "")
       ).join(",")}}`;
-      this.workSpaceRoot = workspaceRoot;
       const files = await fsg(glob, {
-        cwd: workspaceRoot,
+        cwd: this.workSpaceRoot,
         ignore: ["node_modules", "build", "dist", "coverage"],
         absolute: true,
       });
@@ -324,10 +326,10 @@ export class Store {
         return;
       }
       // await this.saveTsConfig();
-      await this.saveTsConfigAutomatically();
       if (!this.cssModules.size) {
         await this.setCssModules();
       }
+      await this.saveTsConfigAutomatically();
       if (!this.tsModules.size) {
         // Don't do this for every tsx file but rather only for active document until code lens is figured out.
         // await this.setTsModules();
@@ -405,6 +407,7 @@ export class Store {
     this.workSpaceRoot = undefined;
     this._cssModules = new Map();
     this._tsModules = new Map();
+    this.tsConfig = new Map();
   }
 
   private provideDiagnostics() {

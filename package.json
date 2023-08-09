@@ -2,7 +2,7 @@
   "name": "react-ts-css",
   "displayName": "React CSS modules",
   "description": "React CSS modules - VS code extension for CSS modules support in React projects written in typescript.Supports Definitions, Hover , Completion Providers and Diagnostics",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": "Viijay-Kr",
   "publisher": "viijay-kr",
   "homepage": "https://github.com/Viijay-Kr/react-ts-css/blob/main/README.md",
@@ -93,12 +93,6 @@
           "type": "boolean",
           "default": true,
           "description": "Provide Diagnostics and Code Actions for non existing selectors and non existing css modules"
-        },
-        "reactTsScss.tsconfigPathPrefix": {
-          "type": "string",
-          "title": "TS Config Path Prefix",
-          "default": "",
-          "description": "TS Config path alias prefix. Set this to the matching prefix in your Ts Config path options"
         },
         "reactTsScss.baseDir": {
           "type": "string",
