@@ -11,7 +11,7 @@ import {
   window,
   workspace,
 } from "vscode";
-import StorageInstance from "../../store/Store";
+import StorageInstance, { Store } from "../../store/Store";
 
 import { DefnitionProvider } from "../../providers/ts/definitions";
 import { HoverProvider } from "../../providers/ts/hover";
@@ -32,6 +32,16 @@ import {
   ReferenceCodeLensProvider,
 } from "../../providers/css/codelens";
 const examplesLocation = "../../../examples/";
+
+function setWorskpaceFolder(app: string) {
+  workspace.getWorkspaceFolder = () => {
+    return {
+      uri: Uri.file(path.join(__dirname, examplesLocation, app)),
+      name: app,
+      index: 0,
+    };
+  };
+}
 
 suite("Extension Test Suite", async () => {
   window.showInformationMessage("Start all tests.");
@@ -76,13 +86,7 @@ suite("Extension Test Suite", async () => {
     )
   );
 
-  workspace.getWorkspaceFolder = () => {
-    return {
-      uri: Uri.file(path.join(__dirname, examplesLocation, "react-app")),
-      name: "react-app",
-      index: 0,
-    };
-  };
+  setWorskpaceFolder("react-app");
 
   suite("Storage Suite", () => {
     test("Should use fake workspace folder", () => {
@@ -595,4 +599,114 @@ suite("Extension Test Suite", async () => {
       });
     });
   });
+});
+
+suite("TS Config path aliases", async () => {
+  suite.skip(
+    "should work in a mono repo setup with tsconfig aliases",
+    async () => {
+      StorageInstance.flushStorage();
+      const IndexComponent = Uri.file(
+        path.join(
+          __dirname,
+          examplesLocation,
+          "monorepo/apps/web/pages/index.tsx"
+        )
+      );
+
+      test("should not report an import diagnostics error on aliased module imports", async () => {
+        StorageInstance.workSpaceRoot = path.join(
+          __dirname,
+          examplesLocation,
+          "monorepo"
+        );
+        const document = await workspace.openTextDocument(IndexComponent);
+        await window.showTextDocument(document);
+        const diagnostics = await StorageInstance.bootStrap();
+        assert.equal(diagnostics?.length, 0);
+        StorageInstance.flushStorage();
+      });
+
+      test("should resolve selectors from aliased module imports reference for definition", async () => {
+        StorageInstance.workSpaceRoot = path.join(
+          __dirname,
+          examplesLocation,
+          "monorepo"
+        );
+        const document = await workspace.openTextDocument(IndexComponent);
+        await window.showTextDocument(document);
+
+        await StorageInstance.bootStrap();
+        const definition = new DefnitionProvider();
+        const position = new Position(6, 32);
+        const result = await definition.provideDefinition(document, position);
+
+        assert.equal(Array.isArray(result) ? result.length : [], 1);
+        StorageInstance.flushStorage();
+      });
+
+      test("should resolve selectors from aliased module imports reference for hover", async () => {
+        StorageInstance.workSpaceRoot = path.join(
+          __dirname,
+          examplesLocation,
+          "monorepo"
+        );
+        const document = await workspace.openTextDocument(IndexComponent);
+        await window.showTextDocument(document);
+
+        await StorageInstance.bootStrap();
+        const hover = new HoverProvider();
+        const position = new Position(6, 33);
+        const result = await hover.provideHover(document, position);
+
+        assert.notEqual(result, undefined);
+        StorageInstance.flushStorage();
+      });
+    }
+  );
+
+  suite(
+    "should work in a poly repo setup with a single root tsconfig file",
+    async () => {
+      StorageInstance.flushStorage();
+      setWorskpaceFolder("react-app");
+      const AppComponent = Uri.file(
+        path.join(__dirname, examplesLocation, "react-app/src/App.tsx")
+      );
+
+      test("should not report an import diagnostics error on aliased module imports", async () => {
+        const document = await workspace.openTextDocument(AppComponent);
+        await window.showTextDocument(document);
+        const diagnostics = await StorageInstance.bootStrap();
+        assert.equal(diagnostics?.length, 0);
+        StorageInstance.flushStorage();
+      });
+
+      test("should resolve selectors from aliased module imports reference for definition", async () => {
+        const document = await workspace.openTextDocument(AppComponent);
+        await window.showTextDocument(document);
+
+        await StorageInstance.bootStrap();
+        const definition = new DefnitionProvider();
+        const position = new Position(17, 48);
+        const result = await definition.provideDefinition(document, position);
+
+        assert.equal(Array.isArray(result) ? result.length : [], 1);
+        StorageInstance.flushStorage();
+      });
+
+      test("should resolve selectors from aliased module imports reference for hover", async () => {
+        const document = await workspace.openTextDocument(AppComponent);
+        await window.showTextDocument(document);
+
+        await StorageInstance.bootStrap();
+        const hover = new HoverProvider();
+        const position = new Position(17, 48);
+        const result = await hover.provideHover(document, position);
+
+        assert.notEqual(result, undefined);
+        StorageInstance.flushStorage();
+      });
+    }
+  );
 });

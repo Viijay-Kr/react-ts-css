@@ -55,14 +55,6 @@ export class Settings {
     workspace.getConfiguration(EXT_NAME).update("diagnostics", v);
   }
 
-  public get tsconfigPathPrefix(): string | undefined {
-    return getSettings().get("tsconfigPathPrefix");
-  }
-
-  public set tsconfigPathPrefix(v: string | undefined) {
-    workspace.getConfiguration(EXT_NAME).update("tsconfigPathPrefix", v);
-  }
-
   public get baseDir(): string | undefined {
     return getSettings().get("baseDir");
   }
