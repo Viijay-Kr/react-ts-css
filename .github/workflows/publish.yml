@@ -5,8 +5,8 @@ on:
     types: [completed]
 
 jobs:
-  publish:
-    name: Publish
+  publish-vscode:
+    name: Publish VS Code
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     env:
@@ -14,4 +14,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm install
-      - run: npm run deploy
+      - run: npm run publish:vscode
+  publish-openvsx:
+    name: Publish Open VSX
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env:
+      OPENVSX_PAT: ${{ secrets.OPENVSX_PAT }}
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install
+      - run: npm run publish:openvsx

@@ -1,3 +1,7 @@
+## [1.9.9]
+
+- Publish to Open VSX
+
 ## [1.9.6]
 
 - Fix typo in docs
