@@ -1,3 +1,7 @@
+## [2.1.1]
+
+- Fix a incorrect module resolution problem in Windows - Closes [Viijay-Kr/react-ts-css#93](https://github.com/Viijay-Kr/react-ts-css/issues/93) & [Viijay-Kr/react-ts-css#101](https://github.com/Viijay-Kr/react-ts-css/issues/101)
+
 ## [2.1.0]
 
 - TS Config path alias support
