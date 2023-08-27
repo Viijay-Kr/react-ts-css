@@ -270,7 +270,7 @@ export class Store {
   }
 
   resolveCssModuleAlias(source: string): string | undefined {
-    const activeFileDir = path.dirname(this.getActiveTextDocument().fileName);
+    const activeFileDir = normalizePath(path.dirname(this.getActiveTextDocument().fileName));
     for (const [, config] of this.tsConfig) {
       if (activeFileDir.includes(config.baseDir)) {
         const alias = normalizePath(path.dirname(source));
