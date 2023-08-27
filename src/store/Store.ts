@@ -261,7 +261,7 @@ export class Store {
       const result = await parseCss(module);
       const cached = this._cssModules.get(module);
       if (result) {
-        this._cssModules.set(module, {
+        this._cssModules.set(normalizePath(module), {
           ...result,
           references: cached?.references ?? new Set(),
         });
