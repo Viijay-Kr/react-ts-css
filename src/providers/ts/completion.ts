@@ -17,12 +17,14 @@ import { ProviderKind } from "../types";
 import { TSProvider } from "./TSProvider";
 
 export class SelectorsCompletionProvider implements CompletionItemProvider {
-  provideCompletionItems(
+  async provideCompletionItems(
     document: TextDocument,
     position: Position,
     _token: CancellationToken,
     _context: CompletionContext
-  ): ProviderResult<CompletionItem[] | CompletionList<CompletionItem>> {
+  ): Promise<
+    CompletionItem[] | CompletionList<CompletionItem> | null | undefined
+  > {
     if (!Settings.autoComplete) {
       return;
     }
@@ -76,7 +78,7 @@ export class SelectorsCompletionProvider implements CompletionItemProvider {
           document,
         });
         // provider.preProcessSelectorCompletions();
-        const selectors = provider.getSelectorsForCompletion();
+        const selectors = await provider.getSelectorsForCompletion();
         if (selectors) {
           const completionList = new CompletionList(
             Array.from(selectors.keys()).map((key) =>

@@ -41,6 +41,7 @@ interface CSSReferences {
 
 // Full file path of the active opened file
 type CssModules = Map<string, CssParserResult & CSSReferences>;
+type Experimental_CssModules = Map<string, string>;
 export type ParsedResult = Map<FileName, ParserResult & StyleReferences>;
 export type TsModules = ParsedResult;
 
@@ -61,6 +62,7 @@ export type IgnoreDiagnostis = Map<
 >;
 export class Store {
   protected _cssModules: CssModules = new Map();
+  public experimental_cssModules: Experimental_CssModules = new Map();
   protected _tsModules: TsModules = new Map();
   /** Root path of the workspace */
   protected _workSpaceRoot: string | undefined;
@@ -68,7 +70,8 @@ export class Store {
     languages.createDiagnosticCollection("react-ts-css");
   protected diagnosticsProvider: DiagnosticsProvider | undefined;
   public ignoredDiagnostics: IgnoreDiagnostis = new Map();
-  private tsConfig: TsConfigMap = new Map();
+  public tsConfig: TsConfigMap = new Map();
+  public parser: Parser | undefined;
 
   constructor() {
     const uri = window.activeTextEditor?.document?.uri;
@@ -130,6 +133,26 @@ export class Store {
     }
   }
 
+  private async experimental_setCssModules() {
+    const uri = window.activeTextEditor?.document?.uri;
+    if (uri) {
+      if (!this.workSpaceRoot) {
+        const _uri = workspace.getWorkspaceFolder(uri)?.uri;
+        const workspaceRoot = _uri?.fsPath;
+        this.workSpaceRoot = workspaceRoot;
+      }
+      const glob = `**/*.{${CSS_MODULE_EXTENSIONS.map((e) =>
+        e.replace(".", "")
+      ).join(",")}}`;
+      const files = await fsg(glob, {
+        cwd: this.workSpaceRoot,
+        ignore: ["node_modules", "build", "dist", "coverage"],
+        absolute: true,
+      });
+      files.forEach((file) => this.experimental_cssModules.set(file, file));
+    }
+  }
+
   /**
    * Map of all the ts/tsx files in the workspace
    */
@@ -137,72 +160,36 @@ export class Store {
     return this._tsModules;
   }
 
-  public async setTsModules() {
-    const glob = `**/*.{${MODULE_EXTENSIONS.map((e) => e.replace(".", "")).join(
-      ","
-    )}}`;
-    const files = await fsg(glob, {
-      cwd: this.workSpaceRoot || __dirname,
-      ignore: [
-        "node_modules",
-        "build",
-        "dist",
-        "coverage",
-        "**/*.stories.tsx",
-        "**/*.stories.ts",
-        "**/*.test.ts",
-        "**/*.test.tsx",
-      ],
-      absolute: true,
-    });
-    const parserFactory = new Parser({
-      workspaceRoot: this.workSpaceRoot,
-      tsConfig: this.tsConfig,
-      baseDir: Settings.baseDir,
-      cssModules: this.cssModules,
-    });
-    return Promise.all(
-      files.map(async (file) => {
-        const content = (await fs_promises.readFile(file)).toString();
-        return await this.storeTsParserResult({
-          filePath: file,
-          content,
-          parserFactory,
-        });
-      })
-    );
-  }
-
-  private async storeTsParserResult({
-    filePath: file,
-    content,
-    parserFactory,
-  }: {
-    filePath: string;
-    parserFactory: Parser;
-    content: string;
-  }) {
-    const result = await parserFactory.parse({
-      filePath: normalizePath(file),
-      content,
-    });
-    if (result) {
-      this.tsModules.set(file, {
-        ...result.parsedResult,
-        style_references: result.style_references,
-      });
-      for (const [, value] of result.style_references) {
-        if (this.cssModules.has(value.uri)) {
-          const module = this.cssModules.get(value.uri);
-          if (module) {
-            module.references.add(file);
-            this.cssModules.set(value.uri, module);
-          }
-        }
-      }
-    }
-    return result;
-  }
+  // private async storeTsParserResult({
+  //   filePath: file,
+  //   content,
+  //   parserFactory,
+  // }: {
+  //   filePath: string;
+  //   parserFactory: Parser;
+  //   content: string;
+  // }) {
+  //   const result = await parserFactory.parse({
+  //     filePath: normalizePath(file),
+  //     content,
+  //   });
+  //   if (result) {
+  //     this.tsModules.set(file, {
+  //       ...result.parsedResult,
+  //       style_references: result.style_references,
+  //     });
+  //     for (const [, value] of result.style_references) {
+  //       if (this.cssModules.has(value.uri)) {
+  //         const module = this.cssModules.get(value.uri);
+  //         if (module) {
+  //           module.references.add(file);
+  //           this.cssModules.set(value.uri, module);
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return result;
+  // }
 
   private async saveTsConfigAutomatically() {
     try {
@@ -368,19 +355,19 @@ export class Store {
       ) {
         this.storeCssParserResult(filePath);
       } else {
-        const content = document.getText();
+        // const content = document.getText();
         const workspaceRoot = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
-        const parserFactory = new Parser({
-          workspaceRoot,
-          tsConfig: this.tsConfig,
-          baseDir: Settings.baseDir,
-          cssModules: this.cssModules,
-        });
-        await this.storeTsParserResult({
-          filePath,
-          content,
-          parserFactory,
-        });
+        // const parserFactory = new Parser({
+        //   workspaceRoot,
+        //   tsConfig: this.tsConfig,
+        //   baseDir: Settings.baseDir,
+        //   cssModules: this.cssModules,
+        // });
+        // await this.storeTsParserResult({
+        //   filePath,
+        //   content,
+        //   parserFactory,
+        // });
         if (Settings.diagnostics) {
           return this.provideDiagnostics();
         }
@@ -388,21 +375,27 @@ export class Store {
     } catch (e) {}
   }
 
-  /**
-   *
-   * @param offset number
-   * @returns ParserResult['unsafe_identifiers'] | undefined
-   */
-  public getAccessorAtOffset(document: TextDocument, offset: number) {
-    const node = this.tsModules.get(document.fileName);
-    if (node) {
-      return node.style_accessors?.find(
-        ({ property: n, object: o }) =>
-          (n?.start! <= offset && offset <= n?.end!) ||
-          (o?.start! <= offset && offset <= o?.end!)
-      );
-    }
-    return undefined;
+  public async experimental_BootStrap() {
+    try {
+      if (this.activeTextEditor.document.isDirty) {
+        return;
+      }
+      if (!this.experimental_cssModules.size) {
+        await this.experimental_setCssModules();
+      }
+      await this.saveTsConfigAutomatically();
+      this.parser = new Parser({
+        workspaceRoot: this.workSpaceRoot,
+        tsConfig: this.tsConfig,
+        baseDir: Settings.baseDir,
+      });
+      const document = this.activeTextEditor.document;
+      const filePath = document.uri.path;
+      await this.parser.parse({ filePath, content: document.getText() });
+      if (Settings.diagnostics) {
+        return this.provideDiagnostics();
+      }
+    } catch (e) {}
   }
 
   /**

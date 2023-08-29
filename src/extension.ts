@@ -53,11 +53,11 @@ workspace.onDidCreateFiles((e) => {
 });
 
 workspace.onDidChangeTextDocument((e) => {
-  Store.bootStrap();
+  Store.experimental_BootStrap();
 });
 
 window.onDidChangeActiveTextEditor((e) => {
-  Store.bootStrap();
+  Store.experimental_BootStrap();
 });
 
 export async function activate(context: ExtensionContext): Promise<void> {
@@ -94,7 +94,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
   try {
     await syncTsPlugin();
-    await Store.bootStrap();
+    await Store.experimental_BootStrap();
     const _definitionProvider = languages.registerDefinitionProvider(
       documentSelector,
       new DefnitionProvider()

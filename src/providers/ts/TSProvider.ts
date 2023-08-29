@@ -14,6 +14,10 @@ import {
 import { basename, parse as parsePath, relative } from "path";
 import { normalizePath } from "../../path-utils";
 import { ProviderKind } from "../types";
+import { ParserResult } from "../../parser/v2/ts";
+import { Parser } from "../../parser/Parser";
+import Settings from "../../settings";
+import { parseCss } from "../../parser/v2/css";
 
 export interface CompletionItemType {
   label: string;
@@ -47,41 +51,51 @@ export class TSProvider {
     }
   }
 
-  public getMatchedSelector() {
-    const accessorAtOffset = Store.getAccessorAtOffset(
-      this.document,
+  public async getMatchedSelector() {
+    const parserResult = Store.parser?.parsed_result;
+    const accessorAtOffset = Store.parser?.getAccessorAtOffset(
       this.document.offsetAt(this.position)
     );
+
     if (!accessorAtOffset) {
       return;
     }
-    const style_reference = Store.getStyleReferenceByIdentifier(
+    const style_reference = parserResult?.style_references.get(
       accessorAtOffset.object.name
     );
     if (style_reference) {
-      const selectors = Store.cssModules.get(style_reference?.uri)?.selectors;
-      if (isIdentifier(accessorAtOffset.property)) {
-        const selector = selectors?.get(accessorAtOffset.property.name);
-        return {
-          selector,
-          uri: style_reference.uri,
-        };
-      }
-      if (isStringLiteral(accessorAtOffset.property)) {
-        const selector = selectors?.get(accessorAtOffset.property.value);
-        return {
-          selector,
-          uri: style_reference.uri,
-        };
+      const source_css_file = Store.experimental_cssModules.get(
+        style_reference?.uri
+      );
+      if (source_css_file) {
+        const css_parser_result = await parseCss(source_css_file);
+        if (css_parser_result) {
+          if (isIdentifier(accessorAtOffset.property)) {
+            const selector = css_parser_result.selectors?.get(
+              accessorAtOffset.property.name
+            );
+            return {
+              selector,
+              uri: style_reference.uri,
+            };
+          }
+          if (isStringLiteral(accessorAtOffset.property)) {
+            const selector = css_parser_result.selectors?.get(
+              accessorAtOffset.property.value
+            );
+            return {
+              selector,
+              uri: style_reference.uri,
+            };
+          }
+        }
       }
     }
   }
 
   public getOriginWordRange() {
-    const document = this.document;
-    const nodeAtOffset = Store.getAccessorAtOffset(
-      this.document,
-      document.offsetAt(this.position)
+    const nodeAtOffset = Store.parser?.getAccessorAtOffset(
+      this.document.offsetAt(this.position)
     );
     if (!nodeAtOffset) {
       return;
@@ -98,16 +112,16 @@ export class TSProvider {
     );
   }
 
-  public getSelectorsForCompletion() {
+  public async getSelectorsForCompletion() {
     const document = this.document;
     const currentRange = new Range(
       new Position(this.position.line, this.position.character),
       new Position(this.position.line, this.position.character)
     );
-    const tsModule = Store.getActiveTsModule();
-    let natched_identifier = "";
-    if (tsModule) {
-      for (const identifier of tsModule.style_identifiers) {
+    const parser_result = Store.parser?.parsed_result?.parsedResult;
+    let matched_identifier = "";
+    if (parser_result) {
+      for (const identifier of parser_result.style_identifiers) {
         const wordToMatch = document.getText(
           currentRange.with(
             new Position(
@@ -119,25 +133,31 @@ export class TSProvider {
         );
         const match = wordToMatch.match(new RegExp(identifier.name));
         if (match) {
-          natched_identifier = identifier.name;
+          matched_identifier = identifier.name;
           break;
         }
       }
     }
-    if (!natched_identifier) {
+    if (!matched_identifier) {
       return;
     }
     const style_reference =
-      Store.getStyleReferenceByIdentifier(natched_identifier);
+      Store.parser?.parsed_result?.style_references.get(matched_identifier);
     if (style_reference) {
-      return Store.cssModules.get(style_reference.uri)?.selectors;
+      const source_css_file = Store.experimental_cssModules.get(
+        style_reference.uri
+      );
+      if (source_css_file) {
+        const cssParserResult = await parseCss(source_css_file);
+        return cssParserResult?.selectors;
+      }
     }
   }
 
   public async getImportForCompletions() {
     const activeFileuri = this.document.uri.fsPath;
     const activePathInfo = parsePath(activeFileuri);
-    const parsedResult = Store.getActiveTsModule();
+    const parsedResult = Store.parser?.parsed_result?.parsedResult;
     const currentDir = normalizePath(activePathInfo.dir);
     const importStatements = parsedResult?.import_statements;
     const lastImportStatement = importStatements?.[importStatements.length - 1];
@@ -185,22 +205,21 @@ export class TSProvider {
       return false;
     };
 
-    return Array.from(Store.cssModules.keys()).reduce<ImportCompletionItem[]>(
-      (acc, uri) => {
-        const shortPath = basename(uri);
-        if (shouldInclude(uri)) {
-          return acc.concat({
-            label: "styles",
-            type: "module",
-            shortPath,
-            extras: uri,
-            additionalEdits: buildAdditionalEdit(uri),
-          });
-        }
-        return acc;
-      },
-      []
-    );
+    return Array.from(Store.experimental_cssModules.keys()).reduce<
+      ImportCompletionItem[]
+    >((acc, uri) => {
+      const shortPath = basename(uri);
+      if (shouldInclude(uri)) {
+        return acc.concat({
+          label: "styles",
+          type: "module",
+          shortPath,
+          extras: uri,
+          additionalEdits: buildAdditionalEdit(uri),
+        });
+      }
+      return acc;
+    }, []);
   }
 
   public getOriginWordAtRange() {
