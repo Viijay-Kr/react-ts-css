@@ -8,28 +8,48 @@ import { MODULE_EXTENSIONS } from "../constants";
 import { normalizePath } from "../path-utils";
 import Store, { StyleReferences, TsConfigMap } from "../store/Store";
 import { parseCss } from "./v2/css";
-import { isCssModuleDeclaration, parseTypescript } from "./v2/ts";
+import { ParserResult, isCssModuleDeclaration, parseTypescript } from "./v2/ts";
 import Settings from "../settings";
 
 export type ParserContext = {
   workspaceRoot: string | undefined;
   tsConfig: TsConfigMap;
   baseDir: string | undefined;
-  cssModules: typeof Store.cssModules;
 };
 
 export class Parser {
   context: ParserContext;
+
+  parsed_result:
+    | {
+        parsedResult: ParserResult;
+        style_references: StyleReferences["style_references"];
+      }
+    | undefined;
+
   constructor(ctx: ParserContext) {
     this.context = ctx;
   }
 
+  /**
+   *
+   * @param offset number
+   * @returns ParserResult['unsafe_identifiers'] | undefined
+   */
+  public getAccessorAtOffset(offset: number) {
+    if (this.parsed_result?.parsedResult) {
+      return this.parsed_result.parsedResult.style_accessors?.find(
+        ({ property: n, object: o }) =>
+          (n?.start! <= offset && offset <= n?.end!) ||
+          (o?.start! <= offset && offset <= o?.end!)
+      );
+    }
+    return undefined;
+  }
+
   private resolveCssFilePath(source: string, filePath: string) {
-    const {
-      cssModules: sourceFiles,
-      workspaceRoot = "",
-      baseDir = "",
-    } = this.context;
+    const { workspaceRoot = "", baseDir = "" } = this.context;
+    const sourceFiles = Store.experimental_cssModules;
     const activeFileDir = path.dirname(filePath);
     const isRelativePath = source.startsWith(".");
     const doesModuleExists = (pathOfSource: string) =>
@@ -51,7 +71,7 @@ export class Parser {
 
       // as a last resort find the path using tsconfig.compilerOptions.base or base setting
       const aliasedModule = Store.resolveCssModuleAlias(source);
-      if (aliasedModule && Store.cssModules.has(aliasedModule)) {
+      if (aliasedModule && Store.experimental_cssModules.has(aliasedModule)) {
         return aliasedModule;
       }
       absolutePathOfSource = normalizePath(
@@ -95,7 +115,7 @@ export class Parser {
             }
           }
         }
-        return {
+        this.parsed_result = {
           parsedResult,
           style_references,
         };

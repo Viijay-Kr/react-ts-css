@@ -68,9 +68,9 @@ export class CSSProvider {
     const variables: CssParserResult["variables"] = [];
     const thisDocPath = this.document.uri.fsPath;
     if (module.endsWith(".css")) {
-      const cssModules = Array.from(Store.cssModules.keys()).filter((c) =>
-        c.endsWith(".css")
-      );
+      const cssModules = Array.from(
+        Store.experimental_cssModules.keys()
+      ).filter((c) => c.endsWith(".css"));
       for (const m of cssModules) {
         const node = Store.cssModules.get(m);
         if (node) {

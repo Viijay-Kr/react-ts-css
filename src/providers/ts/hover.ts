@@ -25,7 +25,7 @@ export class HoverProvider implements vscode_HoverProvider {
         providerKind: ProviderKind.Hover,
         document: document,
       });
-      const matchedSelector = provider.getMatchedSelector();
+      const matchedSelector = await provider.getMatchedSelector();
       if (matchedSelector && matchedSelector.selector) {
         const target = matchedSelector.selector;
         // const { content, language } =

@@ -26,7 +26,7 @@ export class DefnitionProvider implements vscode_DefinitionProvider {
         providerKind: ProviderKind.Definition,
         document: document,
       });
-      const matchedSelector = provider.getMatchedSelector();
+      const matchedSelector = await provider.getMatchedSelector();
       if (matchedSelector && matchedSelector.selector) {
         const targetRange = new Range(
           matchedSelector.selector.range.start.line,
