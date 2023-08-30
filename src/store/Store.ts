@@ -80,7 +80,9 @@ export class Store {
         ignore: ["node_modules", "build", "dist", "coverage"],
         absolute: true,
       });
-      files.forEach((file) => this.cssModules.set(file, file));
+      files.forEach((file) =>
+        this.cssModules.set(normalizePath(file), normalizePath(file))
+      );
     }
   }
 
