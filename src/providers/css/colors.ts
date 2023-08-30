@@ -14,7 +14,9 @@ import { ProviderKind } from "../types";
 import { CSSProvider } from "./CSSProvider";
 
 export class CssDocumentColorProvider implements _DocumentColorProvider {
-  provideDocumentColors(document: TextDocument): ColorInformation[] {
+  async provideDocumentColors(
+    document: TextDocument
+  ): Promise<ColorInformation[]> {
     if (!Settings.cssSyntaxColor) {
       return [];
     }
@@ -23,7 +25,7 @@ export class CssDocumentColorProvider implements _DocumentColorProvider {
       document,
       position: new Position(0, 0), // providing a dummy position as it not needed for document
     });
-    return provider.provideColorInformation();
+    return await provider.provideColorInformation();
   }
   provideColorPresentations(
     color: Color,
