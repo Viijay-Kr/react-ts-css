@@ -227,7 +227,7 @@ export class Store {
         baseDir: Settings.baseDir,
       });
       const document = this.activeTextEditor.document;
-      const filePath = document.uri.path;
+      const filePath = document.uri.fsPath;
       await this.parser.parse({ filePath, content: document.getText() });
       if (Settings.diagnostics) {
         return this.provideDiagnostics();
