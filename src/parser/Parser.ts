@@ -1,3 +1,4 @@
+import { promises as fs_promises } from "fs";
 import {
   isImportDeclaration,
   isImportDefaultSpecifier,
@@ -5,7 +6,7 @@ import {
   Identifier,
 } from "@babel/types";
 import path = require("path");
-import { MODULE_EXTENSIONS } from "../constants";
+import { TS_MODULE_EXTENSIONS } from "../constants";
 import { normalizePath } from "../path-utils";
 import Store, { TsConfigMap } from "../store/Store";
 import { parseCss } from "./v2/css";
@@ -94,10 +95,13 @@ export class Parser {
     }
   }
 
-  async parse({ filePath, content }: { filePath: string; content: string }) {
+  async parse({ filePath, content }: { filePath: string; content?: string }) {
     const { workspaceRoot } = this.context;
-    if (MODULE_EXTENSIONS.includes(path.extname(filePath))) {
-      const parsedResult = await parseTypescript(content);
+    const contents =
+      content ?? (await fs_promises.readFile(filePath)).toString();
+
+    if (TS_MODULE_EXTENSIONS.includes(path.extname(filePath))) {
+      const parsedResult = await parseTypescript(contents);
       if (parsedResult && workspaceRoot) {
         const style_references: StyleReferences["style_references"] = new Map();
         for (const statements of parsedResult.import_statements) {

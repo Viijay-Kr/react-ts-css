@@ -18,6 +18,7 @@ import {
   getLanguageId,
   getLanguageService,
   parseCss,
+  Selector,
   Variable,
 } from "../../parser/v2/css";
 import { normalizePath } from "../../path-utils";
@@ -245,6 +246,15 @@ export class CSSProvider {
     return await this.getReferences({ valueOnly: false, range });
   }
 
+  public async getCssModuleReferences(module: string) {
+    return await Promise.all(
+      Array.from(Store.tsModules.values()).map(async (f) => {
+        await Store.parser?.parse({ filePath: f });
+        return { uri: f, parsed_result: Store.parser?.parsed_result };
+      })
+    );
+  }
+
   public async getReferences({
     valueOnly,
     range,
@@ -252,102 +262,102 @@ export class CSSProvider {
     valueOnly: boolean;
     range?: Range;
   }) {
+    const candidates: Location[] = [];
     const filePath = normalizePath(this.document.uri.path);
     const css_parser_result = await parseCss(filePath);
     const selectors = css_parser_result?.selectors;
-    const candidates: Location[] = [];
-    // const references = Store.cssModules.get(filePath)?.references;
-    // let selector;
-    // if (selectors) {
-    //   for (const [, value] of selectors.entries()) {
-    //     if (range && value.range) {
-    //       if (rangeLooseEqual(range, value.range)) {
-    //         selector = value.selector;
-    //       }
-    //     }
-    //   }
-    // }
-    // if (references) {
-    //   if (selector) {
-    //     for (const [, reference] of references.entries()) {
-    //       const tsModule = Store.getTsModuleByPath(reference);
-    //       if (tsModule) {
-    //         const importDeclaration = tsModule.import_statements.find((s) => {
-    //           if (isImportDeclaration(s)) {
-    //             const value = s.source.value;
-    //             if (value.includes(path.basename(filePath))) {
-    //               return true;
-    //             }
-    //           }
-    //         });
-    //         const styleIdentifier = (() => {
-    //           if (isImportDeclaration(importDeclaration)) {
-    //             const specifier = importDeclaration.specifiers[0];
-    //             if (isImportDefaultSpecifier(specifier)) {
-    //               return specifier.local.name;
-    //             }
-    //           }
-    //         })();
+    let selectorAtRange: Selector | undefined;
 
-    //         for (const accessor of tsModule.style_accessors) {
-    //           let _selector;
-    //           if (isStringLiteral(accessor.property)) {
-    //             _selector = accessor.property.value;
-    //           } else if (isIdentifier(accessor.property)) {
-    //             _selector = accessor.property.name;
-    //           }
-    //           if (
-    //             selector === _selector &&
-    //             styleIdentifier === accessor.object.name
-    //           ) {
-    //             const preferedRange = (() => {
-    //               if (valueOnly) {
-    //                 return new Range(
-    //                   new Position(
-    //                     accessor.property.loc!.start.line - 1,
-    //                     accessor.property.loc!.start.column
-    //                   ),
-    //                   new Position(
-    //                     accessor.property.loc!.end.line - 1,
-    //                     accessor.property.loc!.end.column
-    //                   )
-    //                 );
-    //               }
-    //               return new Range(
-    //                 new Position(
-    //                   accessor.object.loc!.start.line - 1,
-    //                   accessor.object.loc!.start.column
-    //                 ),
-    //                 new Position(
-    //                   accessor.property.loc!.end.line - 1,
-    //                   accessor.property.loc!.end.column
-    //                 )
-    //               );
-    //             })();
-    //             candidates.push(
-    //               new Location(Uri.file(reference), preferedRange)
-    //             );
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+    if (selectors) {
+      for (const [, value] of selectors.entries()) {
+        if (range && value.range) {
+          if (rangeLooseEqual(range, value.range)) {
+            selectorAtRange = value;
+          }
+        }
+      }
+    }
+    if (!selectorAtRange) {
+      return [];
+    }
+
+    // Find all the TS modules referencing the current css module
+    const unfiltered_refereneces = await this.getCssModuleReferences(filePath);
+    const references = Array.from(unfiltered_refereneces.values()).filter(
+      (ref) => {
+        let found = false;
+        if (ref.parsed_result) {
+          for (const [
+            ,
+            value,
+          ] of ref.parsed_result.style_references.entries()) {
+            if (value.uri === filePath) {
+              found = true;
+              break;
+            }
+          }
+        }
+        return found;
+      }
+    );
+
+    // scan the references and find the references of the selector
+    for (const ref of references) {
+      const parsedResult = ref.parsed_result?.parsedResult;
+      if (parsedResult) {
+        for (const accessor of parsedResult.style_accessors) {
+          let _selector;
+          if (isStringLiteral(accessor.property)) {
+            _selector = accessor.property.value;
+          } else if (isIdentifier(accessor.property)) {
+            _selector = accessor.property.name;
+          }
+          if (selectorAtRange.selector === _selector) {
+            const preferedRange = (() => {
+              if (valueOnly) {
+                return new Range(
+                  new Position(
+                    accessor.property.loc!.start.line - 1,
+                    accessor.property.loc!.start.column
+                  ),
+                  new Position(
+                    accessor.property.loc!.end.line - 1,
+                    accessor.property.loc!.end.column
+                  )
+                );
+              }
+              return new Range(
+                new Position(
+                  accessor.object.loc!.start.line - 1,
+                  accessor.object.loc!.start.column
+                ),
+                new Position(
+                  accessor.property.loc!.end.line - 1,
+                  accessor.property.loc!.end.column
+                )
+              );
+            })();
+            candidates.push(new Location(Uri.file(ref.uri), preferedRange));
+          }
+        }
+      }
+    }
     return candidates;
   }
 
-  public provideCodeLens(): ReferenceCodeLens[] {
-    // const filePath = normalizePath(this.document.uri.fsPath);
-    // const selectors = Store.cssModules.get(filePath)?.selectors;
-    // const codeLens: ReferenceCodeLens[] = [];
-    // if (selectors) {
-    //   for (const [, _selector] of selectors?.entries()) {
-    //     const range = toVsCodeRange(_selector.range);
-    //     codeLens.push(
-    //       new ReferenceCodeLens(this.document, this.document.fileName, range)
-    //     );
-    //   }
-    // }
-    return [];
+  public async provideCodeLens(): Promise<ReferenceCodeLens[]> {
+    const filePath = normalizePath(this.document.uri.fsPath);
+    const source_css_file = Store.cssModules.get(filePath);
+    const selectors = (await parseCss(source_css_file ?? ""))?.selectors;
+    const codeLens: ReferenceCodeLens[] = [];
+    if (selectors) {
+      for (const [, _selector] of selectors?.entries()) {
+        const range = toVsCodeRange(_selector.range);
+        codeLens.push(
+          new ReferenceCodeLens(this.document, this.document.fileName, range)
+        );
+      }
+    }
+    return codeLens;
   }
 }

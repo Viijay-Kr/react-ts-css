@@ -565,7 +565,7 @@ suite("Extension Test Suite", async () => {
       });
     });
 
-    suite.skip("References", () => {
+    suite("References", () => {
       test("provide references for a selector at a given position", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
@@ -575,9 +575,9 @@ suite("Extension Test Suite", async () => {
           document,
           new Position(3, 11)
         );
-        assert.equal((result ?? []).length > 0, true);
+        assert.equal((result ?? []).length, 1);
       });
-      test("provide references for a suffix selector at a given position", async () => {
+      test("provide references for a suffix selector at a given position from multiple modules", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
         await StorageInstance.experimental_BootStrap();
@@ -586,8 +586,7 @@ suite("Extension Test Suite", async () => {
           document,
           new Position(11, 11)
         );
-        assert.equal(result?.[0].range.start.line, 7);
-        assert.equal(result?.[1].range.start.line, 13);
+        assert.equal(result?.length, 4);
       });
     });
 

@@ -1,6 +1,10 @@
 import path = require("path");
 import { languages, TextEditor, Uri, window, Range, workspace } from "vscode";
-import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../constants";
+import {
+  CssModuleExtensions,
+  CSS_MODULE_EXTENSIONS,
+  TS_MODULE_EXTENSIONS,
+} from "../constants";
 import * as fsg from "fast-glob";
 import { promises as fs_promises } from "node:fs";
 import Settings from "../settings";
@@ -10,6 +14,7 @@ import { normalizePath } from "../path-utils";
 
 // Full file path of the active opened file
 type CssModules = Map<string, string>;
+type TsModules = Map<string, string>;
 
 export type TsConfig = {
   compilerOptions: {
@@ -37,6 +42,7 @@ export class Store {
   protected diagnosticsProvider: DiagnosticsProvider | undefined;
   public ignoredDiagnostics: IgnoreDiagnostis = new Map();
   public tsConfig: TsConfigMap = new Map();
+  public tsModules: TsModules = new Map();
   public parser: Parser | undefined;
 
   constructor() {
@@ -83,6 +89,26 @@ export class Store {
       files.forEach((file) =>
         this.cssModules.set(normalizePath(file), normalizePath(file))
       );
+    }
+  }
+
+  private async experimental_setTsModules() {
+    const uri = window.activeTextEditor?.document?.uri;
+    if (uri) {
+      if (!this.workSpaceRoot) {
+        const _uri = workspace.getWorkspaceFolder(uri)?.uri;
+        const workspaceRoot = _uri?.fsPath;
+        this.workSpaceRoot = workspaceRoot;
+      }
+      const glob = `**/*.{${TS_MODULE_EXTENSIONS.map((e) =>
+        e.replace(".", "")
+      ).join(",")}}`;
+      const files = await fsg(glob, {
+        cwd: this.workSpaceRoot,
+        ignore: ["node_modules", "build", "dist", "coverage"],
+        absolute: true,
+      });
+      files.forEach((file) => this.tsModules.set(file, file));
     }
   }
 
@@ -220,6 +246,11 @@ export class Store {
       if (!this.cssModules.size) {
         await this.experimental_setCssModules();
       }
+
+      if (!this.tsModules.size) {
+        await this.experimental_setTsModules();
+      }
+
       await this.saveTsConfigAutomatically();
       this.parser = new Parser({
         workspaceRoot: this.workSpaceRoot,
