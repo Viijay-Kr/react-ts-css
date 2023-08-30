@@ -17,6 +17,7 @@ import {
   CssParserResult,
   getLanguageId,
   getLanguageService,
+  parseCss,
   Variable,
 } from "../../parser/v2/css";
 import { normalizePath } from "../../path-utils";
@@ -63,20 +64,22 @@ export class CSSProvider {
     }
   }
 
-  public getCssVariablesForCompletion() {
+  public async getCssVariablesForCompletion() {
     const module = normalizePath(this.document.uri.fsPath);
     const variables: CssParserResult["variables"] = [];
     const thisDocPath = this.document.uri.fsPath;
     if (module.endsWith(".css")) {
-      const cssModules = Array.from(
-        Store.experimental_cssModules.keys()
-      ).filter((c) => c.endsWith(".css"));
-      for (const m of cssModules) {
-        const node = Store.cssModules.get(m);
-        if (node) {
-          variables.push(...node.variables);
-        }
-      }
+      const cssModules = Array.from(Store.cssModules.keys()).filter((c) =>
+        c.endsWith(".css")
+      );
+      await Promise.allSettled(
+        cssModules.map(async (m) => {
+          const css_parser_result = await parseCss(m);
+          if (css_parser_result) {
+            variables.push(...css_parser_result.variables);
+          }
+        })
+      );
     }
     const completionList = new CompletionList();
     for (const {
@@ -134,16 +137,25 @@ export class CSSProvider {
     return;
   }
 
-  public provideColorInformation(): ColorInformation[] {
+  public async provideColorInformation(): Promise<ColorInformation[]> {
     const colorInformation: ColorInformation[] = [];
     const colorVariables: Set<Variable> = new Set();
-    for (const [, value] of Store.cssModules.entries()) {
-      value.variables.forEach((v) => {
-        if (v.kind === "color") {
-          colorVariables.add(v);
-        }
-      });
-    }
+    const parser_result: Map<
+      string,
+      Awaited<ReturnType<typeof parseCss>>
+    > = new Map();
+    await Promise.all(
+      Array.from(Store.cssModules.entries()).map(async ([m]) => {
+        const value = await parseCss(m);
+        parser_result.set(m, value);
+        value?.variables.forEach((v) => {
+          if (v.kind === "color") {
+            colorVariables.add(v);
+          }
+        });
+      })
+    );
+
     const stylesheet = createStyleSheet(this.document);
 
     stylesheet.accept((node) => {
@@ -153,7 +165,7 @@ export class CSSProvider {
           const args = (node as Function).getArguments();
           for (const [v] of colorVariables.entries()) {
             if (v.name === args.getText()) {
-              const source = Store.cssModules.get(
+              const source = parser_result.get(
                 normalizePath(v.location.uri.fsPath)
               );
               if (source) {
@@ -192,14 +204,17 @@ export class CSSProvider {
     return ls.getColorPresentations(_document, stylesheet, color, range);
   }
 
-  public provideDefinitions(): LocationLink[] {
+  public async provideDefinitions(): Promise<LocationLink[]> {
     const nodeAtOffset = this.getNodeAtOffset();
     const candidates: LocationLink[] = [];
-    const variables = Array.from(Store.cssModules.entries())
-      .map(([, value]) => value.variables)
-      .flat();
-    for (const v of variables) {
+    const variables = await Promise.all(
+      Array.from(Store.cssModules.entries()).map(
+        async ([, value]) => (await parseCss(value))?.variables
+      )
+    );
+    for (const v of variables.flat()) {
       if (
+        v &&
         v.name === nodeAtOffset?.getText() &&
         v.location.uri.path !== this.document.uri.path // Let VS code take care of resolving variables from the active module
       ) {
@@ -225,113 +240,114 @@ export class CSSProvider {
     return candidates;
   }
 
-  public provideReferences(): Location[] {
+  public async provideReferences(): Promise<Location[]> {
     const range = this.document.getWordRangeAtPosition(this.position);
-    return this.getReferences({ valueOnly: false, range });
+    return await this.getReferences({ valueOnly: false, range });
   }
 
-  public getReferences({
+  public async getReferences({
     valueOnly,
     range,
   }: {
     valueOnly: boolean;
     range?: Range;
   }) {
-    const filePath = normalizePath(this.document.uri.fsPath);
-    const selectors = Store.cssModules.get(filePath)?.selectors;
+    const filePath = normalizePath(this.document.uri.path);
+    const css_parser_result = await parseCss(filePath);
+    const selectors = css_parser_result?.selectors;
     const candidates: Location[] = [];
-    const references = Store.cssModules.get(filePath)?.references;
-    let selector;
-    if (selectors) {
-      for (const [, value] of selectors.entries()) {
-        if (range && value.range) {
-          if (rangeLooseEqual(range, value.range)) {
-            selector = value.selector;
-          }
-        }
-      }
-    }
-    if (references) {
-      if (selector) {
-        for (const [, reference] of references.entries()) {
-          const tsModule = Store.getTsModuleByPath(reference);
-          if (tsModule) {
-            const importDeclaration = tsModule.import_statements.find((s) => {
-              if (isImportDeclaration(s)) {
-                const value = s.source.value;
-                if (value.includes(path.basename(filePath))) {
-                  return true;
-                }
-              }
-            });
-            const styleIdentifier = (() => {
-              if (isImportDeclaration(importDeclaration)) {
-                const specifier = importDeclaration.specifiers[0];
-                if (isImportDefaultSpecifier(specifier)) {
-                  return specifier.local.name;
-                }
-              }
-            })();
+    // const references = Store.cssModules.get(filePath)?.references;
+    // let selector;
+    // if (selectors) {
+    //   for (const [, value] of selectors.entries()) {
+    //     if (range && value.range) {
+    //       if (rangeLooseEqual(range, value.range)) {
+    //         selector = value.selector;
+    //       }
+    //     }
+    //   }
+    // }
+    // if (references) {
+    //   if (selector) {
+    //     for (const [, reference] of references.entries()) {
+    //       const tsModule = Store.getTsModuleByPath(reference);
+    //       if (tsModule) {
+    //         const importDeclaration = tsModule.import_statements.find((s) => {
+    //           if (isImportDeclaration(s)) {
+    //             const value = s.source.value;
+    //             if (value.includes(path.basename(filePath))) {
+    //               return true;
+    //             }
+    //           }
+    //         });
+    //         const styleIdentifier = (() => {
+    //           if (isImportDeclaration(importDeclaration)) {
+    //             const specifier = importDeclaration.specifiers[0];
+    //             if (isImportDefaultSpecifier(specifier)) {
+    //               return specifier.local.name;
+    //             }
+    //           }
+    //         })();
 
-            for (const accessor of tsModule.style_accessors) {
-              let _selector;
-              if (isStringLiteral(accessor.property)) {
-                _selector = accessor.property.value;
-              } else if (isIdentifier(accessor.property)) {
-                _selector = accessor.property.name;
-              }
-              if (
-                selector === _selector &&
-                styleIdentifier === accessor.object.name
-              ) {
-                const preferedRange = (() => {
-                  if (valueOnly) {
-                    return new Range(
-                      new Position(
-                        accessor.property.loc!.start.line - 1,
-                        accessor.property.loc!.start.column
-                      ),
-                      new Position(
-                        accessor.property.loc!.end.line - 1,
-                        accessor.property.loc!.end.column
-                      )
-                    );
-                  }
-                  return new Range(
-                    new Position(
-                      accessor.object.loc!.start.line - 1,
-                      accessor.object.loc!.start.column
-                    ),
-                    new Position(
-                      accessor.property.loc!.end.line - 1,
-                      accessor.property.loc!.end.column
-                    )
-                  );
-                })();
-                candidates.push(
-                  new Location(Uri.file(reference), preferedRange)
-                );
-              }
-            }
-          }
-        }
-      }
-    }
+    //         for (const accessor of tsModule.style_accessors) {
+    //           let _selector;
+    //           if (isStringLiteral(accessor.property)) {
+    //             _selector = accessor.property.value;
+    //           } else if (isIdentifier(accessor.property)) {
+    //             _selector = accessor.property.name;
+    //           }
+    //           if (
+    //             selector === _selector &&
+    //             styleIdentifier === accessor.object.name
+    //           ) {
+    //             const preferedRange = (() => {
+    //               if (valueOnly) {
+    //                 return new Range(
+    //                   new Position(
+    //                     accessor.property.loc!.start.line - 1,
+    //                     accessor.property.loc!.start.column
+    //                   ),
+    //                   new Position(
+    //                     accessor.property.loc!.end.line - 1,
+    //                     accessor.property.loc!.end.column
+    //                   )
+    //                 );
+    //               }
+    //               return new Range(
+    //                 new Position(
+    //                   accessor.object.loc!.start.line - 1,
+    //                   accessor.object.loc!.start.column
+    //                 ),
+    //                 new Position(
+    //                   accessor.property.loc!.end.line - 1,
+    //                   accessor.property.loc!.end.column
+    //                 )
+    //               );
+    //             })();
+    //             candidates.push(
+    //               new Location(Uri.file(reference), preferedRange)
+    //             );
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
     return candidates;
   }
 
   public provideCodeLens(): ReferenceCodeLens[] {
-    const filePath = normalizePath(this.document.uri.fsPath);
-    const selectors = Store.cssModules.get(filePath)?.selectors;
-    const codeLens: ReferenceCodeLens[] = [];
-    if (selectors) {
-      for (const [, _selector] of selectors?.entries()) {
-        const range = toVsCodeRange(_selector.range);
-        codeLens.push(
-          new ReferenceCodeLens(this.document, this.document.fileName, range)
-        );
-      }
-    }
-    return codeLens;
+    // const filePath = normalizePath(this.document.uri.fsPath);
+    // const selectors = Store.cssModules.get(filePath)?.selectors;
+    // const codeLens: ReferenceCodeLens[] = [];
+    // if (selectors) {
+    //   for (const [, _selector] of selectors?.entries()) {
+    //     const range = toVsCodeRange(_selector.range);
+    //     codeLens.push(
+    //       new ReferenceCodeLens(this.document, this.document.fileName, range)
+    //     );
+    //   }
+    // }
+    return [];
   }
 }

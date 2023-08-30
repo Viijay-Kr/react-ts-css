@@ -2,19 +2,30 @@ import {
   isImportDeclaration,
   isImportDefaultSpecifier,
   isIdentifier,
+  Identifier,
 } from "@babel/types";
 import path = require("path");
 import { MODULE_EXTENSIONS } from "../constants";
 import { normalizePath } from "../path-utils";
-import Store, { StyleReferences, TsConfigMap } from "../store/Store";
+import Store, { TsConfigMap } from "../store/Store";
 import { parseCss } from "./v2/css";
 import { ParserResult, isCssModuleDeclaration, parseTypescript } from "./v2/ts";
-import Settings from "../settings";
+
+type StyleIdentifier = Identifier["name"];
 
 export type ParserContext = {
   workspaceRoot: string | undefined;
   tsConfig: TsConfigMap;
   baseDir: string | undefined;
+};
+
+export type StyleReferences = {
+  style_references: Map<
+    StyleIdentifier,
+    {
+      uri: string;
+    }
+  >;
 };
 
 export class Parser {
@@ -49,7 +60,7 @@ export class Parser {
 
   private resolveCssFilePath(source: string, filePath: string) {
     const { workspaceRoot = "", baseDir = "" } = this.context;
-    const sourceFiles = Store.experimental_cssModules;
+    const sourceFiles = Store.cssModules;
     const activeFileDir = path.dirname(filePath);
     const isRelativePath = source.startsWith(".");
     const doesModuleExists = (pathOfSource: string) =>
@@ -71,7 +82,7 @@ export class Parser {
 
       // as a last resort find the path using tsconfig.compilerOptions.base or base setting
       const aliasedModule = Store.resolveCssModuleAlias(source);
-      if (aliasedModule && Store.experimental_cssModules.has(aliasedModule)) {
+      if (aliasedModule && Store.cssModules.has(aliasedModule)) {
         return aliasedModule;
       }
       absolutePathOfSource = normalizePath(
@@ -82,6 +93,7 @@ export class Parser {
       }
     }
   }
+
   async parse({ filePath, content }: { filePath: string; content: string }) {
     const { workspaceRoot } = this.context;
     if (MODULE_EXTENSIONS.includes(path.extname(filePath))) {

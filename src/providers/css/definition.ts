@@ -1,21 +1,13 @@
-import {
-  CancellationToken,
-  Definition,
-  DefinitionProvider as _DefinitionProvider,
-  LocationLink,
-  Position,
-  ProviderResult,
-  TextDocument,
-} from "vscode";
+import * as vscode from "vscode";
 import Settings from "../../settings";
 import { ProviderKind } from "../types";
 import { CSSProvider } from "./CSSProvider";
 
-export class CssDefinitionProvider implements _DefinitionProvider {
-  provideDefinition(
-    document: TextDocument,
-    position: Position
-  ): LocationLink[] {
+export class CssDefinitionProvider implements vscode.DefinitionProvider {
+  async provideDefinition(
+    document: vscode.TextDocument,
+    position: vscode.Position
+  ): Promise<vscode.LocationLink[]> {
     if (!Settings.cssDefinitions) {
       return [];
     }
@@ -24,6 +16,6 @@ export class CssDefinitionProvider implements _DefinitionProvider {
       position,
       providerKind: ProviderKind.Definition,
     });
-    return provider.provideDefinitions();
+    return await provider.provideDefinitions();
   }
 }

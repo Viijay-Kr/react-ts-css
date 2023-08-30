@@ -64,9 +64,7 @@ export class TSProvider {
       accessorAtOffset.object.name
     );
     if (style_reference) {
-      const source_css_file = Store.experimental_cssModules.get(
-        style_reference?.uri
-      );
+      const source_css_file = Store.cssModules.get(style_reference?.uri);
       if (source_css_file) {
         const css_parser_result = await parseCss(source_css_file);
         if (css_parser_result) {
@@ -144,9 +142,7 @@ export class TSProvider {
     const style_reference =
       Store.parser?.parsed_result?.style_references.get(matched_identifier);
     if (style_reference) {
-      const source_css_file = Store.experimental_cssModules.get(
-        style_reference.uri
-      );
+      const source_css_file = Store.cssModules.get(style_reference.uri);
       if (source_css_file) {
         const cssParserResult = await parseCss(source_css_file);
         return cssParserResult?.selectors;
@@ -205,21 +201,22 @@ export class TSProvider {
       return false;
     };
 
-    return Array.from(Store.experimental_cssModules.keys()).reduce<
-      ImportCompletionItem[]
-    >((acc, uri) => {
-      const shortPath = basename(uri);
-      if (shouldInclude(uri)) {
-        return acc.concat({
-          label: "styles",
-          type: "module",
-          shortPath,
-          extras: uri,
-          additionalEdits: buildAdditionalEdit(uri),
-        });
-      }
-      return acc;
-    }, []);
+    return Array.from(Store.cssModules.keys()).reduce<ImportCompletionItem[]>(
+      (acc, uri) => {
+        const shortPath = basename(uri);
+        if (shouldInclude(uri)) {
+          return acc.concat({
+            label: "styles",
+            type: "module",
+            shortPath,
+            extras: uri,
+            additionalEdits: buildAdditionalEdit(uri),
+          });
+        }
+        return acc;
+      },
+      []
+    );
   }
 
   public getOriginWordAtRange() {

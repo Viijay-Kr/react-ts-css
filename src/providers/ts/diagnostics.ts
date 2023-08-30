@@ -16,10 +16,10 @@ import {
   Uri,
 } from "vscode";
 import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../../constants";
-import { Selector } from "../../parser/v2/css";
+import { Selector, parseCss } from "../../parser/v2/css";
 import Store from "../../store/Store";
 import { normalizePath } from "../../path-utils";
-import Settings from "../../settings";
+import { Parser } from "../../parser/Parser";
 
 export type extended_Diagnostic = Diagnostic & {
   replace?: string;
@@ -27,7 +27,7 @@ export type extended_Diagnostic = Diagnostic & {
 };
 
 export type DiagnosticsContext = {
-  parsedResult: ReturnType<typeof Store.getActiveTsModule>;
+  parser: Parser;
   baseDir?: string | undefined;
   activeFileDir: string | undefined;
   activeFileUri: Uri;
@@ -55,8 +55,8 @@ export class DiagnosticsProvider {
     this.activeFileUri = context.activeFileUri;
   }
 
-  public runDiagnostics() {
-    this.selectorDiagnostics.runDiagnostics();
+  public async runDiagnostics() {
+    await this.selectorDiagnostics.runDiagnostics();
     this.importDiagnostics.runDiagnostics();
   }
 
@@ -77,13 +77,9 @@ export class DiagnosticsProvider {
 
 class Diagnostics {
   public diagnostics: Array<extended_Diagnostic> = [];
-  protected readonly parsedResult: ReturnType<typeof Store.getActiveTsModule>;
-  protected readonly baseDir: string | undefined;
-  public readonly activeFileDir: string;
+  public ctx: DiagnosticsContext;
   constructor(context: DiagnosticsContext) {
-    this.parsedResult = context.parsedResult;
-    this.activeFileDir = context.activeFileDir || "";
-    this.baseDir = context.baseDir;
+    this.ctx = context;
   }
 }
 
@@ -101,75 +97,80 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
     }
   }
   renameSelector() {}
-  runDiagnostics() {
-    for (const accessor of this.parsedResult?.style_accessors ?? []) {
+  async runDiagnostics() {
+    const {
+      parser: { parsed_result },
+    } = this.ctx;
+    for (const accessor of parsed_result?.parsedResult.style_accessors ?? []) {
       const { property, object, isDynamic } = accessor;
-      const style_reference = this.parsedResult?.style_references.get(
-        object.name
-      );
+      const style_reference = parsed_result?.style_references.get(object.name);
       if (style_reference) {
-        const selectors = Store.cssModules.get(style_reference.uri)?.selectors;
-        const rangeAtEof = Store.cssModules.get(style_reference.uri)?.eofRange;
-        const selector = (() => {
-          if (isStringLiteral(property)) {
-            return property.value;
-          }
-          if (isIdentifier(property)) {
-            return property.name;
-          }
-          return "";
-        })();
-        if (
-          !isDynamic &&
-          selector !== "" &&
-          selectors &&
-          !selectors.has(selector) &&
-          !Store.ignoredDiagnostics.has(selector)
-        ) {
-          const closestMatchingSelector =
-            SelectorRelatedDiagnostics.findClosestMatchingSelector(
-              selector,
-              selectors
+        const source_css_file = Store.cssModules.get(style_reference.uri);
+        if (source_css_file) {
+          const css_parser_result = await parseCss(source_css_file);
+          const rangeAtEof = css_parser_result?.eofRange;
+          const selectors = css_parser_result?.selectors;
+          const selector = (() => {
+            if (isStringLiteral(property)) {
+              return property.value;
+            }
+            if (isIdentifier(property)) {
+              return property.name;
+            }
+            return "";
+          })();
+          if (
+            !isDynamic &&
+            selector !== "" &&
+            selectors &&
+            !selectors.has(selector) &&
+            !Store.ignoredDiagnostics.has(selector)
+          ) {
+            const closestMatchingSelector =
+              SelectorRelatedDiagnostics.findClosestMatchingSelector(
+                selector,
+                selectors
+              );
+            let additionalSelector = closestMatchingSelector
+              ? `Did you mean '${closestMatchingSelector}'?`
+              : "";
+            const relativePath = path.relative(
+              Store.workSpaceRoot ?? "",
+              style_reference.uri
             );
-          let additionalSelector = closestMatchingSelector
-            ? `Did you mean '${closestMatchingSelector}'?`
-            : "";
-          const relativePath = path.relative(
-            Store.workSpaceRoot ?? "",
-            style_reference.uri
-          );
-          this.diagnostics.push({
-            message: `Selector '${selector}' does not exist in '${relativePath}'.${additionalSelector}`,
-            source: "React TS CSS",
-            sourceAtRange: selector,
-            code: closestMatchingSelector
-              ? DiagnosticCodeActions.RENAME_SELECTOR
-              : DiagnosticCodeActions.CREATE_SELECTOR,
-            replace: closestMatchingSelector
-              ? closestMatchingSelector
-              : selector,
-            relatedInformation: [
-              new DiagnosticRelatedInformation(
-                new Location(Uri.file(style_reference.uri), rangeAtEof!),
-                "Add this selector to " + relativePath
+            this.diagnostics.push({
+              message: `Selector '${selector}' does not exist in '${relativePath}'.${additionalSelector}`,
+              source: "React TS CSS",
+              sourceAtRange: selector,
+              code: closestMatchingSelector
+                ? DiagnosticCodeActions.RENAME_SELECTOR
+                : DiagnosticCodeActions.CREATE_SELECTOR,
+              replace: closestMatchingSelector
+                ? closestMatchingSelector
+                : selector,
+              relatedInformation: [
+                new DiagnosticRelatedInformation(
+                  new Location(Uri.file(style_reference.uri), rangeAtEof!),
+                  "Add this selector to " + relativePath
+                ),
+              ],
+              range: new Range(
+                new Position(
+                  property.loc?.start.line! - 1,
+                  isStringLiteral(property)
+                    ? property.loc?.start.column! + 1
+                    : property.loc?.start.column!
+                ),
+                new Position(
+                  property.loc?.end.line! - 1,
+                  isStringLiteral(property)
+                    ? property.loc?.end.column! - 1
+                    : property.loc?.end.column!
+                )
               ),
-            ],
-            range: new Range(
-              new Position(
-                property.loc?.start.line! - 1,
-                isStringLiteral(property)
-                  ? property.loc?.start.column! + 1
-                  : property.loc?.start.column!
-              ),
-              new Position(
-                property.loc?.end.line! - 1,
-                isStringLiteral(property)
-                  ? property.loc?.end.column! - 1
-                  : property.loc?.end.column!
-              )
-            ),
-            severity: DiagnosticSeverity.Warning,
-          });
+              severity: DiagnosticSeverity.Warning,
+            });
+          }
         }
       }
     }
@@ -178,7 +179,13 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
 
 export class ImportsRelatedDiagnostics extends Diagnostics {
   runDiagnostics() {
-    for (const statement of this.parsedResult?.import_statements ?? []) {
+    const {
+      parser: { parsed_result },
+      baseDir,
+      activeFileDir,
+    } = this.ctx;
+    for (const statement of parsed_result?.parsedResult?.import_statements ??
+      []) {
       if (isImportDeclaration(statement)) {
         const module = statement.source.value;
         const ext = path.extname(module) as CssModuleExtensions;
@@ -186,8 +193,8 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
         if (CSS_MODULE_EXTENSIONS.includes(ext) && module.includes(".module")) {
           const relativePath = normalizePath(
             !isRelativeImport
-              ? path.resolve(Store.workSpaceRoot!, this.baseDir ?? "", module)
-              : path.resolve(this.activeFileDir, module)
+              ? path.resolve(Store.workSpaceRoot!, baseDir ?? "", module)
+              : path.resolve(activeFileDir ?? "", module)
           );
           let doesModuleExists = Store.cssModules.has(relativePath);
           if (!doesModuleExists) {

@@ -41,7 +41,7 @@ export class ReferenceCodeLensProvider implements vscode.CodeLensProvider {
       : `${references.length} Reference`;
   }
 
-  resolveCodeLens(codeLens: ReferenceCodeLens): vscode.CodeLens {
+  async resolveCodeLens(codeLens: ReferenceCodeLens): Promise<vscode.CodeLens> {
     try {
       const uri = codeLens.document.uri;
       const position = codeLens.range.start;
@@ -50,7 +50,7 @@ export class ReferenceCodeLensProvider implements vscode.CodeLensProvider {
         document: codeLens.document,
         position: codeLens.range.start,
       });
-      const references = provider.getReferences({
+      const references = await provider.getReferences({
         valueOnly: false,
         range: codeLens.range,
       });

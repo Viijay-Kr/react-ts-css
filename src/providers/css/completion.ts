@@ -9,10 +9,10 @@ import { ProviderKind } from "../types";
 import { CSSProvider } from "./CSSProvider";
 
 export class CssVariablesCompletion implements CompletionItemProvider {
-  provideCompletionItems(
+  async provideCompletionItems(
     document: TextDocument,
     position: Position
-  ): CompletionList | undefined {
+  ): Promise<CompletionList<import("vscode").CompletionItem> | undefined> {
     try {
       if (!Settings.cssAutoComplete) {
         return;
@@ -23,7 +23,7 @@ export class CssVariablesCompletion implements CompletionItemProvider {
         document,
       });
 
-      return provider.getCssVariablesForCompletion();
+      return await provider.getCssVariablesForCompletion();
     } catch (e) {}
   }
 }

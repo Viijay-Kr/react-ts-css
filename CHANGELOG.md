@@ -1,3 +1,8 @@
+## [2.2.0]
+
+- Refactoring of Store and Parser
+- Memory optimization
+
 ## [2.1.2]
 
 - Fix module resolution using ts configs without path aliases
