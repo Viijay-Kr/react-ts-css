@@ -99,14 +99,10 @@ This extension also supports CSS language features which are not supported by bu
 
 ### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation)
 
-> Experimental Feature. This is turned off till some performance problems are identified
-
 - Find all the references of a selector across various TS/TSX files - [Demo](assets/references.gif)
   - `reactTsCSS.references` - setting for this feature
 
 ### [Code Lens](https://code.visualstudio.com/api/language-extensions/programmatic-language-features#codelens-show-actionable-context-information-within-source-code)
-
-> Experimental feature . This is turned off till some performance problems are identified
 
 - Useful Code Lens context for selectors based on their references across component files - [Demo](assets/code-lens.gif)
 - A quick alternative to [reactTsCSS.references](#reference-provider)

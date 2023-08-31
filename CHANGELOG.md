@@ -1,3 +1,8 @@
+## [2.3.0]
+
+- Improved CSS langauge features
+  - code lens and find all references of css selector
+
 ## [2.2.0]
 
 - Refactoring of Store and Parser

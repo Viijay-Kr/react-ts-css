@@ -249,8 +249,10 @@ export class CSSProvider {
   public async getCssModuleReferences(module: string) {
     return await Promise.all(
       Array.from(Store.tsModules.values()).map(async (f) => {
-        await Store.parser?.parse({ filePath: f });
-        return { uri: f, parsed_result: Store.parser?.parsed_result };
+        return {
+          uri: f,
+          parsed_result: await Store.parser?.getParsedResultByFile(f),
+        };
       })
     );
   }
@@ -283,23 +285,18 @@ export class CSSProvider {
 
     // Find all the TS modules referencing the current css module
     const unfiltered_refereneces = await this.getCssModuleReferences(filePath);
-    const references = Array.from(unfiltered_refereneces.values()).filter(
-      (ref) => {
-        let found = false;
-        if (ref.parsed_result) {
-          for (const [
-            ,
-            value,
-          ] of ref.parsed_result.style_references.entries()) {
-            if (value.uri === filePath) {
-              found = true;
-              break;
-            }
+    const references = unfiltered_refereneces.filter((ref) => {
+      let found = false;
+      if (ref.parsed_result) {
+        for (const [, value] of ref.parsed_result.style_references.entries()) {
+          if (value.uri === filePath) {
+            found = true;
+            break;
           }
         }
-        return found;
       }
-    );
+      return found;
+    });
 
     // scan the references and find the references of the selector
     for (const ref of references) {
