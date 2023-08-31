@@ -28,16 +28,15 @@ export type StyleReferences = {
     }
   >;
 };
+type ParsedResult = {
+  parsedResult: ParserResult;
+  style_references: StyleReferences["style_references"];
+};
 
 export class Parser {
   context: ParserContext;
 
-  parsed_result:
-    | {
-        parsedResult: ParserResult;
-        style_references: StyleReferences["style_references"];
-      }
-    | undefined;
+  parsed_result: ParsedResult | undefined;
 
   constructor(ctx: ParserContext) {
     this.context = ctx;
@@ -131,7 +130,7 @@ export class Parser {
             }
           }
         }
-        this.parsed_result = {
+        return {
           parsedResult,
           style_references,
         };
@@ -141,5 +140,9 @@ export class Parser {
 
   private async buildSelectorsSet(cssModule: string) {
     return await parseCss(cssModule);
+  }
+
+  public async getParsedResultByFile(f: string) {
+    return await this.parse({ filePath: f });
   }
 }

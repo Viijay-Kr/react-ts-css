@@ -105,7 +105,18 @@ export class Store {
       ).join(",")}}`;
       const files = await fsg(glob, {
         cwd: this.workSpaceRoot,
-        ignore: ["node_modules", "build", "dist", "coverage"],
+        ignore: [
+          "node_modules",
+          "build",
+          "dist",
+          "coverage",
+          "*.d.ts",
+          "**/*/node_modules",
+          "**/*/build",
+          "**/*/dist",
+          "**/*/coverage",
+          "**/*/*.d.ts",
+        ],
         absolute: true,
       });
       files.forEach((file) => this.tsModules.set(file, file));
@@ -252,14 +263,21 @@ export class Store {
       }
 
       await this.saveTsConfigAutomatically();
-      this.parser = new Parser({
-        workspaceRoot: this.workSpaceRoot,
-        tsConfig: this.tsConfig,
-        baseDir: Settings.baseDir,
-      });
+
+      if (!this.parser) {
+        this.parser = new Parser({
+          workspaceRoot: this.workSpaceRoot,
+          tsConfig: this.tsConfig,
+          baseDir: Settings.baseDir,
+        });
+      }
+
       const document = this.activeTextEditor.document;
       const filePath = document.uri.fsPath;
-      await this.parser.parse({ filePath, content: document.getText() });
+      this.parser.parsed_result = await this.parser?.parse({
+        filePath,
+        content: document.getText(),
+      });
       if (Settings.diagnostics) {
         return this.provideDiagnostics();
       }
