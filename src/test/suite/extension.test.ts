@@ -590,7 +590,7 @@ suite("Extension Test Suite", async () => {
       });
     });
 
-    suite.skip("Code Lens", () => {
+    suite("Code Lens", () => {
       test("provide reference code lens for a selectors in a document", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
