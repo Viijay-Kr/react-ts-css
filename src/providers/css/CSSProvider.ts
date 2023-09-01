@@ -265,7 +265,7 @@ export class CSSProvider {
     range?: Range;
   }) {
     const candidates: Location[] = [];
-    const filePath = normalizePath(this.document.uri.path);
+    const filePath = normalizePath(this.document.uri.fsPath);
     const css_parser_result = await parseCss(filePath);
     const selectors = css_parser_result?.selectors;
     let selectorAtRange: Selector | undefined;
