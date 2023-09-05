@@ -136,26 +136,26 @@ export async function activate(context: ExtensionContext): Promise<void> {
       new CssDefinitionProvider()
     );
 
-    const _cssReferenceProvider = languages.registerReferenceProvider(
-      cssModulesDocumentSelector,
-      new ReferenceProvider()
-    );
+    // const _cssReferenceProvider = languages.registerReferenceProvider(
+    //   cssModulesDocumentSelector,
+    //   new ReferenceProvider()
+    // );
 
-    const _cssCodeLensProvider = languages.registerCodeLensProvider(
-      cssModulesDocumentSelector,
-      new ReferenceCodeLensProvider()
-    );
+    // const _cssCodeLensProvider = languages.registerCodeLensProvider(
+    //   cssModulesDocumentSelector,
+    //   new ReferenceCodeLensProvider()
+    // );
 
     context.subscriptions.push(_selectorsCompletionProvider);
     context.subscriptions.push(_importsCompletionProvider);
     context.subscriptions.push(_cssVariablesCompletion);
     context.subscriptions.push(_definitionProvider);
     context.subscriptions.push(_hoverProvider);
-    context.subscriptions.push(_codeActionsProvider);
+    context.subscriptions.push(_codeActionsProvider);        
     context.subscriptions.push(_cssColorProviders);
     context.subscriptions.push(_cssDefinitionProvider);
-    context.subscriptions.push(_cssReferenceProvider);
-    context.subscriptions.push(_cssCodeLensProvider);
+    // context.subscriptions.push(_cssReferenceProvider);
+    // context.subscriptions.push(_cssCodeLensProvider);
   } catch (e) {
     console.error(e);
     window.showWarningMessage(

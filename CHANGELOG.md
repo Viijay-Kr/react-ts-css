@@ -1,3 +1,7 @@
+## [2.3.1]
+
+- Disabling css code lens and references feature to prevent high CPU load - Closes [Viijay-Kr/react-ts-css#107](https://github.com/Viijay-Kr/react-ts-css/issues/107)
+
 ## [2.3.0]
 
 - Improved CSS langauge features

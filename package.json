@@ -2,7 +2,7 @@
   "name": "react-ts-css",
   "displayName": "React CSS modules",
   "description": "React CSS modules - VS code extension for CSS modules support in React projects written in typescript.Supports Definitions, Hover , Completion Providers and Diagnostics",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "author": "Viijay-Kr",
   "publisher": "viijay-kr",
   "homepage": "https://github.com/Viijay-Kr/react-ts-css/blob/main/README.md",
@@ -86,7 +86,7 @@
         },
         "reactTsScss.references": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Find all references of a selector across various TS/TSX files"
         },
         "reactTsScss.diagnostics": {
@@ -140,7 +140,7 @@
         "reactTsScss.codelens": {
           "type": "boolean",
           "title": "Code Lens for selectors",
-          "default": true,
+          "default": false,
           "description": "Codelens to references of selectors"
         }
       }
