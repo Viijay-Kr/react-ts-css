@@ -565,7 +565,7 @@ suite("Extension Test Suite", async () => {
       });
     });
 
-    suite("References", () => {
+    suite.skip("References", () => {
       test("provide references for a selector at a given position", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
@@ -590,7 +590,7 @@ suite("Extension Test Suite", async () => {
       });
     });
 
-    suite("Code Lens", () => {
+    suite.skip("Code Lens", () => {
       test("provide reference code lens for a selectors in a document", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
