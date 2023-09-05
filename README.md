@@ -100,13 +100,17 @@ This extension also supports CSS language features which are not supported by bu
 ### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation)
 
 - Find all the references of a selector across various TS/TSX files - [Demo](assets/references.gif)
+
   - `reactTsCSS.references` - setting for this feature
+
+  > This feature is turned OFF due to performance issues ([Viijay-Kr/react-ts-css#107](https://github.com/Viijay-Kr/react-ts-css/issues/107))
 
 ### [Code Lens](https://code.visualstudio.com/api/language-extensions/programmatic-language-features#codelens-show-actionable-context-information-within-source-code)
 
 - Useful Code Lens context for selectors based on their references across component files - [Demo](assets/code-lens.gif)
 - A quick alternative to [reactTsCSS.references](#reference-provider)
   - `reactTsCSS.codelens` - setting for this feature
+    > This feature is turned OFF due to performance issues ([Viijay-Kr/react-ts-css#107](https://github.com/Viijay-Kr/react-ts-css/issues/107))
 
 ## Casings
 
@@ -127,7 +131,7 @@ Defaults
   "reactTsCSS.autoComplete": true,
   "reactTsCSS.autoImport": true,
   "reactTsCSS.definition": true,
-  "reactTsCSS.references": true,
+  "reactTsCSS.references": false,
   "reactTsCSS.tsconfig": "./tsconfig.json",
   "reactTsCSS.baseDir": "src",
   "reactTsCSS.diagnostics": true,
@@ -142,7 +146,7 @@ Defaults
     "*.module.less",
     "*.module.styl"
   ],
-  "reactTsCSS.codelens": true
+  "reactTsCSS.codelens": false
 }
 ```
 
