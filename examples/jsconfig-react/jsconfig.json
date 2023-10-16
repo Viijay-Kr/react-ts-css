@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "standard/*": [
-        "./styles/standard/*"
+      "@standard/*": [
+        "src/styles/standard/*"
       ]
     }
   },
