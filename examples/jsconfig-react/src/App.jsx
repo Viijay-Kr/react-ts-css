@@ -2,9 +2,9 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import styles from "standard/button.module.css";
-import rootStyles from 'styles/root.module.css';
-import rootStyles2 from 'styles/root2.module.css';
+import styles from "@standard/button.module.css";
+import rootStyles from 'src/styles/root.module.css';
+import rootStyles2 from 'src/styles/root2.module.css';
 
 
 

@@ -8,7 +8,7 @@ import {
 import path = require("path");
 import { TS_MODULE_EXTENSIONS } from "../constants";
 import { normalizePath } from "../path-utils";
-import Store, { TsConfigMap } from "../store/Store";
+import Store, { TsJsConfigMap } from "../store/Store";
 import { parseCss } from "./v2/css";
 import { ParserResult, isCssModuleDeclaration, parseTypescript } from "./v2/ts";
 
@@ -16,7 +16,7 @@ type StyleIdentifier = Identifier["name"];
 
 export type ParserContext = {
   workspaceRoot: string | undefined;
-  tsConfig: TsConfigMap;
+  tsConfig: TsJsConfigMap;
   baseDir: string | undefined;
 };
 

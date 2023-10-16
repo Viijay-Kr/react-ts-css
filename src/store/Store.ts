@@ -16,7 +16,7 @@ import { normalizePath } from "../path-utils";
 type CssModules = Map<string, string>;
 type TsModules = Map<string, string>;
 
-export type TsConfig = {
+export type TsJsConfig = {
   compilerOptions: {
     baseUrl?: string;
     paths?: {
@@ -26,7 +26,7 @@ export type TsConfig = {
   baseDir: string;
 };
 
-export type TsConfigMap = Map<string, TsConfig>;
+export type TsJsConfigMap = Map<string, TsJsConfig>;
 
 export type IgnoreDiagnostis = Map<
   string, // Selector
@@ -41,7 +41,7 @@ export class Store {
     languages.createDiagnosticCollection("react-ts-css");
   protected diagnosticsProvider: DiagnosticsProvider | undefined;
   public ignoredDiagnostics: IgnoreDiagnostis = new Map();
-  public tsConfig: TsConfigMap = new Map();
+  public tsJsConfig: TsJsConfigMap = new Map();
   public tsModules: TsModules = new Map();
   public parser: Parser | undefined;
 
@@ -123,7 +123,7 @@ export class Store {
     }
   }
 
-  private async saveTsConfigAutomatically() {
+  private async saveTsJsConfig() {
     try {
       const configs = await fsg(
         [
@@ -151,12 +151,12 @@ export class Store {
           const _path = path.resolve(this.workSpaceRoot ?? "", config);
           const contents = (await fs_promises.readFile(_path)).toString();
           try {
-            this.tsConfig.set(_path, {
+            this.tsJsConfig.set(_path, {
               ...JSON.parse(contents),
               baseDir: normalizePath(
                 path.join(this.workSpaceRoot ?? "", path.dirname(config))
               ),
-            } as TsConfig);
+            } as TsJsConfig);
           } catch (e) {
             console.error(e);
           }
@@ -188,7 +188,7 @@ export class Store {
     const activeFileDir = normalizePath(
       path.dirname(this.getActiveTextDocument().fileName)
     );
-    for (const [, config] of this.tsConfig) {
+    for (const [, config] of this.tsJsConfig) {
       if (activeFileDir.includes(config.baseDir)) {
         const alias = normalizePath(path.dirname(source));
         const module_name = path.basename(source);
@@ -208,10 +208,10 @@ export class Store {
         }
 
         for (const [_path, values] of Object.entries(paths ?? {})) {
-          const tsconfig_alias_path_dir = normalizePath(path.dirname(_path));
+          const alias_dir_path = normalizePath(path.dirname(_path));
           let final_path = "";
           const alias_value = values[0].replace("*", "");
-          if (alias === tsconfig_alias_path_dir) {
+          if (alias === alias_dir_path) {
             final_path = normalizePath(
               path.join(
                 config.baseDir,
@@ -220,12 +220,12 @@ export class Store {
                 module_name
               )
             );
-          } else if (alias.indexOf(tsconfig_alias_path_dir) === 0) {
+          } else if (alias.indexOf(alias_dir_path) === 0) {
             final_path = normalizePath(
               path.join(
                 config.baseDir,
                 alias_value,
-                alias.replace(tsconfig_alias_path_dir, ""),
+                alias.replace(alias_dir_path, ""),
                 module_name
               )
             );
@@ -262,12 +262,12 @@ export class Store {
         await this.experimental_setTsModules();
       }
 
-      await this.saveTsConfigAutomatically();
+      await this.saveTsJsConfig();
 
       if (!this.parser) {
         this.parser = new Parser({
           workspaceRoot: this.workSpaceRoot,
-          tsConfig: this.tsConfig,
+          tsConfig: this.tsJsConfig,
           baseDir: Settings.baseDir,
         });
       }
@@ -289,7 +289,7 @@ export class Store {
    */
   public flushStorage() {
     this.workSpaceRoot = undefined;
-    this.tsConfig = new Map();
+    this.tsJsConfig = new Map();
     this.cssModules = new Map();
   }
 
