@@ -148,13 +148,10 @@ export class Store {
       );
       await Promise.allSettled(
         configs.map(async (config) => {
-          const contents = (
-            await fs_promises.readFile(
-              path.resolve(this.workSpaceRoot ?? "", config)
-            )
-          ).toString();
+          const _path = path.resolve(this.workSpaceRoot ?? "", config);
+          const contents = (await fs_promises.readFile(_path)).toString();
           try {
-            this.tsConfig.set(config, {
+            this.tsConfig.set(_path, {
               ...JSON.parse(contents),
               baseDir: normalizePath(
                 path.join(this.workSpaceRoot ?? "", path.dirname(config))
@@ -197,53 +194,48 @@ export class Store {
         const module_name = path.basename(source);
         const paths = config.compilerOptions.paths;
         const baseUrl = config.compilerOptions.baseUrl;
-        if (!paths) {
-          // assuming baseUrl should be present if no paths are defined
-          if (baseUrl) {
-            const final_path = normalizePath(
+        if (baseUrl) {
+          const final_path = normalizePath(
+            path.join(
+              config.baseDir,
+              config.compilerOptions.baseUrl ?? "",
+              source
+            )
+          );
+          if (this.cssModules.has(final_path)) {
+            return final_path;
+          }
+        }
+
+        for (const [_path, values] of Object.entries(paths ?? {})) {
+          const tsconfig_alias_path_dir = normalizePath(path.dirname(_path));
+          let final_path = "";
+          const alias_value = values[0].replace("*", "");
+          if (alias === tsconfig_alias_path_dir) {
+            final_path = normalizePath(
               path.join(
                 config.baseDir,
                 config.compilerOptions.baseUrl ?? "",
-                source
+                alias_value,
+                module_name
               )
             );
-            if (this.cssModules.has(final_path)) {
-              return final_path;
-            }
+          } else if (alias.indexOf(tsconfig_alias_path_dir) === 0) {
+            final_path = normalizePath(
+              path.join(
+                config.baseDir,
+                alias_value,
+                alias.replace(tsconfig_alias_path_dir, ""),
+                module_name
+              )
+            );
           }
-        } else {
-          for (const [_path, values] of Object.entries(paths ?? {})) {
-            const tsconfig_alias_path_dir = normalizePath(path.dirname(_path));
-            let final_path = "";
-            if (alias === tsconfig_alias_path_dir) {
-              const alias_value = values[0].replace("*", "");
-              final_path = normalizePath(
-                path.join(
-                  config.baseDir,
-                  config.compilerOptions.baseUrl ?? "",
-                  alias_value,
-                  module_name
-                )
-              );
-            } else if (alias.indexOf(tsconfig_alias_path_dir) === 0) {
-              const alias_value = values[0].replace("*", "");
-              final_path = normalizePath(
-                path.join(
-                  config.baseDir,
-                  alias_value,
-                  alias.replace(tsconfig_alias_path_dir, ""),
-                  module_name
-                )
-              );
-            }
-            if (this.cssModules.has(final_path)) {
-              return final_path;
-            }
+          if (this.cssModules.has(final_path)) {
+            return final_path;
           }
         }
       }
     }
-    return;
   }
 
   /**
