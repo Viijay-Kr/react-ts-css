@@ -48,6 +48,11 @@ const cssModulesDocumentSelector = [
   },
 ];
 
+workspace.onDidRenameFiles((e) => {
+  const newFiles = e.files.map((f) => f.newUri);
+  Store.addSourceFiles(newFiles);
+});
+
 workspace.onDidCreateFiles((e) => {
   Store.addSourceFiles(e.files);
 });
@@ -151,7 +156,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     context.subscriptions.push(_cssVariablesCompletion);
     context.subscriptions.push(_definitionProvider);
     context.subscriptions.push(_hoverProvider);
-    context.subscriptions.push(_codeActionsProvider);        
+    context.subscriptions.push(_codeActionsProvider);
     context.subscriptions.push(_cssColorProviders);
     context.subscriptions.push(_cssDefinitionProvider);
     // context.subscriptions.push(_cssReferenceProvider);
