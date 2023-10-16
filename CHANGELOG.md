@@ -1,3 +1,7 @@
+## [2.3.3]
+
+- Fix path aliases diagnostics when jsconfig aliases is used in the project [#109](https://github.com/Viijay-Kr/react-ts-css/issues/109)
+
 ## [2.3.2]
 
 - Fix module not found error upon renaming files [Viijay-Kr/react-ts-css#111](https://github.com/Viijay-Kr/react-ts-css/issues/111)

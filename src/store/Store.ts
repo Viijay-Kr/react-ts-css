@@ -125,19 +125,27 @@ export class Store {
 
   private async saveTsConfigAutomatically() {
     try {
-      const configs = await fsg(["**/*/tsconfig.json", "tsconfig.json"], {
-        ignore: [
-          "node_modules",
-          "build",
-          "dist",
-          "coverage",
-          "**/*.stories.tsx",
-          "**/*.stories.ts",
-          "**/*.test.ts",
-          "**/*.test.tsx",
+      const configs = await fsg(
+        [
+          "**/*/tsconfig.json",
+          "tsconfig.json",
+          "**/*/jsconfig.json",
+          "jsconfig.json",
         ],
-        cwd: this.workSpaceRoot,
-      });
+        {
+          ignore: [
+            "node_modules",
+            "build",
+            "dist",
+            "coverage",
+            "**/*.stories.tsx",
+            "**/*.stories.ts",
+            "**/*.test.ts",
+            "**/*.test.tsx",
+          ],
+          cwd: this.workSpaceRoot,
+        }
+      );
       await Promise.allSettled(
         configs.map(async (config) => {
           const contents = (
