@@ -107,7 +107,7 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
       if (style_reference) {
         const source_css_file = Store.cssModules.get(style_reference.uri);
         if (source_css_file) {
-          const css_parser_result = await parseCss(source_css_file);
+          const css_parser_result = source_css_file;
           const rangeAtEof = css_parser_result?.eofRange;
           const selectors = css_parser_result?.selectors;
           const selector = (() => {

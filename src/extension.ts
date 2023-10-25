@@ -60,11 +60,11 @@ workspace.onDidCreateFiles((e) => {
 });
 
 workspace.onDidChangeTextDocument((e) => {
-  Store.experimental_BootStrap();
+  Store.bootstrap();
 });
 
 window.onDidChangeActiveTextEditor((e) => {
-  Store.experimental_BootStrap();
+  Store.bootstrap();
 });
 
 export async function activate(context: ExtensionContext): Promise<void> {
@@ -112,7 +112,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
           increment: 10,
         });
         const p = new Promise(async (resolve) => {
-          await Store.experimental_BootStrap();
+          await Store.bootstrap();
           const _definitionProvider = languages.registerDefinitionProvider(
             documentSelector,
             new DefnitionProvider()

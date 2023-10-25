@@ -210,7 +210,7 @@ export class CSSProvider {
     const candidates: LocationLink[] = [];
     const variables = await Promise.all(
       Array.from(Store.cssModules.entries()).map(
-        async ([, value]) => (await parseCss(value))?.variables
+        async ([, value]) => value?.variables
       )
     );
     for (const v of variables.flat()) {
@@ -345,7 +345,7 @@ export class CSSProvider {
   public async provideCodeLens(): Promise<ReferenceCodeLens[]> {
     const filePath = normalizePath(this.document.uri.fsPath);
     const source_css_file = Store.cssModules.get(filePath);
-    const selectors = (await parseCss(source_css_file ?? ""))?.selectors;
+    const selectors = source_css_file?.selectors;
     const codeLens: ReferenceCodeLens[] = [];
     if (selectors) {
       for (const [, _selector] of selectors?.entries()) {

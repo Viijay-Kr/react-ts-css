@@ -139,6 +139,10 @@ export class Parser {
   }
 
   private async buildSelectorsSet(cssModule: string) {
+    const source_css_file = Store.cssModules.get(cssModule);
+    if (source_css_file) {
+      return source_css_file;
+    }
     return await parseCss(cssModule);
   }
 
