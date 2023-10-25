@@ -1,5 +1,15 @@
 import path = require("path");
-import { languages, TextEditor, Uri, window, Range, workspace } from "vscode";
+import {
+  languages,
+  TextEditor,
+  Uri,
+  Progress,
+  window,
+  Range,
+  workspace,
+  StatusBarAlignment,
+  StatusBarItem,
+} from "vscode";
 import {
   CssModuleExtensions,
   CSS_MODULE_EXTENSIONS,
@@ -8,13 +18,13 @@ import {
 import * as fsg from "fast-glob";
 import { promises as fs_promises } from "node:fs";
 import Settings from "../settings";
-import { Parser } from "../parser/Parser";
+import { ParsedResult, Parser } from "../parser/Parser";
 import { DiagnosticsProvider } from "../providers/ts/diagnostics";
 import { normalizePath } from "../path-utils";
 
 // Full file path of the active opened file
 type CssModules = Map<string, string>;
-type TsModules = Map<string, string>;
+type TsModules = Map<string, ParsedResult | undefined>;
 
 export type TsJsConfig = {
   compilerOptions: {
@@ -44,6 +54,7 @@ export class Store {
   public tsJsConfig: TsJsConfigMap = new Map();
   public tsModules: TsModules = new Map();
   public parser: Parser | undefined;
+  statusBarItem: StatusBarItem | undefined;
 
   constructor() {
     const uri = window.activeTextEditor?.document?.uri;
@@ -52,6 +63,9 @@ export class Store {
       const workspaceRoot = _uri?.fsPath;
       this.workSpaceRoot = workspaceRoot;
     }
+    this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Right);
+    this.statusBarItem.name = "React Css Modules";
+    this.statusBarItem.text = "$(loading~spin) react-ts-css";
   }
 
   public get activeTextEditor(): TextEditor {
@@ -93,33 +107,39 @@ export class Store {
   }
 
   private async experimental_setTsModules() {
-    const uri = window.activeTextEditor?.document?.uri;
-    if (uri) {
-      if (!this.workSpaceRoot) {
-        const _uri = workspace.getWorkspaceFolder(uri)?.uri;
-        const workspaceRoot = _uri?.fsPath;
-        this.workSpaceRoot = workspaceRoot;
+    try {
+      const uri = window.activeTextEditor?.document?.uri;
+      if (uri) {
+        if (!this.workSpaceRoot) {
+          const _uri = workspace.getWorkspaceFolder(uri)?.uri;
+          const workspaceRoot = _uri?.fsPath;
+          this.workSpaceRoot = workspaceRoot;
+        }
+        const glob = `**/*.{${TS_MODULE_EXTENSIONS.map((e) =>
+          e.replace(".", "")
+        ).join(",")}}`;
+        const files = await fsg(glob, {
+          cwd: this.workSpaceRoot,
+          ignore: [
+            "node_modules",
+            "build",
+            "dist",
+            "coverage",
+            "*.d.ts",
+            "**/*/node_modules",
+            "**/*/build",
+            "**/*/dist",
+            "**/*/coverage",
+            "**/*/*.d.ts",
+          ],
+          absolute: true,
+        });
+        files.forEach(async (file) =>
+          this.tsModules.set(file, await this.parser?.parse({ filePath: file }))
+        );
       }
-      const glob = `**/*.{${TS_MODULE_EXTENSIONS.map((e) =>
-        e.replace(".", "")
-      ).join(",")}}`;
-      const files = await fsg(glob, {
-        cwd: this.workSpaceRoot,
-        ignore: [
-          "node_modules",
-          "build",
-          "dist",
-          "coverage",
-          "*.d.ts",
-          "**/*/node_modules",
-          "**/*/build",
-          "**/*/dist",
-          "**/*/coverage",
-          "**/*/*.d.ts",
-        ],
-        absolute: true,
-      });
-      files.forEach((file) => this.tsModules.set(file, file));
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -251,15 +271,11 @@ export class Store {
 
   public async experimental_BootStrap() {
     try {
+      if (this.statusBarItem) {
+        this.statusBarItem.show();
+      }
       if (this.activeTextEditor.document.isDirty) {
         return;
-      }
-      if (!this.cssModules.size) {
-        await this.experimental_setCssModules();
-      }
-
-      if (!this.tsModules.size) {
-        await this.experimental_setTsModules();
       }
 
       await this.saveTsJsConfig();
@@ -272,6 +288,14 @@ export class Store {
         });
       }
 
+      if (!this.cssModules.size) {
+        await this.experimental_setCssModules();
+      }
+
+      if (!this.tsModules.size) {
+        await this.experimental_setTsModules();
+      }
+
       const document = this.activeTextEditor.document;
       const filePath = document.uri.fsPath;
       this.parser.parsed_result = await this.parser?.parse({
@@ -279,9 +303,14 @@ export class Store {
         content: document.getText(),
       });
       if (Settings.diagnostics) {
+        if (this.statusBarItem) {
+          this.statusBarItem.text = "$(check) react-ts-css";
+        }
         return this.provideDiagnostics();
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   /**

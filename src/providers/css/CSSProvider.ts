@@ -248,10 +248,10 @@ export class CSSProvider {
 
   public async getCssModuleReferences(module: string) {
     return await Promise.all(
-      Array.from(Store.tsModules.values()).map(async (f) => {
+      Array.from(Store.tsModules.entries()).map(async (it) => {
         return {
-          uri: f,
-          parsed_result: await Store.parser?.getParsedResultByFile(f),
+          uri: it[0],
+          parsed_result: it[1],
         };
       })
     );

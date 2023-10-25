@@ -28,7 +28,7 @@ export type StyleReferences = {
     }
   >;
 };
-type ParsedResult = {
+export type ParsedResult = {
   parsedResult: ParserResult;
   style_references: StyleReferences["style_references"];
 };
