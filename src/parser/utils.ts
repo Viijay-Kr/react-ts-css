@@ -62,7 +62,7 @@ export const toVsCodePosition = (range: Range) => {
 };
 
 export const isSuffix = (selector: string) => {
-  return selector.startsWith("&-") || /^&[a-z|A-Z|0-9]/i.test(selector);
+  return selector.startsWith("&-") || selector.startsWith("&_") || /^&[a-z|A-Z|0-9]/i.test(selector);
 };
 
 export const isSibling = (selector: string) => {
