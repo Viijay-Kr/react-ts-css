@@ -1,3 +1,7 @@
+ 
+ ## [2.4.0]
+- Add support for (SCSS) suffix selectors starting with &__ (used by BEM)
+
 ## [2.3.3]
 
 - Fix path aliases diagnostics when jsconfig aliases is used in the project [#109](https://github.com/Viijay-Kr/react-ts-css/issues/109)
