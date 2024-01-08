@@ -2,7 +2,6 @@
 const { execSync } = require("child_process");
 const packageJson = require("../package.json");
 
-console.log("Comparing version number before pushing into main");
 
 const current_version = packageJson.version;
 

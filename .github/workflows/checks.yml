@@ -36,13 +36,15 @@ jobs:
       versionChanged: ${{ steps.step1.outputs}}
     steps:
       - name: Checkout
-        id: check_version
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-        continue-on-error: true  
-      - run: ./scripts/check_version
 
-      - name: Is Version changed
+      - name: Check Version
+        id: check_version
+        run: ./scripts/check_version
+        continue-on-error: true
+
+      - name: Print outcome
         id: "Changed"
         run: echo ${{steps.check_version.outcome}}
