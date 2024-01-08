@@ -32,6 +32,6 @@ jobs:
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
           OPENVSX_PAT: ${{ secrets.OPENVSX_PAT }}
-        if: steps.changesets.outputs.hasChangesets == 'true'
+        if: steps.changesets.outputs.hasChangesets == 'false'
         # You can do something when a publish should happen.
         run: npm run publish:vscode && npm run publish:openvsx -- -p ${{ secrets.OPENVSX_PAT }}
