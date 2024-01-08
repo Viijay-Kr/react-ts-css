@@ -162,7 +162,6 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "publish": "npm run publish:vscode && npm run publish:openvsx",
     "publish:vscode": "vsce publish",
     "publish:openvsx": "ovsx publish",
     "check:version": "./scripts/check_version"
