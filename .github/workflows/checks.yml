@@ -28,3 +28,10 @@ jobs:
         if: runner.os == 'Linux'
       - run: npm test
         if: runner.os != 'Linux'
+      - name: Check version
+        id: check_version
+        run: ./scripts/check_version
+        continue-on-error: true
+      - name: Print outcome
+        if: steps.check_version.outcome == 'success'
+        run: echo "Hello world"
