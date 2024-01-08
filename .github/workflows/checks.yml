@@ -28,25 +28,3 @@ jobs:
         if: runner.os == 'Linux'
       - run: npm test
         if: runner.os != 'Linux'
-
-  check_version:
-    name: Check Version
-    runs-on: ubuntu-latest
-    outputs:
-      versionChanged: ${{ steps.step1.outputs}}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Check Version
-        id: check_version
-        run: ./scripts/check_version
-        continue-on-error: true
-
-      - name: Print outcome
-        if: steps.check_version.outcome == 'success'
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0

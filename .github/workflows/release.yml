@@ -34,6 +34,7 @@ jobs:
         continue-on-error: true
 
       - name: Publish If
+        id: publish
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
           OPENVSX_PAT: ${{ secrets.OPENVSX_PAT }}
@@ -42,7 +43,7 @@ jobs:
         run: npm run publish:vscode && npm run publish:openvsx -- -p ${{ secrets.OPENVSX_PAT }}
 
       - name: Tag Version
-        if: steps.check_version.outcome == 'success'
+        if: steps.publish.outcome == 'success'
         uses: Klemensas/action-autotag@1.2.3
         with:
           GITHUB_TOKEN: "${{ secrets.MY_GITHUB_TOKEN }}"
