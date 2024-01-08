@@ -45,4 +45,4 @@ jobs:
 
       - name: Is Version changed
         id: "Changed"
-        run: echo ${{steps.check_version.outputs.versionChanged}}
+        run: echo ${{steps.check_version.outcome}}
