@@ -28,10 +28,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
 
+      - name: Check version
+        id: check_version
+        run: ./scripts/check_version
+        continue-on-error: true
+
       - name: Publish If
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
           OPENVSX_PAT: ${{ secrets.OPENVSX_PAT }}
-        if: steps.changesets.outputs.hasChangesets == 'false'
+        if: steps.check_version.outcome == 'success'
         # You can do something when a publish should happen.
         run: npm run publish:vscode && npm run publish:openvsx -- -p ${{ secrets.OPENVSX_PAT }}

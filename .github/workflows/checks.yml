@@ -47,4 +47,5 @@ jobs:
 
       - name: Print outcome
         id: "Changed"
+        if: steps.check_version.outcome == 'success'
         run: echo ${{steps.check_version.outcome}}
