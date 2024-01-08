@@ -46,6 +46,7 @@ jobs:
         continue-on-error: true
 
       - name: Print outcome
-        id: "Changed"
         if: steps.check_version.outcome == 'success'
-        run: echo ${{steps.check_version.outcome}}
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
