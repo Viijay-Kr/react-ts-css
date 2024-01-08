@@ -1,0 +1,16 @@
+name: Create Github Release
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    name: Create Github Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.MY_GITHUB_TOKEN }}"
+          prerelease: false
