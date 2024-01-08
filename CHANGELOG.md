@@ -1,6 +1,12 @@
- 
- ## [2.4.0]
-- Add support for (SCSS) suffix selectors starting with &__ (used by BEM)
+## 2.4.1
+
+### Patch Changes
+
+- fee2676: Introducing changesets to automate versioning changelog and publishing to marketplace
+
+## [2.4.0]
+
+- Add support for (SCSS) suffix selectors starting with &\_\_ (used by BEM)
 
 ## [2.3.3]
 
