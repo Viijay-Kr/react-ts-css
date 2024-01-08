@@ -1,16 +1,35 @@
-name: Create Release
+name: Release
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
 
 jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js 16.x
+        uses: actions/setup-node@v3
         with:
-          repo_token: "${{ secrets.MY_GITHUB_TOKEN }}"
-          prerelease: false
+          node-version: 16
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+
+      - name: Publish If
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          OPENVSX_PAT: ${{ secrets.OPENVSX_PAT }}
+        if: steps.changesets.outputs.hasChangesets == 'true'
+        # You can do something when a publish should happen.
+        run: npm run publish
