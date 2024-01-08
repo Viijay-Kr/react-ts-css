@@ -19,11 +19,11 @@ const latest_tag_number = latest_tag.replace("v", "");
 if (current_version > latest_tag_number) {
   process.exitCode = 0;
   process.stdout.write(
-    `Version Check successfull. Version will be changed to ${current_version}`
+    `true`
   );
 } else {
   process.stderr.write(
-    `\nVersion in number in package.json should be higher than the latest version\nThe latest tagged version is ${latest_tag}\nCurrent version in package.json is ${current_version}`
+    `false`
   );
-  process.exitCode = 1;
+  process.exitCode = 0;
 }
