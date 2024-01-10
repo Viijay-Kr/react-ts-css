@@ -52,8 +52,9 @@ export class TSProvider {
   }
 
   public async getMatchedSelector() {
-    const parserResult = Store.parser?.parsed_result;
-    const accessorAtOffset = Store.parser?.getAccessorAtOffset(
+    const activeFile = Store.getActiveTextDocument().uri.fsPath;
+    const parserResult = Store.tsModules.get(activeFile);
+    const accessorAtOffset = Store.parser.getAccessorAtOffset(
       this.document.offsetAt(this.position)
     );
 
@@ -66,7 +67,7 @@ export class TSProvider {
     if (style_reference) {
       const source_css_file = Store.cssModules.get(style_reference?.uri);
       if (source_css_file) {
-        const css_parser_result = await parseCss(source_css_file);
+        const css_parser_result = source_css_file;
         if (css_parser_result) {
           if (isIdentifier(accessorAtOffset.property)) {
             const selector = css_parser_result.selectors?.get(
@@ -142,9 +143,8 @@ export class TSProvider {
     const style_reference =
       Store.parser?.parsed_result?.style_references.get(matched_identifier);
     if (style_reference) {
-      const source_css_file = Store.cssModules.get(style_reference.uri);
-      if (source_css_file) {
-        const cssParserResult = await parseCss(source_css_file);
+      const cssParserResult = Store.cssModules.get(style_reference.uri);
+      if (cssParserResult) {
         return cssParserResult?.selectors;
       }
     }

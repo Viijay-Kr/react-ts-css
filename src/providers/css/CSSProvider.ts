@@ -40,7 +40,6 @@ import {
   isImportDefaultSpecifier,
   isStringLiteral,
 } from "@babel/types";
-import path = require("path");
 import { ReferenceCodeLens } from "./codelens";
 
 export class CSSProvider {
@@ -210,7 +209,7 @@ export class CSSProvider {
     const candidates: LocationLink[] = [];
     const variables = await Promise.all(
       Array.from(Store.cssModules.entries()).map(
-        async ([, value]) => (await parseCss(value))?.variables
+        async ([, value]) => value?.variables
       )
     );
     for (const v of variables.flat()) {
@@ -248,10 +247,10 @@ export class CSSProvider {
 
   public async getCssModuleReferences(module: string) {
     return await Promise.all(
-      Array.from(Store.tsModules.values()).map(async (f) => {
+      Array.from(Store.tsModules.entries()).map(async (it) => {
         return {
-          uri: f,
-          parsed_result: await Store.parser?.getParsedResultByFile(f),
+          uri: it[0],
+          parsed_result: it[1],
         };
       })
     );
@@ -345,7 +344,7 @@ export class CSSProvider {
   public async provideCodeLens(): Promise<ReferenceCodeLens[]> {
     const filePath = normalizePath(this.document.uri.fsPath);
     const source_css_file = Store.cssModules.get(filePath);
-    const selectors = (await parseCss(source_css_file ?? ""))?.selectors;
+    const selectors = source_css_file?.selectors;
     const codeLens: ReferenceCodeLens[] = [];
     if (selectors) {
       for (const [, _selector] of selectors?.entries()) {

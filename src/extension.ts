@@ -6,6 +6,8 @@ import {
   workspace,
   languages,
   extensions,
+  ProgressLocation,
+  commands,
 } from "vscode";
 import { DefnitionProvider } from "./providers/ts/definitions";
 import { HoverProvider } from "./providers/ts/hover";
@@ -57,12 +59,42 @@ workspace.onDidCreateFiles((e) => {
   Store.addSourceFiles(e.files);
 });
 
-workspace.onDidChangeTextDocument((e) => {
-  Store.experimental_BootStrap();
+workspace.onDidChangeTextDocument(async (e) => {
+  if (!Store.isActive) {
+    return;
+  }
+  await window.withProgress(
+    {
+      location: ProgressLocation.Window,
+      cancellable: true,
+    },
+    async (progress) => {
+      const p = new Promise(async (resolve) => {
+        await Store.bootstrap();
+        resolve(null);
+      });
+      return p;
+    }
+  );
 });
 
-window.onDidChangeActiveTextEditor((e) => {
-  Store.experimental_BootStrap();
+window.onDidChangeActiveTextEditor(async (e) => {
+  if (!Store.isActive) {
+    return;
+  }
+  await window.withProgress(
+    {
+      location: ProgressLocation.Window,
+      cancellable: true,
+    },
+    async (progress) => {
+      const p = new Promise(async (resolve) => {
+        await Store.bootstrap();
+        resolve(null);
+      });
+      return p;
+    }
+  );
 });
 
 export async function activate(context: ExtensionContext): Promise<void> {
@@ -99,68 +131,82 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
   try {
     await syncTsPlugin();
-    await Store.experimental_BootStrap();
-    const _definitionProvider = languages.registerDefinitionProvider(
-      documentSelector,
-      new DefnitionProvider()
-    );
-    const _hoverProvider = languages.registerHoverProvider(
-      documentSelector,
-      new HoverProvider()
-    );
-    const _selectorsCompletionProvider =
-      languages.registerCompletionItemProvider(
-        documentSelector,
-        new SelectorsCompletionProvider(),
-        ".",
-        "'",
-        "["
-      );
-    const _importsCompletionProvider = languages.registerCompletionItemProvider(
-      documentSelector,
-      new ImportCompletionProvider()
-    );
-    const _codeActionsProvider = languages.registerCodeActionsProvider(
-      documentSelector,
-      new DiagnosticCodeAction(context)
-    );
+    await window.withProgress(
+      {
+        location: ProgressLocation.Window,
+        cancellable: true,
+      },
+      async (progress, token) => {
+        const p = new Promise(async (resolve) => {
+          await Store.bootstrap();
+          const _definitionProvider = languages.registerDefinitionProvider(
+            documentSelector,
+            new DefnitionProvider()
+          );
+          const _hoverProvider = languages.registerHoverProvider(
+            documentSelector,
+            new HoverProvider()
+          );
+          const _selectorsCompletionProvider =
+            languages.registerCompletionItemProvider(
+              documentSelector,
+              new SelectorsCompletionProvider(),
+              ".",
+              "'",
+              "["
+            );
+          const _importsCompletionProvider =
+            languages.registerCompletionItemProvider(
+              documentSelector,
+              new ImportCompletionProvider()
+            );
+          const _codeActionsProvider = languages.registerCodeActionsProvider(
+            documentSelector,
+            new DiagnosticCodeAction(context)
+          );
+          const _cssVariablesCompletion =
+            languages.registerCompletionItemProvider(
+              cssDocumentSelector,
+              new CssVariablesCompletion(),
+              "-"
+            );
 
-    const _cssVariablesCompletion = languages.registerCompletionItemProvider(
-      cssDocumentSelector,
-      new CssVariablesCompletion(),
-      "-"
+          const _cssColorProviders = languages.registerColorProvider(
+            cssDocumentSelector,
+            new CssDocumentColorProvider()
+          );
+
+          const _cssDefinitionProvider = languages.registerDefinitionProvider(
+            cssDocumentSelector,
+            new CssDefinitionProvider()
+          );
+
+          const _cssReferenceProvider = languages.registerReferenceProvider(
+            cssModulesDocumentSelector,
+            new ReferenceProvider()
+          );
+
+          const _cssCodeLensProvider = languages.registerCodeLensProvider(
+            cssModulesDocumentSelector,
+            new ReferenceCodeLensProvider()
+          );
+
+          context.subscriptions.push(_selectorsCompletionProvider);
+          context.subscriptions.push(_importsCompletionProvider);
+          context.subscriptions.push(_cssVariablesCompletion);
+          context.subscriptions.push(_definitionProvider);
+          context.subscriptions.push(_hoverProvider);
+          context.subscriptions.push(_codeActionsProvider);
+          context.subscriptions.push(_cssColorProviders);
+          context.subscriptions.push(_cssDefinitionProvider);
+          context.subscriptions.push(_cssReferenceProvider);
+          context.subscriptions.push(_cssCodeLensProvider);
+          Store.isActive = true;
+          resolve(null);
+        });
+        return p;
+      }
     );
-
-    const _cssColorProviders = languages.registerColorProvider(
-      cssDocumentSelector,
-      new CssDocumentColorProvider()
-    );
-
-    const _cssDefinitionProvider = languages.registerDefinitionProvider(
-      cssDocumentSelector,
-      new CssDefinitionProvider()
-    );
-
-    // const _cssReferenceProvider = languages.registerReferenceProvider(
-    //   cssModulesDocumentSelector,
-    //   new ReferenceProvider()
-    // );
-
-    // const _cssCodeLensProvider = languages.registerCodeLensProvider(
-    //   cssModulesDocumentSelector,
-    //   new ReferenceCodeLensProvider()
-    // );
-
-    context.subscriptions.push(_selectorsCompletionProvider);
-    context.subscriptions.push(_importsCompletionProvider);
-    context.subscriptions.push(_cssVariablesCompletion);
-    context.subscriptions.push(_definitionProvider);
-    context.subscriptions.push(_hoverProvider);
-    context.subscriptions.push(_codeActionsProvider);
-    context.subscriptions.push(_cssColorProviders);
-    context.subscriptions.push(_cssDefinitionProvider);
-    // context.subscriptions.push(_cssReferenceProvider);
-    // context.subscriptions.push(_cssCodeLensProvider);
   } catch (e) {
     console.error(e);
     window.showWarningMessage(
