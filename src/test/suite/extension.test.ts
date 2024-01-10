@@ -21,7 +21,6 @@ import {
 } from "../../providers/ts/completion";
 import { CompletionList } from "vscode-css-languageservice";
 import { writeFileSync } from "fs";
-import "../../settings";
 import { CssVariablesCompletion } from "../../providers/css/completion";
 import { CssDefinitionProvider } from "../../providers/css/definition";
 import { CssDocumentColorProvider } from "../../providers/css/colors";
@@ -31,7 +30,7 @@ import {
   ReferenceCodeLens,
   ReferenceCodeLensProvider,
 } from "../../providers/css/codelens";
-import { parseCss } from "../../parser/v2/css";
+import Settings from "../../settings";
 const examplesLocation = "../../../examples/";
 
 function setWorskpaceFolder(app: string) {
@@ -42,6 +41,12 @@ function setWorskpaceFolder(app: string) {
       index: 0,
     };
   };
+
+  workspace.getConfiguration = () => ({
+    get: (v) => "true",
+    // @ts-ignore
+    update: () => {},
+  });
 }
 
 setWorskpaceFolder("react-app");
@@ -565,6 +570,7 @@ suite("Extension Test Suite", async () => {
     });
 
     suite("References", () => {
+      Settings.references = true;
       test("provide references for a selector at a given position", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
@@ -590,6 +596,7 @@ suite("Extension Test Suite", async () => {
     });
 
     suite("Code Lens", () => {
+      Settings.codeLens = true;
       test("provide reference code lens for a selectors in a document", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);

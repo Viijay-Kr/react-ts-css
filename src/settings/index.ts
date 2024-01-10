@@ -103,11 +103,11 @@ export class Settings {
     workspace.getConfiguration(EXT_NAME).update("cleanUpDefs", v);
   }
 
-  public get codeLens(): Array<string> | undefined {
+  public get codeLens(): boolean | undefined {
     return getSettings().get("codelens");
   }
 
-  public set codeLens(v: Array<string> | undefined) {
+  public set codeLens(v: boolean | undefined) {
     workspace.getConfiguration(EXT_NAME).update("codelens", v);
   }
 }
