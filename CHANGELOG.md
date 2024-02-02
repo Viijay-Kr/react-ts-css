@@ -1,5 +1,11 @@
 ## 2.4.1
 
+## 2.5.0
+
+### Minor Changes
+
+- a1255ec: CSS nesting child selectors is fixed after updating the vscode-css-langauge service package
+
 ### Patch Changes
 
 - fee2676: Introducing changesets to automate versioning changelog and publishing to marketplace
