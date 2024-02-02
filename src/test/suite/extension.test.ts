@@ -366,17 +366,23 @@ suite("Extension Test Suite", async () => {
   });
 
   suite("Selector Possibilities", () => {
-    const SelectorCssModule = path.join(
+    const SelectorSCssModule = path.join(
       __dirname,
       examplesLocation,
       "react-app/src/test/VariousSelectors/VariousSelectors.module.scss"
     );
+    const CSSModule = path.join(
+      __dirname,
+      examplesLocation,
+      "react-app/src/styles/button.module.css"
+    );
+
     test("should include normal selectors [no relationship or bound to any rules]", async () => {
-      const document = await workspace.openTextDocument(SelectorCssModule);
+      const document = await workspace.openTextDocument(SelectorSCssModule);
       await window.showTextDocument(document);
       await StorageInstance.experimental_BootStrap();
       const source_css_file = StorageInstance.cssModules.get(
-        normalizePath(SelectorCssModule)
+        normalizePath(SelectorSCssModule)
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -391,11 +397,11 @@ suite("Extension Test Suite", async () => {
       );
     });
     test("should include  selectors from mixins and media queries", async () => {
-      const document = await workspace.openTextDocument(SelectorCssModule);
+      const document = await workspace.openTextDocument(SelectorSCssModule);
       await window.showTextDocument(document);
       await StorageInstance.experimental_BootStrap();
       const source_css_file = StorageInstance.cssModules.get(
-        normalizePath(SelectorCssModule)
+        normalizePath(SelectorSCssModule)
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -407,11 +413,11 @@ suite("Extension Test Suite", async () => {
     });
 
     test("should include selectors from placeholders", async () => {
-      const document = await workspace.openTextDocument(SelectorCssModule);
+      const document = await workspace.openTextDocument(SelectorSCssModule);
       await window.showTextDocument(document);
       await StorageInstance.experimental_BootStrap();
       const source_css_file = StorageInstance.cssModules.get(
-        normalizePath(SelectorCssModule)
+        normalizePath(SelectorSCssModule)
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -420,11 +426,11 @@ suite("Extension Test Suite", async () => {
     });
 
     test("should include suffixed selectors at any depth", async () => {
-      const document = await workspace.openTextDocument(SelectorCssModule);
+      const document = await workspace.openTextDocument(SelectorSCssModule);
       await window.showTextDocument(document);
       await StorageInstance.experimental_BootStrap();
       const source_css_file = StorageInstance.cssModules.get(
-        normalizePath(SelectorCssModule)
+        normalizePath(SelectorSCssModule)
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -444,11 +450,11 @@ suite("Extension Test Suite", async () => {
     });
 
     test("should include camelCased suffixed selectors", async () => {
-      const document = await workspace.openTextDocument(SelectorCssModule);
+      const document = await workspace.openTextDocument(SelectorSCssModule);
       await window.showTextDocument(document);
       await StorageInstance.experimental_BootStrap();
       const source_css_file = StorageInstance.cssModules.get(
-        normalizePath(SelectorCssModule)
+        normalizePath(SelectorSCssModule)
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -462,6 +468,24 @@ suite("Extension Test Suite", async () => {
         selectors.get("camelCasesuffixonemore")?.selector,
         "camelCasesuffixonemore"
       );
+    });
+
+    suite("CSS module features", () => {
+      test("should include nested child selectors", async () => {
+        const document = await workspace.openTextDocument(CSSModule);
+        await window.showTextDocument(document);
+        await StorageInstance.experimental_BootStrap();
+        const source_css_file = StorageInstance.cssModules.get(
+          normalizePath(CSSModule)
+        );
+        const node = await parseCss(source_css_file ?? "");
+        assert.notEqual(node, undefined);
+        const selectors = node!.selectors;
+        assert.equal(
+          selectors.get("btn-secondary-nested")?.selector,
+          "btn-secondary-nested"
+        );
+      });
     });
   });
 

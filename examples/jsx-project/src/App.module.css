@@ -10,6 +10,14 @@
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
+
+  .nestedLogo {
+    margin: 1rem;
+  }
+
+  .nestedLogo2 {
+    display: inline;
+  }
 }
 
 .logo:hover {
