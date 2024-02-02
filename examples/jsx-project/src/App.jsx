@@ -1,6 +1,7 @@
 import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import styles from "./scss.module.scss";
+import css from './App.module.css';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -16,11 +17,11 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      <div className={styles['test-child']}>
+      <div className={styles['nested-child']}>
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </button>
-        <p>
+        <p className={css.nestedLogo2}>
           Edit <code>src/App.jsx</code> and save to test HMR
         </p>
       </div>
