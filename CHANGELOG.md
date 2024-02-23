@@ -1,5 +1,11 @@
 ## 2.4.1
 
+## 2.5.1
+
+### Patch Changes
+
+- 14175f6: intellisense for selectors declared inside mixin references
+
 ## 2.5.0
 
 ### Minor Changes
