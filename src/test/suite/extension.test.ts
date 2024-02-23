@@ -410,6 +410,14 @@ suite("Extension Test Suite", async () => {
       assert.equal(selectors.get("desktop")?.selector, "desktop");
       assert.equal(selectors.get("thirteen")?.selector, "thirteen");
       assert.equal(selectors.get("card")?.selector, "card");
+      assert.equal(
+        selectors.get("mixin-reference-selector")?.selector,
+        "mixin-reference-selector"
+      );
+      assert.equal(
+        selectors.get("nested-mixin-reference-selector")?.selector,
+        "nested-mixin-reference-selector"
+      );
     });
 
     test("should include selectors from placeholders", async () => {

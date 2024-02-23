@@ -5,7 +5,6 @@ import {
   Range as vscodeRange,
   Uri,
   TextDocument as vscode_TextDocument,
-  Color,
 } from "vscode";
 import {
   getCSSLanguageService,
@@ -13,15 +12,11 @@ import {
   TextDocument,
   Range,
   getLESSLanguageService,
-  Stylesheet as unsafe_Stylesheet,
   ColorInformation,
-  ColorPresentation,
 } from "vscode-css-languageservice";
 import { CssModuleExtensions } from "../../constants";
 import {
   CustomPropertyDeclaration,
-  Media,
-  MixinDeclaration,
   Node,
   NodeType,
   RuleSet,
@@ -180,16 +175,9 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
         }
         break;
       }
-      case NodeType.MixinDeclaration:
-      case NodeType.Media:
-        break;
     }
-    const declarations = (node as RuleSet | MixinDeclaration | Media)
-      .declarations;
-    if (declarations) {
-      for (const child of declarations.getChildren()) {
-        resolveSelectors(child, node);
-      }
+    for (const child of node.getChildren()) {
+      resolveSelectors(child, node);
     }
   }
 

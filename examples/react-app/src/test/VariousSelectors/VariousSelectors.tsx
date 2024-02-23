@@ -4,5 +4,8 @@ export const VariousSelector = () => {
     <div className={styles.camelCasesuffix}></div>
     <div className={styles.camelCase}></div>
     <div className={styles['new-selector-added']}></div>
+    <div className={styles['mixin-decl-selector']}></div>
+    <div className={styles['mixin-reference-selector']}></div>
+    <div className={styles['nested-mixin-reference-selector']}></div>
   </div>;
 };
