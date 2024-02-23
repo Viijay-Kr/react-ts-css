@@ -67,3 +67,30 @@
 .new-selector-added {
     display: flex;
 }
+
+@mixin colorize($bg, $text) {
+    background-color: $bg;
+    color: $text;
+
+    .mixin-decl-selector {
+        color: #000;
+    }
+
+    @content;
+}
+
+@mixin md {
+    @content;
+}
+
+@include colorize(#000, #ccc) {
+    .mixin-reference-selector {
+        height: 100px;
+    }
+
+    @include md() {
+        .nested-mixin-reference-selector {
+            width: 200px;
+        }
+    }
+}
