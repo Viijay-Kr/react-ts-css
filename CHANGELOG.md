@@ -1,5 +1,15 @@
 ## 2.6.0
 
+## 3.0.0
+
+### Major Changes
+
+- 7c1c6f2: References and Code lenses with improved run time performance
+
+### Patch Changes
+
+- 55feade: feat(CSS): references and code lenses for css language
+
 - 55feade: References and Code lenses for CSS langauge
 
 ## 2.5.1
