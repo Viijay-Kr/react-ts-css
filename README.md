@@ -1,9 +1,9 @@
 <h1>React CSS modules</h1>
 
-![build](images/build.svg)
-![tests](images/tests.svg)
-![license](images/license.svg)
-![version](images/version.svg)
+![build](images/build.png)
+![tests](images/tests.png)
+![license](images/license.png)
+![version](images/version.png)
 
 VS Code extension that enables CSS modules IntelliSense for your React projects written in TypeScript/JavaScript.
 Currently supports CSS, SCSS, Less modules
