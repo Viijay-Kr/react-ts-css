@@ -1,7 +1,9 @@
 <h1>React CSS modules</h1>
 
-<img height="24"  src="images/build.png" /> <a href="https://github.com/Viijay-Kr/react-ts-css/blob/main/LICENSE" target="__blank"><img src="images/license.png" height="24" /></a> <img src="images/tests.png" height="24" />
-<a href="https://marketplace.visualstudio.com/items?itemName=viijay-kr.react-ts-css" target="__blank"><img height="24" src="images/version.png" /></a>
+![build](images/build.svg)
+![tests](images/tests.svg)
+![license](images/license.svg)
+![version](images/version.svg)
 
 VS Code extension that enables CSS modules IntelliSense for your React projects written in TypeScript/JavaScript.
 Currently supports CSS, SCSS, Less modules
@@ -32,11 +34,11 @@ This extension also supports CSS language features which are not supported by bu
   - [Diagnostics](#diagnostics)
   - [Code Actions](#code-actions)
 - [CSS/SCSS/Less Language Features](#cssscssless-language-features)
+  - [Reference Provider](#reference-provider)
+  - [Code Lens (**Default OFF**)](#code-lens)
   - [Variable Completion - **\[Only CSS\]**](#variable-completion---only-css)
   - [Variable Definitions - **\[Only CSS\]**](#variable-definitions---only-css)
   - [Syntax Colors and Presentation - **\[Only CSS\]**](#syntax-colors-and-presentation---only-css)
-  - [Reference Provider (**Experimental/Turned OFF**)](#reference-provider)
-  - [Code Lens (**Experimental/Turned OFF**))](#code-lens)
 - [Casings](#casings)
 - [Settings](#settings)
 - [Roadmap](#roadmap)
@@ -79,9 +81,24 @@ This extension also supports CSS language features which are not supported by bu
 
 ## CSS/SCSS/Less Language Features
 
-[Demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/css-variables.gif)
+### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation)
+
+- Find all the references of a selector across various component files files - [Demo](assets/references.gif)
+- Currently references only work for the modules that are imported in tsx/jsx files
+
+  - `reactTsCSS.references` - setting for this feature
+
+### [Code Lens](https://code.visualstudio.com/api/language-extensions/programmatic-language-features#codelens-show-actionable-context-information-within-source-code)
+
+- Useful Code Lens context for selectors based on their references across component files - [Demo](assets/code-lens.gif)
+- A quick alternative to [reactTsCSS.references](#reference-provider)
+- Currently lenses only work for the modules that are imported in tsx/jsx files
+  - `reactTsCSS.codelens` - setting for this feature
+  - This setting is `OFF` by default
 
 ### Variable Completion - **[Only CSS]**
+
+[Demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/css-variables.gif)
 
 - Completion of variables across all the css modules
   - `reactTsCSS.cssAutoComplete` - setting for this feature
@@ -96,21 +113,6 @@ This extension also supports CSS language features which are not supported by bu
 - Color Presentations and color information for variables across all the css modules
   - `reactTsCSS.cssSyntaxColor` - setting for this feature
     > VS codes built in support for CSS Language is limited to the current active file.So the above features are limited to active file and hence any access to variables from different modules won't work until you install React CSS modules
-
-### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation)
-
-- Find all the references of a selector across various TS/TSX files - [Demo](assets/references.gif)
-
-  - `reactTsCSS.references` - setting for this feature
-
-  > This feature is turned OFF due to performance issues ([Viijay-Kr/react-ts-css#107](https://github.com/Viijay-Kr/react-ts-css/issues/107))
-
-### [Code Lens](https://code.visualstudio.com/api/language-extensions/programmatic-language-features#codelens-show-actionable-context-information-within-source-code)
-
-- Useful Code Lens context for selectors based on their references across component files - [Demo](assets/code-lens.gif)
-- A quick alternative to [reactTsCSS.references](#reference-provider)
-  - `reactTsCSS.codelens` - setting for this feature
-    > This feature is turned OFF due to performance issues ([Viijay-Kr/react-ts-css#107](https://github.com/Viijay-Kr/react-ts-css/issues/107))
 
 ## Casings
 

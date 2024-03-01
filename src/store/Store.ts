@@ -78,12 +78,21 @@ export class Store {
         const workspaceRoot = _uri?.fsPath;
         this.workSpaceRoot = workspaceRoot;
       }
-      const glob = `**/*.{${CSS_MODULE_EXTENSIONS.map((e) =>
-        e.replace(".", "")
-      ).join(",")}}`;
+      const exts = CSS_MODULE_EXTENSIONS.map((e) => e.replace(".", "")).join(
+        ","
+      );
+      const glob = `**/*.{${exts}}`;
       const files = await fsg(glob, {
         cwd: this.workSpaceRoot,
-        ignore: ["node_modules", "build", "dist", "coverage"],
+        ignore: [
+          "node_modules",
+          "**/*/node_modules",
+          "build",
+          "**/*/build",
+          "dist",
+          "**/*/dist",
+          "coverage",
+        ],
         absolute: true,
       });
       files.forEach((file) =>
@@ -111,11 +120,17 @@ export class Store {
           "dist",
           "coverage",
           "*.d.ts",
+          "**/*/.config.ts",
+          "**/*/.config.js",
           "**/*/node_modules",
           "**/*/build",
           "**/*/dist",
           "**/*/coverage",
           "**/*/*.d.ts",
+          "**/*/*.test.ts",
+          "**/*/*.test.tsx",
+          "**/*/*.stories.tsx",
+          "**/*/*.story.tsx",
         ],
         absolute: true,
       });

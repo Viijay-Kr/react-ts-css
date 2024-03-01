@@ -42,6 +42,7 @@ import {
 } from "@babel/types";
 import path = require("path");
 import { ReferenceCodeLens } from "./codelens";
+import { readFile } from "fs/promises";
 
 export class CSSProvider {
   public providerKind: ProviderKind = ProviderKind.Invalid;
@@ -243,27 +244,7 @@ export class CSSProvider {
 
   public async provideReferences(): Promise<Location[]> {
     const range = this.document.getWordRangeAtPosition(this.position);
-    return await this.getReferences({ valueOnly: false, range });
-  }
-
-  public async getCssModuleReferences(module: string) {
-    return await Promise.all(
-      Array.from(Store.tsModules.values()).map(async (f) => {
-        return {
-          uri: f,
-          parsed_result: await Store.parser?.getParsedResultByFile(f),
-        };
-      })
-    );
-  }
-
-  public async getReferences({
-    valueOnly,
-    range,
-  }: {
-    valueOnly: boolean;
-    range?: Range;
-  }) {
+    const referenceCandidates = await this.getReferenceCandidates();
     const candidates: Location[] = [];
     const filePath = normalizePath(this.document.uri.fsPath);
     const css_parser_result = await parseCss(filePath);
@@ -282,36 +263,86 @@ export class CSSProvider {
     if (!selectorAtRange) {
       return [];
     }
+    const references = await Promise.allSettled(
+      referenceCandidates.map(async (c) => ({
+        uri: c,
+        parsed_result: await Store.parser?.getParsedResultByFile(c),
+      }))
+    );
 
-    // Find all the TS modules referencing the current css module
-    const unfiltered_refereneces = await this.getCssModuleReferences(filePath);
-    const references = unfiltered_refereneces.filter((ref) => {
-      let found = false;
-      if (ref.parsed_result) {
-        for (const [, value] of ref.parsed_result.style_references.entries()) {
-          if (value.uri === filePath) {
-            found = true;
-            break;
+    for (const ref of references) {
+      if (ref.status === "fulfilled") {
+        const parsedResult = ref.value.parsed_result?.parsedResult;
+        if (parsedResult) {
+          for (const accessor of parsedResult.style_accessors) {
+            let _selector;
+            if (isStringLiteral(accessor.property)) {
+              _selector = accessor.property.value;
+            } else if (isIdentifier(accessor.property)) {
+              _selector = accessor.property.name;
+            }
+            if (selectorAtRange.selector === _selector) {
+              const preferedRange = (() => {
+                return new Range(
+                  new Position(
+                    accessor.object.loc!.start.line - 1,
+                    accessor.object.loc!.start.column
+                  ),
+                  new Position(
+                    accessor.property.loc!.end.line - 1,
+                    accessor.property.loc!.end.column
+                  )
+                );
+              })();
+              candidates.push(
+                new Location(Uri.file(ref.value.uri), preferedRange)
+              );
+            }
           }
         }
       }
-      return found;
-    });
+    }
 
-    // scan the references and find the references of the selector
-    for (const ref of references) {
-      const parsedResult = ref.parsed_result?.parsedResult;
-      if (parsedResult) {
-        for (const accessor of parsedResult.style_accessors) {
-          let _selector;
-          if (isStringLiteral(accessor.property)) {
-            _selector = accessor.property.value;
-          } else if (isIdentifier(accessor.property)) {
-            _selector = accessor.property.name;
+    return candidates;
+  }
+
+  public async resolveCodeLens(range: Range): Promise<Location[]> {
+    let candidates: Location[] = [];
+    const filePath = normalizePath(this.document.uri.fsPath);
+    const css_parser_result = await parseCss(filePath);
+    const selectors = css_parser_result?.selectors;
+    const referenceCandidates = await this.getReferenceCandidates();
+    let selectorAtRange: Selector | undefined;
+    console.log(range, this.document.getText(range));
+    if (selectors) {
+      for (const [, value] of selectors.entries()) {
+        if (range && value.range) {
+          if (rangeLooseEqual(range, value.range)) {
+            selectorAtRange = value;
           }
-          if (selectorAtRange.selector === _selector) {
-            const preferedRange = (() => {
-              if (valueOnly) {
+        }
+      }
+    }
+
+    const references = await Promise.allSettled(
+      referenceCandidates.map(async (c) => ({
+        uri: c,
+        parsed_result: await Store.parser?.getParsedResultByFile(c),
+      }))
+    );
+    for (const ref of references) {
+      if (ref.status === "fulfilled") {
+        const parsedResult = ref.value.parsed_result?.parsedResult;
+        if (parsedResult) {
+          for (const accessor of parsedResult.style_accessors) {
+            let _selector;
+            if (isStringLiteral(accessor.property)) {
+              _selector = accessor.property.value;
+            } else if (isIdentifier(accessor.property)) {
+              _selector = accessor.property.name;
+            }
+            if (selectorAtRange?.selector === _selector) {
+              const preferedRange = (() => {
                 return new Range(
                   new Position(
                     accessor.property.loc!.start.line - 1,
@@ -322,19 +353,11 @@ export class CSSProvider {
                     accessor.property.loc!.end.column
                   )
                 );
-              }
-              return new Range(
-                new Position(
-                  accessor.object.loc!.start.line - 1,
-                  accessor.object.loc!.start.column
-                ),
-                new Position(
-                  accessor.property.loc!.end.line - 1,
-                  accessor.property.loc!.end.column
-                )
+              })();
+              candidates.push(
+                new Location(Uri.file(ref.value.uri), preferedRange)
               );
-            })();
-            candidates.push(new Location(Uri.file(ref.uri), preferedRange));
+            }
           }
         }
       }
@@ -342,7 +365,32 @@ export class CSSProvider {
     return candidates;
   }
 
-  public async provideCodeLens(): Promise<ReferenceCodeLens[]> {
+  public async getReferenceCandidates() {
+    const candidates: string[] = [];
+    const filePath = normalizePath(this.document.uri.fsPath);
+    try {
+      await Promise.allSettled(
+        Array.from(Store.tsModules.entries()).map(async ([k, v]) => {
+          if ([".tsx", ".jsx"].includes(path.extname(v))) {
+            const document = await readFile(v);
+            if (document) {
+              const text = document.toString();
+              const fileImportPattern = new RegExp(path.basename(filePath));
+              const fileImportMatches = text.match(fileImportPattern);
+              if (fileImportMatches) {
+                candidates.push(v);
+              }
+            }
+          }
+        })
+      );
+    } catch (e) {
+      console.error(e);
+    }
+
+    return candidates;
+  }
+  public async provideCodeLenses(): Promise<ReferenceCodeLens[]> {
     const filePath = normalizePath(this.document.uri.fsPath);
     const source_css_file = Store.cssModules.get(filePath);
     const selectors = (await parseCss(source_css_file ?? ""))?.selectors;
