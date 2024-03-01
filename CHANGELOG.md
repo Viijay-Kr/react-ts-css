@@ -1,4 +1,6 @@
-## 2.4.1
+## 2.6.0
+
+- 55feade: References and Code lenses for CSS langauge
 
 ## 2.5.1
 
