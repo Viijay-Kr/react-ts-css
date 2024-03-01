@@ -32,6 +32,8 @@ import {
   ReferenceCodeLensProvider,
 } from "../../providers/css/codelens";
 import { parseCss } from "../../parser/v2/css";
+import { CSSProvider } from "../../providers/css/CSSProvider";
+import { ProviderKind } from "../../providers/types";
 const examplesLocation = "../../../examples/";
 
 function setWorskpaceFolder(app: string) {
@@ -597,6 +599,33 @@ suite("Extension Test Suite", async () => {
       });
     });
 
+    suite("References V2", () => {
+      test("provide references for a selector at a given position", async () => {
+        const document = await workspace.openTextDocument(TestCssModulePath);
+        await window.showTextDocument(document);
+        await StorageInstance.experimental_BootStrap();
+        const provider = new CSSProvider({
+          document,
+          position: new Position(3, 11),
+          providerKind: ProviderKind.References,
+        });
+        const result = await provider.provideReferences();
+        assert.equal((result ?? []).length, 1);
+      });
+      test("provide references for a suffix selector at a given position from multiple modules", async () => {
+        const document = await workspace.openTextDocument(TestCssModulePath);
+        await window.showTextDocument(document);
+        await StorageInstance.experimental_BootStrap();
+        const provider = new CSSProvider({
+          document,
+          position: new Position(11, 11),
+          providerKind: ProviderKind.References,
+        });
+        const result = await provider.provideReferences();
+        assert.equal(result?.length, 4);
+      });
+    });
+
     suite.skip("References", () => {
       test("provide references for a selector at a given position", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
@@ -622,6 +651,33 @@ suite("Extension Test Suite", async () => {
       });
     });
 
+    suite("Code Lens V2", () => {
+      test("provide reference code lens for a selectors in a document", async () => {
+        const document = await workspace.openTextDocument(TestCssModulePath);
+        await window.showTextDocument(document);
+        await StorageInstance.experimental_BootStrap();
+        const provider = new CSSProvider({
+          document,
+          position: new Position(0, 0),
+          providerKind: ProviderKind.CodeLens,
+        });
+        const result = await provider.provideCodeLenses();
+        assert.equal((result ?? []).length > 0, true);
+      });
+      test("provide references for a suffix selector in a document", async () => {
+        const document = await workspace.openTextDocument(TestCssModulePath);
+        await window.showTextDocument(document);
+        await StorageInstance.experimental_BootStrap();
+        const provider = new CSSProvider({
+          document,
+          position: new Position(0, 0),
+          providerKind: ProviderKind.CodeLens,
+        });
+        const lenses = await provider.provideCodeLenses();
+        const result = await provider.resolveCodeLens(lenses[3].range);
+        assert.equal(result.length, 4);
+      });
+    });
     suite.skip("Code Lens", () => {
       test("provide reference code lens for a selectors in a document", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);

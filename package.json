@@ -86,8 +86,8 @@
         },
         "reactTsScss.references": {
           "type": "boolean",
-          "default": false,
-          "description": "Find all references of a selector across various TS/TSX files"
+          "default": true,
+          "description": "Find all references of a selector across various component files"
         },
         "reactTsScss.diagnostics": {
           "type": "boolean",
@@ -141,7 +141,7 @@
           "type": "boolean",
           "title": "Code Lens for selectors",
           "default": false,
-          "description": "Codelens to references of selectors"
+          "description": "Codelenses to references of selectors"
         }
       }
     },

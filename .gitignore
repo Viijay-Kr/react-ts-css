@@ -5,3 +5,5 @@ out
 dist
 icon.ai
 settings.json
+*.heapsnapshot
+*.cpuprofile

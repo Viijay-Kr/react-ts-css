@@ -28,7 +28,7 @@ export class ReferenceCodeLensProvider implements vscode.CodeLensProvider {
         position: new vscode.Position(0, 0),
       });
 
-      return provider.provideCodeLens();
+      return provider.provideCodeLenses();
     } catch (e) {
       console.error(e);
       return [];
@@ -50,10 +50,7 @@ export class ReferenceCodeLensProvider implements vscode.CodeLensProvider {
         document: codeLens.document,
         position: codeLens.range.start,
       });
-      const references = await provider.getReferences({
-        valueOnly: false,
-        range: codeLens.range,
-      });
+      const references = await provider.resolveCodeLens(codeLens.range);
       codeLens.command = {
         title: this.getCommandTitle(references),
         command: references.length ? "editor.action.showReferences" : "",
