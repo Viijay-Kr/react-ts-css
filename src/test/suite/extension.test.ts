@@ -32,7 +32,12 @@ import {
   ReferenceCodeLensProvider,
 } from "../../providers/css/codelens";
 import { parseCss } from "../../parser/v2/css";
-import { CSSProvider } from "../../providers/css/CSSProvider";
+import {
+  CSSCodeLensProvider,
+  CSSProvider,
+  CSSReferenceProvider,
+  CSSRenameProvider,
+} from "../../providers/css/CSSProvider";
 import { ProviderKind } from "../../providers/types";
 const examplesLocation = "../../../examples/";
 
@@ -45,6 +50,12 @@ function setWorskpaceFolder(app: string) {
     };
   };
 }
+
+const VariousSelectorsModule = path.join(
+  __dirname,
+  examplesLocation,
+  "react-app/src/test/VariousSelectors/VariousSelectors.module.scss"
+);
 
 suite("Extension Test Suite", async () => {
   window.showInformationMessage("Start all tests.");
@@ -79,6 +90,12 @@ suite("Extension Test Suite", async () => {
     __dirname,
     examplesLocation,
     "react-app/src/test/styles/TestStyles.module.scss"
+  );
+
+  const VariousSelectorSCssModule = path.join(
+    __dirname,
+    examplesLocation,
+    "react-app/src/test/VariousSelectors/VariousSelectors.module.scss"
   );
 
   const DiagnosticComponent = Uri.file(
@@ -368,11 +385,6 @@ suite("Extension Test Suite", async () => {
   });
 
   suite("Selector Possibilities", () => {
-    const SelectorSCssModule = path.join(
-      __dirname,
-      examplesLocation,
-      "react-app/src/test/VariousSelectors/VariousSelectors.module.scss"
-    );
     const CSSModule = path.join(
       __dirname,
       examplesLocation,
@@ -380,11 +392,11 @@ suite("Extension Test Suite", async () => {
     );
 
     test("should include normal selectors [no relationship or bound to any rules]", async () => {
-      const document = await workspace.openTextDocument(SelectorSCssModule);
+      const document = await workspace.openTextDocument(VariousSelectorsModule);
       await window.showTextDocument(document);
       await StorageInstance.experimental_BootStrap();
       const source_css_file = StorageInstance.cssModules.get(
-        normalizePath(SelectorSCssModule)
+        normalizePath(VariousSelectorsModule)
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -399,11 +411,11 @@ suite("Extension Test Suite", async () => {
       );
     });
     test("should include  selectors from mixins and media queries", async () => {
-      const document = await workspace.openTextDocument(SelectorSCssModule);
+      const document = await workspace.openTextDocument(VariousSelectorsModule);
       await window.showTextDocument(document);
       await StorageInstance.experimental_BootStrap();
       const source_css_file = StorageInstance.cssModules.get(
-        normalizePath(SelectorSCssModule)
+        normalizePath(VariousSelectorsModule)
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -423,11 +435,11 @@ suite("Extension Test Suite", async () => {
     });
 
     test("should include selectors from placeholders", async () => {
-      const document = await workspace.openTextDocument(SelectorSCssModule);
+      const document = await workspace.openTextDocument(VariousSelectorsModule);
       await window.showTextDocument(document);
       await StorageInstance.experimental_BootStrap();
       const source_css_file = StorageInstance.cssModules.get(
-        normalizePath(SelectorSCssModule)
+        normalizePath(VariousSelectorsModule)
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -436,11 +448,11 @@ suite("Extension Test Suite", async () => {
     });
 
     test("should include suffixed selectors at any depth", async () => {
-      const document = await workspace.openTextDocument(SelectorSCssModule);
+      const document = await workspace.openTextDocument(VariousSelectorsModule);
       await window.showTextDocument(document);
       await StorageInstance.experimental_BootStrap();
       const source_css_file = StorageInstance.cssModules.get(
-        normalizePath(SelectorSCssModule)
+        normalizePath(VariousSelectorsModule)
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -460,11 +472,11 @@ suite("Extension Test Suite", async () => {
     });
 
     test("should include camelCased suffixed selectors", async () => {
-      const document = await workspace.openTextDocument(SelectorSCssModule);
+      const document = await workspace.openTextDocument(VariousSelectorsModule);
       await window.showTextDocument(document);
       await StorageInstance.experimental_BootStrap();
       const source_css_file = StorageInstance.cssModules.get(
-        normalizePath(SelectorSCssModule)
+        normalizePath(VariousSelectorsModule)
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -604,7 +616,7 @@ suite("Extension Test Suite", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
         await StorageInstance.experimental_BootStrap();
-        const provider = new CSSProvider({
+        const provider = new CSSReferenceProvider({
           document,
           position: new Position(3, 11),
           providerKind: ProviderKind.References,
@@ -616,7 +628,7 @@ suite("Extension Test Suite", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
         await StorageInstance.experimental_BootStrap();
-        const provider = new CSSProvider({
+        const provider = new CSSReferenceProvider({
           document,
           position: new Position(11, 11),
           providerKind: ProviderKind.References,
@@ -626,37 +638,12 @@ suite("Extension Test Suite", async () => {
       });
     });
 
-    suite.skip("References", () => {
-      test("provide references for a selector at a given position", async () => {
-        const document = await workspace.openTextDocument(TestCssModulePath);
-        await window.showTextDocument(document);
-        await StorageInstance.experimental_BootStrap();
-        const provider = new ReferenceProvider();
-        const result = await provider.provideReferences(
-          document,
-          new Position(3, 11)
-        );
-        assert.equal((result ?? []).length, 1);
-      });
-      test("provide references for a suffix selector at a given position from multiple modules", async () => {
-        const document = await workspace.openTextDocument(TestCssModulePath);
-        await window.showTextDocument(document);
-        await StorageInstance.experimental_BootStrap();
-        const provider = new ReferenceProvider();
-        const result = await provider.provideReferences(
-          document,
-          new Position(11, 11)
-        );
-        assert.equal(result?.length, 4);
-      });
-    });
-
     suite("Code Lens V2", () => {
-      test("provide reference code lens for a selectors in a document", async () => {
+      test("provide code lens for a selectors in a document", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
         await StorageInstance.experimental_BootStrap();
-        const provider = new CSSProvider({
+        const provider = new CSSCodeLensProvider({
           document,
           position: new Position(0, 0),
           providerKind: ProviderKind.CodeLens,
@@ -664,43 +651,97 @@ suite("Extension Test Suite", async () => {
         const result = await provider.provideCodeLenses();
         assert.equal((result ?? []).length > 0, true);
       });
-      test("provide references for a suffix selector in a document", async () => {
+      test("provide code lens for a suffix selector in a document", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
         await StorageInstance.experimental_BootStrap();
-        const provider = new CSSProvider({
+        let provider = new CSSCodeLensProvider({
           document,
           position: new Position(0, 0),
           providerKind: ProviderKind.CodeLens,
         });
         const lenses = await provider.provideCodeLenses();
-        const result = await provider.resolveCodeLens(lenses[3].range);
+        provider = new CSSCodeLensProvider({
+          providerKind: ProviderKind.CodeLens,
+          document,
+          position: new Position(11, 3),
+        });
+        const result = await provider.resolveCodeLens(
+          document.getWordRangeAtPosition(new Position(11, 3))!
+        );
         assert.equal(result.length, 4);
       });
     });
-    suite.skip("Code Lens", () => {
-      test("provide reference code lens for a selectors in a document", async () => {
+
+    suite("Rename Selectors", () => {
+      test("should rename a selector at a given position across all its usage", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
         await StorageInstance.experimental_BootStrap();
-        const provider = new ReferenceCodeLensProvider();
-        const result = await provider.provideCodeLenses(document, {
-          isCancellationRequested: false,
-        } as CancellationToken);
-        assert.equal((result ?? []).length > 0, true);
-      });
-      test("provide references for a suffix selector in a document", async () => {
-        const document = await workspace.openTextDocument(TestCssModulePath);
-        await window.showTextDocument(document);
-        await StorageInstance.experimental_BootStrap();
-        const provider = new ReferenceCodeLensProvider();
-        const lenses = await provider.provideCodeLenses(document, {
-          isCancellationRequested: false,
-        } as CancellationToken);
-        const result = await provider.resolveCodeLens(
-          new ReferenceCodeLens(document, document.fileName, lenses[3].range)
+        const provider = new CSSRenameProvider({
+          document,
+          position: new Position(16, 0),
+          providerKind: ProviderKind.RenameSelector,
+        });
+        const locations = await provider.provideRenameReferences(
+          "testCamelCaseRenamed"
         );
-        assert.equal(result.command?.command, "editor.action.showReferences");
+        assert.equal(locations.length, 1);
+        assert.equal(locations[0].text, "testCamelCaseRenamed");
+        assert.equal(locations[0].range.start.line, 14);
+        assert.equal(locations[0].range.start.character, 34);
+        assert.equal(locations[0].range.end.line, 14);
+        assert.equal(locations[0].range.end.character, 47);
+      });
+
+      test("should rename a selector at a given position across multiple locations", async () => {
+        const document = await workspace.openTextDocument(TestCssModulePath);
+        await window.showTextDocument(document);
+        await StorageInstance.experimental_BootStrap();
+        const provider = new CSSRenameProvider({
+          document,
+          position: new Position(7, 3),
+          providerKind: ProviderKind.RenameSelector,
+        });
+        const locations = await provider.provideRenameReferences(
+          "test-sibling-renamed"
+        );
+        assert.equal(locations.length, 3);
+      });
+      test("should rename a suffix selector at a given position with the right combination of parent and suffix", async () => {
+        const document = await workspace.openTextDocument(TestCssModulePath);
+        await window.showTextDocument(document);
+        await StorageInstance.experimental_BootStrap();
+        const provider = new CSSRenameProvider({
+          document,
+          position: new Position(11, 3),
+          providerKind: ProviderKind.RenameSelector,
+        });
+        const locations = await provider.provideRenameReferences(
+          "&-test-suffix-renamed"
+        );
+        assert.equal(locations.length, 4);
+        assert.equal(locations[0].text, "test-container-test-suffix-renamed");
+      });
+      test("should rename a deeply nested suffix selector at a given position with the right combination of parent and suffix", async () => {
+        const document = await workspace.openTextDocument(
+          VariousSelectorSCssModule
+        );
+        await window.showTextDocument(document);
+        await StorageInstance.experimental_BootStrap();
+        let provider = new CSSRenameProvider({
+          document,
+          position: new Position(6, 10),
+          providerKind: ProviderKind.RenameSelector,
+        });
+        const locations = await provider.provideRenameReferences(
+          "&-nested-suffix-renamed"
+        );
+        assert.equal(locations.length, 1);
+        assert.equal(
+          locations[0].text,
+          "normal-selector-suffix-nested-suffix-renamed"
+        );
       });
     });
   });

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import Settings from "../../settings";
 import Store from "../../store/Store";
 import { ProviderKind } from "../types";
-import { CSSProvider } from "./CSSProvider";
+import { CSSProvider, CSSReferenceProvider } from "./CSSProvider";
 
 export class ReferenceProvider implements vscode.ReferenceProvider {
   provideReferences(
@@ -13,7 +13,7 @@ export class ReferenceProvider implements vscode.ReferenceProvider {
       return [];
     }
     try {
-      const provider = new CSSProvider({
+      const provider = new CSSReferenceProvider({
         document,
         position,
         providerKind: ProviderKind.References,

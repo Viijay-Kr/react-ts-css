@@ -9,5 +9,6 @@ export default function SyntaxHighlight() {
     <h2 className={TestStyles1['sibling-child']}></h2>
     <button className={styles.snake_case}></button>
     <span className={TestStyles['test-container-test-suffix']}></span>
+    <p className={TestStyles["test-sibling"]}></p>
   </div>;
 }

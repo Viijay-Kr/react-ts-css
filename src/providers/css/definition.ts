@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import Settings from "../../settings";
 import { ProviderKind } from "../types";
-import { CSSProvider } from "./CSSProvider";
+import { CSSDefinitionProvider, CSSProvider } from "./CSSProvider";
 
 export class CssDefinitionProvider implements vscode.DefinitionProvider {
   async provideDefinition(
@@ -11,7 +11,7 @@ export class CssDefinitionProvider implements vscode.DefinitionProvider {
     if (!Settings.cssDefinitions) {
       return [];
     }
-    const provider = new CSSProvider({
+    const provider = new CSSDefinitionProvider({
       document,
       position,
       providerKind: ProviderKind.Definition,
