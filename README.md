@@ -10,6 +10,8 @@ Currently supports CSS, SCSS, Less modules
 
 This extension also supports CSS language features which are not supported by built-in VS Code [code CSS language features](https://github.com/microsoft/vscode-css-languageservice). Check [CSS language features](#cssscssless-language-features) for more info
 
+## Capabilities
+
 > This extension is unique in terms of support for major types of [Casings](#casings) and different types of CSS class selectors
 >
 > Different types of selectors are supported
@@ -25,7 +27,27 @@ This extension also supports CSS language features which are not supported by bu
 >
 > Override this plugin using the setting `reactTsScss.tsCleanUpDefs`
 
-<h2>Capabilities</h2>
+See how it compares with [CSS modules](https://marketplace.visualstudio.com/items?itemName=clinyong.vscode-css-modules)
+
+| Features                  |                                                 React CSS Modules                                                 |          [CSS modules](https://marketplace.visualstudio.com/items?itemName=clinyong.vscode-css-modules)           |
+| ------------------------- | :---------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------: |
+| Definition                | Camel Case selectors - ✅<br>Snake Case selectors - ✅<br>Pascal Case selectors - ✅<br>Kebab Case selectors - ✅ | Camel Case selectors - ✅<br>Snake Case selectors - ❌<br>Pascal Case selectors - ❌<br>Kebab Case selectors - ❌ |
+| Completion                | Camel Case selectors - ✅<br>Snake Case selectors - ✅<br>Pascal Case selectors - ✅<br>Kebab Case selectors - ✅ | Camel Case selector - ✅<br>Snake Case selectors - ✅<br>Pascal Case selectors - ✅<br>Kebab Case selectors - ✅  |
+| Hover                     |                                     Supported for all types of selectors - ✅                                     |                                                        ❌                                                         |
+| SCSS Suffix Selectors     |                                                        ✅                                                         |                                                        ❌                                                         |
+| Less suffix selectors     |                                                        ✅                                                         |                                                        ❌                                                         |
+| Selector Diagnostics      |                                                        ✅                                                         |                                                        ❌                                                         |
+| Selector References       |                                                        ✅                                                         |                                                        ❌                                                         |
+| Code lenses               |                                                        ✅                                                         |                                                        ❌                                                         |
+| Rename selector           |                                                        ✅                                                         |                                                        ❌                                                         |
+| Mixin Selector            |                                                        ✅                                                         |                                                        ❌                                                         |
+| Mixin Reference selectors |                                                        ✅                                                         |                                                        ❌                                                         |
+| Code actions              |                                                        ✅                                                         |                                                        ❌                                                         |
+| CSS Definitions           |                                                        ✅                                                         |                                                        ❌                                                         |
+| CSS Variables Completions |                                                        ✅                                                         |                                                        ❌                                                         |
+| CSS Color Presentation    |                                                        ✅                                                         |                                                        ❌                                                         |
+
+## Langauge Features
 
 - [TS/TSX|JS/JSX Language Features](#tstsxjsjsx-language-features)
   - [Definitions](#definitions)
@@ -141,7 +163,7 @@ Defaults
   "reactTsCSS.autoComplete": true,
   "reactTsCSS.autoImport": true,
   "reactTsCSS.definition": true,
-  "reactTsCSS.references": false,
+  "reactTsCSS.references": true,
   "reactTsCSS.tsconfig": "./tsconfig.json",
   "reactTsCSS.baseDir": "src",
   "reactTsCSS.diagnostics": true,
@@ -156,7 +178,8 @@ Defaults
     "*.module.less",
     "*.module.styl"
   ],
-  "reactTsCSS.codelens": false
+  "reactTsCSS.codelens": false,
+  "reactTsCSS.renameSelector": true
 }
 ```
 
@@ -164,7 +187,6 @@ Defaults
 
 1. Plain selectors without any reference is a `no op` in the current version and is expected to be added in coming versions
 2. Support for stylus will be added in the future versions
-3. [Rename Provider](https://code.visualstudio.com/api/references/vscode-api#RenameProvider) - Rename a selector and get all the places updated
 
 ## Contribution
 
