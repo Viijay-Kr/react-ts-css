@@ -1,5 +1,11 @@
 ## 3.0.0
 
+## 3.0.1
+
+### Patch Changes
+
+- 177d696: Update release changelog and fix actions workflow
+
 - Rename Selector references across multiple locations
 
 ## 2.6.0
