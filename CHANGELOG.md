@@ -1,3 +1,7 @@
+## 3.0.0
+
+- Rename Selector references across multiple locations
+
 ## 2.6.0
 
 - 55feade: References and Code lenses for CSS langauge

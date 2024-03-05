@@ -25,16 +25,16 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Check version
+        id: check_version
+        run: ./scripts/check_version
+        continue-on-error: true
+
       - name: Create Release Pull Request
         id: changesets
         uses: changesets/action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
-
-      - name: Check version
-        id: check_version
-        run: ./scripts/check_version
-        continue-on-error: true
 
       - name: Publish If
         id: publish
@@ -47,8 +47,16 @@ jobs:
         run: npm run publish:vscode && npm run publish:openvsx -- -p ${{ secrets.OPENVSX_PAT }}
 
       - name: Tag Version
+        id: tag_version
         if: steps.publish.outcome == 'success'
         uses: Klemensas/action-autotag@1.2.3
         with:
           GITHUB_TOKEN: "${{ secrets.MY_GITHUB_TOKEN }}"
           tag_prefix: "v"
+
+      - name: Create Github Release
+        if: steps.tag_version.outcome == 'success'
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.MY_GITHUB_TOKEN }}"
+          prerelease: false
