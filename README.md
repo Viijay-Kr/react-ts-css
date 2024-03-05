@@ -34,6 +34,7 @@ This extension also supports CSS language features which are not supported by bu
   - [Diagnostics](#diagnostics)
   - [Code Actions](#code-actions)
 - [CSS/SCSS/Less Language Features](#cssscssless-language-features)
+  - [Rename Provider](#rename-provider)
   - [Reference Provider](#reference-provider)
   - [Code Lens (**Default OFF**)](#code-lens)
   - [Variable Completion - **\[Only CSS\]**](#variable-completion---only-css)
@@ -81,9 +82,16 @@ This extension also supports CSS language features which are not supported by bu
 
 ## CSS/SCSS/Less Language Features
 
+### [Rename Provider](https://code.visualstudio.com/api/language-extensions/programmatic-language-features#rename-symbols)
+
+- Rename all the references of a selector across various component files - [Demo](assets/rename-selector.gif)
+- Currently rename only work for the modules that are imported in tsx/jsx files
+
+  - `reactTsCSS.renameSelector` - setting for this feature
+
 ### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation)
 
-- Find all the references of a selector across various component files files - [Demo](assets/references.gif)
+- Find all the references of a selector across various component files - [Demo](assets/references.gif)
 - Currently references only work for the modules that are imported in tsx/jsx files
 
   - `reactTsCSS.references` - setting for this feature

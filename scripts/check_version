@@ -2,7 +2,6 @@
 const { execSync } = require("child_process");
 const packageJson = require("../package.json");
 
-
 const current_version = packageJson.version;
 
 const latest_tag_hash = execSync(
@@ -22,7 +21,7 @@ if (current_version > latest_tag_number) {
   );
 } else {
   process.stderr.write(
-    `\nVersion in number in package.json should be higher than the latest version\nThe latest tagged version is ${latest_tag}\nCurrent version in package.json is ${current_version}`
+    `\nVersion number in package.json should be higher than the latest version for publish step.\nThe latest tagged version is ${latest_tag}.\nCurrent version in package.json is ${current_version}`
   );
   process.exitCode = 1;
 }
