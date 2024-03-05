@@ -110,6 +110,13 @@ export class Settings {
   public set codeLens(v: Array<string> | undefined) {
     workspace.getConfiguration(EXT_NAME).update("codelens", v);
   }
+  public get renameSelector(): Array<string> | undefined {
+    return getSettings().get("renameSelector");
+  }
+
+  public set renameSelector(v: Array<string> | undefined) {
+    workspace.getConfiguration(EXT_NAME).update("renameSelector", v);
+  }
 }
 
 export default new Settings();

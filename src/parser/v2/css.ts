@@ -95,6 +95,7 @@ export type Selector = {
   range: Range;
   content: string;
   selectionRange: Range;
+  rule: string;
 };
 
 export type Variable = {
@@ -133,6 +134,7 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
       range,
       content: parentNode.getText(),
       selectionRange,
+      rule: selectorNode.getText(),
     });
   };
 

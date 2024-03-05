@@ -88,3 +88,7 @@ export const isNormal = (selector: string) => {
 export const isCombination = (selector: string) => {
   return selector.indexOf(".") > -1;
 };
+
+export const stripSelectHelpers = (str: string) => {
+  return str.replace(/(\&\.)|(\&\-)|(&\s.)|&|^\./gm, "");
+};

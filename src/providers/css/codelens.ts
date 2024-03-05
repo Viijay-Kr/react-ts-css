@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import Settings from "../../settings";
 import { ProviderKind } from "../types";
-import { CSSProvider } from "./CSSProvider";
+import { CSSCodeLensProvider, CSSProvider } from "./CSSProvider";
 
 export class ReferenceCodeLens extends vscode.CodeLens {
   constructor(
@@ -22,7 +22,7 @@ export class ReferenceCodeLensProvider implements vscode.CodeLensProvider {
       return [];
     }
     try {
-      const provider = new CSSProvider({
+      const provider = new CSSCodeLensProvider({
         providerKind: ProviderKind.CodeLens,
         document,
         position: new vscode.Position(0, 0),
@@ -45,7 +45,7 @@ export class ReferenceCodeLensProvider implements vscode.CodeLensProvider {
     try {
       const uri = codeLens.document.uri;
       const position = codeLens.range.start;
-      const provider = new CSSProvider({
+      const provider = new CSSCodeLensProvider({
         providerKind: ProviderKind.CodeLens,
         document: codeLens.document,
         position: codeLens.range.start,

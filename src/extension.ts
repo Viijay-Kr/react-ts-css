@@ -7,20 +7,21 @@ import {
   languages,
   extensions,
 } from "vscode";
+import Settings, { EXT_NAME, getSettings } from "./settings";
+import Store from "./store/Store";
 import { DefnitionProvider } from "./providers/ts/definitions";
 import { HoverProvider } from "./providers/ts/hover";
 import {
   SelectorsCompletionProvider,
   ImportCompletionProvider,
 } from "./providers/ts/completion";
-import Settings, { EXT_NAME, getSettings } from "./settings";
-import Store from "./store/Store";
 import { DiagnosticCodeAction } from "./providers/ts/code-actions";
 import { CssDocumentColorProvider } from "./providers/css/colors";
 import { CssVariablesCompletion } from "./providers/css/completion";
 import { CssDefinitionProvider } from "./providers/css/definition";
 import { ReferenceProvider } from "./providers/css/references";
 import { ReferenceCodeLensProvider } from "./providers/css/codelens";
+import { RenameSelectorProvider } from "./providers/css/rename-selector";
 
 const documentSelector = [
   { scheme: "file", language: "typescriptreact" },
@@ -150,6 +151,10 @@ export async function activate(context: ExtensionContext): Promise<void> {
       cssModulesDocumentSelector,
       new ReferenceCodeLensProvider()
     );
+    const _cssRenameSelectorProvider = languages.registerRenameProvider(
+      cssModulesDocumentSelector,
+      new RenameSelectorProvider()
+    );
 
     context.subscriptions.push(_selectorsCompletionProvider);
     context.subscriptions.push(_importsCompletionProvider);
@@ -161,6 +166,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     context.subscriptions.push(_cssDefinitionProvider);
     context.subscriptions.push(_cssReferenceProvider);
     context.subscriptions.push(_cssCodeLensProvider);
+    context.subscriptions.push(_cssRenameSelectorProvider);
   } catch (e) {
     console.error(e);
     window.showWarningMessage(
