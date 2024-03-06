@@ -1,5 +1,11 @@
 ## 3.1.0
 
+## 3.1.1
+
+### Patch Changes
+
+- 1d19976: fix readme
+
 ### Minor Changes
 
 - 7b4efa8: Comparison table between React CSS modules and CSS modules
