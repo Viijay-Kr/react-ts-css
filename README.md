@@ -27,9 +27,9 @@ This extension also supports CSS language features which are not supported by bu
 >
 > Override this plugin using the setting `reactTsScss.tsCleanUpDefs`
 
-See how it compares with [CSS modules](https://marketplace.visualstudio.com/items?itemName=clinyong.vscode-css-modules)
+See how it compares with **CSS modules**
 
-| Features                  |                                                 React CSS Modules                                                 |          [CSS modules](https://marketplace.visualstudio.com/items?itemName=clinyong.vscode-css-modules)           |
+| Features                  |                                                 React CSS Modules                                                 |                                                    CSS modules                                                    |
 | ------------------------- | :---------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------: |
 | Definition                | Camel Case selectors - ✅<br>Snake Case selectors - ✅<br>Pascal Case selectors - ✅<br>Kebab Case selectors - ✅ | Camel Case selectors - ✅<br>Snake Case selectors - ❌<br>Pascal Case selectors - ❌<br>Kebab Case selectors - ❌ |
 | Completion                | Camel Case selectors - ✅<br>Snake Case selectors - ✅<br>Pascal Case selectors - ✅<br>Kebab Case selectors - ✅ | Camel Case selector - ✅<br>Snake Case selectors - ✅<br>Pascal Case selectors - ✅<br>Kebab Case selectors - ✅  |
