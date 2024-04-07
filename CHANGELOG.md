@@ -1,5 +1,11 @@
 ## 3.1.0
 
+## 3.1.2
+
+### Patch Changes
+
+- ec423e5: Fix setting IDs in readme
+
 ## 3.1.1
 
 ### Patch Changes
