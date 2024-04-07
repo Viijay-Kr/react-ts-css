@@ -72,25 +72,25 @@ See how it compares with **CSS modules**
 ### [Definitions](https://code.visualstudio.com/api/references/vscode-api#DefinitionProvider)
 
 - Go to any type of selector definition from your React components - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/definitions.gif)
-  - `reactTsCSS.definition` - setting for this feature
+  - `reactTsScss.definition` - setting for this feature
 
 ### [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
 - Peek CSS properties of a selector on hover - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/hover.gif)
-  - `reactTsCSS.peek` - setting for this feature
+  - `reactTsScss.peek` - setting for this feature
 
 ### [Completions](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
 - Completion of selectors - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/autocomplete.gif)
 - Completion of style identifiers with automatic import of closest (S)CSS module - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/auto-import.gif)
-  - `reactTsCSS.autoComplete` - setting for this feature
+  - `reactTsScss.autoComplete` - setting for this feature
 
 ### [Diagnostics](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic)
 
 - Useful diagnostics information are provided for missing selector - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/missing-selector.png)
 - Module not found error is also provided for non existing CSS modules - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/missing-module.png)
 - Settings to change diagnostics
-  - `reactTsCSS.diagnostics` - Toggle to turn off diagnostics
+  - `reactTsScss.diagnostics` - Toggle to turn off diagnostics
   - `reactTsScss.tsconfig` - Base TS Config path in the project. Useful for resolving path aliases. Defaults to './tsconfig.json'
   - `reactTsScss.baseDir` - Root directory of your project. Useful if tsconfig doesn't have information about path aliases. Defaults to 'src'
 
@@ -100,7 +100,7 @@ See how it compares with **CSS modules**
 - Code Action to add a non existing selector to the corresponding CSS/SCSS module
 - Code Action to ignore warnings temporarily
 - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/code-actions.gif)
-  - `reactTsCSS.diagnostics` - setting for this feature
+  - `reactTsScss.diagnostics` - setting for this feature
 
 ## CSS/SCSS/Less Language Features
 
@@ -109,21 +109,21 @@ See how it compares with **CSS modules**
 - Rename all the references of a selector across various component files - [Demo](assets/rename-selector.gif)
 - Currently rename only work for the modules that are imported in tsx/jsx files
 
-  - `reactTsCSS.renameSelector` - setting for this feature
+  - `reactTsScss.renameSelector` - setting for this feature
 
 ### [Reference Provider](https://code.visualstudio.com/docs/languages/typescript#_code-navigation)
 
 - Find all the references of a selector across various component files - [Demo](assets/references.gif)
 - Currently references only work for the modules that are imported in tsx/jsx files
 
-  - `reactTsCSS.references` - setting for this feature
+  - `reactTsScss.references` - setting for this feature
 
 ### [Code Lens](https://code.visualstudio.com/api/language-extensions/programmatic-language-features#codelens-show-actionable-context-information-within-source-code)
 
 - Useful Code Lens context for selectors based on their references across component files - [Demo](assets/code-lens.gif)
-- A quick alternative to [reactTsCSS.references](#reference-provider)
+- A quick alternative to [reactTsScss.references](#reference-provider)
 - Currently lenses only work for the modules that are imported in tsx/jsx files
-  - `reactTsCSS.codelens` - setting for this feature
+  - `reactTsScss.codelens` - setting for this feature
   - This setting is `OFF` by default
 
 ### Variable Completion - **[Only CSS]**
@@ -131,17 +131,17 @@ See how it compares with **CSS modules**
 [Demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/css-variables.gif)
 
 - Completion of variables across all the css modules
-  - `reactTsCSS.cssAutoComplete` - setting for this feature
+  - `reactTsScss.cssAutoComplete` - setting for this feature
 
 ### [Variable Definitions](https://code.visualstudio.com/docs/languages/css#_go-to-declaration-and-find-references) - **[Only CSS]**
 
 - Definition of variables across all the css modules
-  - `reactTsCSS.cssDefinitions` - setting for this feature
+  - `reactTsScss.cssDefinitions` - setting for this feature
 
 ### [Syntax Colors and Presentation](https://code.visualstudio.com/docs/languages/css#_syntax-coloring-color-preview) - **[Only CSS]**
 
 - Color Presentations and color information for variables across all the css modules
-  - `reactTsCSS.cssSyntaxColor` - setting for this feature
+  - `reactTsScss.cssSyntaxColor` - setting for this feature
     > VS codes built in support for CSS Language is limited to the current active file.So the above features are limited to active file and hence any access to variables from different modules won't work until you install React CSS modules
 
 ## Casings
@@ -159,27 +159,27 @@ Defaults
 
 ```json
 {
-  "reactTsCSS.peek": true,
-  "reactTsCSS.autoComplete": true,
-  "reactTsCSS.autoImport": true,
-  "reactTsCSS.definition": true,
-  "reactTsCSS.references": true,
-  "reactTsCSS.tsconfig": "./tsconfig.json",
-  "reactTsCSS.baseDir": "src",
-  "reactTsCSS.diagnostics": true,
-  "reactTsCSS.cssAutoComplete": true,
-  "reactTsCSS.cssDefinitions": true,
-  "reactTsCSS.cssSyntaxColor": true,
-  "reactTsCSS.tsCleanUpDefs": true,
-  "reactTsCSS.cleanUpDefs": [
+  "reactTsScss.peek": true,
+  "reactTsScss.autoComplete": true,
+  "reactTsScss.autoImport": true,
+  "reactTsScss.definition": true,
+  "reactTsScss.references": true,
+  "reactTsScss.tsconfig": "./tsconfig.json",
+  "reactTsScss.baseDir": "src",
+  "reactTsScss.diagnostics": true,
+  "reactTsScss.cssAutoComplete": true,
+  "reactTsScss.cssDefinitions": true,
+  "reactTsScss.cssSyntaxColor": true,
+  "reactTsScss.tsCleanUpDefs": true,
+  "reactTsScss.cleanUpDefs": [
     "*.module.css",
     "*.module.scss",
     "*.module.sass",
     "*.module.less",
     "*.module.styl"
   ],
-  "reactTsCSS.codelens": false,
-  "reactTsCSS.renameSelector": true
+  "reactTsScss.codelens": false,
+  "reactTsScss.renameSelector": true
 }
 ```
 
