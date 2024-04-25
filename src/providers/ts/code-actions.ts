@@ -5,7 +5,7 @@ import {
   DiagnosticCodeActions,
   DiagnosticNonCodeActions,
   extended_Diagnostic,
-} from "./diagnostics";
+} from "../diagnostics";
 
 export class DiagnosticCodeAction implements vscode.CodeActionProvider {
   public static readonly codeActionKinds = [vscode.CodeActionKind.QuickFix];

@@ -13,13 +13,16 @@ import {
   Location,
   Position,
   Range,
+  TextDocument,
   Uri,
 } from "vscode";
-import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../../constants";
-import { Selector, parseCss } from "../../parser/v2/css";
-import Store from "../../store/Store";
-import { normalizePath } from "../../path-utils";
-import { Parser } from "../../parser/Parser";
+import { CssModuleExtensions, CSS_MODULE_EXTENSIONS } from "../constants";
+import { Selector, parseCss } from "../parser/v2/css";
+import Store from "../store/Store";
+import { normalizePath } from "../path-utils";
+import { Parser } from "../parser/Parser";
+import { CSSDiagnosticsProvider } from "./css/CSSProvider";
+import { ProviderKind } from "./types";
 
 export type extended_Diagnostic = Diagnostic & {
   replace?: string;
@@ -31,6 +34,7 @@ export type DiagnosticsContext = {
   baseDir?: string | undefined;
   activeFileDir: string | undefined;
   activeFileUri: Uri;
+  document: TextDocument;
 };
 
 export enum DiagnosticCodeActions {
@@ -43,8 +47,9 @@ export enum DiagnosticNonCodeActions {
 }
 
 export class DiagnosticsProvider {
-  selectorDiagnostics: SelectorRelatedDiagnostics;
-  importDiagnostics: ImportsRelatedDiagnostics;
+  protected selectorDiagnostics: SelectorRelatedDiagnostics;
+  protected importDiagnostics: ImportsRelatedDiagnostics;
+  protected cssDiagnostics: CSSDocumentDiagnostics;
   static diagnosticCollection =
     languages.createDiagnosticCollection("react-ts-css");
   activeFileUri: Uri;
@@ -52,18 +57,20 @@ export class DiagnosticsProvider {
   constructor(context: DiagnosticsContext) {
     this.selectorDiagnostics = new SelectorRelatedDiagnostics(context);
     this.importDiagnostics = new ImportsRelatedDiagnostics(context);
+    this.cssDiagnostics = new CSSDocumentDiagnostics(context);
     this.activeFileUri = context.activeFileUri;
   }
 
-  public async runDiagnostics() {
+  public async runDiagnostics() {}
+
+  public async provideDiagnostics() {
     await this.selectorDiagnostics.runDiagnostics();
     this.importDiagnostics.runDiagnostics();
-  }
-
-  public provideDiagnostics() {
+    await this.cssDiagnostics.runDiagnostics();
     DiagnosticsProvider.diagnosticCollection.set(this.activeFileUri, [
       ...this.importDiagnostics.diagnostics,
       ...this.selectorDiagnostics.diagnostics,
+      ...this.cssDiagnostics.diagnostics,
     ]);
   }
 
@@ -71,6 +78,7 @@ export class DiagnosticsProvider {
     return [
       ...this.selectorDiagnostics.diagnostics,
       ...this.importDiagnostics.diagnostics,
+      ...this.cssDiagnostics.diagnostics,
     ];
   }
 }
@@ -96,7 +104,6 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
       }
     }
   }
-  renameSelector() {}
   async runDiagnostics() {
     const {
       parser: { parsed_result },
@@ -225,5 +232,21 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
         }
       }
     }
+  }
+}
+
+export class CSSDocumentDiagnostics extends Diagnostics {
+  protected cssDiagnosticsProvider: CSSDiagnosticsProvider;
+  constructor(options: DiagnosticsContext) {
+    super(options);
+    this.cssDiagnosticsProvider = new CSSDiagnosticsProvider({
+      providerKind: ProviderKind.Diagnostic,
+      position: new Position(0, 0),
+      document: options.document,
+    });
+  }
+
+  async runDiagnostics() {
+    this.diagnostics = await this.cssDiagnosticsProvider.provideDiagnostics();
   }
 }

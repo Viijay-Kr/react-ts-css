@@ -13,4 +13,5 @@ export enum ProviderKind {
   RenameSelector,
   CodeLens,
   Invalid,
+  Diagnostic,
 }

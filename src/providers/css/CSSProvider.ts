@@ -11,7 +11,7 @@ import {
   LocationLink,
   Location,
   Uri,
-  WorkspaceEdit,
+  DiagnosticSeverity,
 } from "vscode";
 import {
   createStyleSheet,
@@ -40,6 +40,7 @@ import { isIdentifier, isStringLiteral } from "@babel/types";
 import path = require("path");
 import { ReferenceCodeLens } from "./codelens";
 import { readFile } from "fs/promises";
+import { extended_Diagnostic } from "../diagnostics";
 
 type CSSProviderOptions = {
   providerKind: ProviderKind;
@@ -517,3 +518,56 @@ export class CSSRenameProvider extends CSSProvider {
     return candidates;
   }
 }
+
+export class CSSDiagnosticsProvider extends CSSProvider {
+  protected referenceProvider: CSSReferenceProvider;
+  constructor(options: CSSProviderOptions) {
+    super(options);
+    this.referenceProvider = new CSSReferenceProvider(options);
+  }
+  async provideDiagnostics(): Promise<Array<extended_Diagnostic>> {
+    const references = await this.getReferences();
+    const filePath = normalizePath(this.document.uri.fsPath);
+    const source_css_file = Store.cssModules.get(filePath);
+    const selectors = (await parseCss(source_css_file ?? ""))?.selectors;
+    if (!selectors) return [];
+
+    const candidates: extended_Diagnostic[] = [];
+
+    for (const selector of selectors.values()) {
+      let doesExist = false;
+      for (const ref of references) {
+        if (ref.status === "fulfilled") {
+          const parsedResult = ref.value.parsed_result?.parsedResult;
+
+          if (!parsedResult) continue;
+
+          for (const accessor of parsedResult.style_accessors) {
+            let _selector;
+            if (isStringLiteral(accessor.property)) {
+              _selector = accessor.property.value;
+            } else if (isIdentifier(accessor.property)) {
+              _selector = accessor.property.name;
+            }
+            if (_selector === selector.selector) {
+              doesExist = true;
+              break;
+            }
+          }
+        }
+      }
+      if (!doesExist) {
+        candidates.push({
+          range: toVsCodeRange(selector.range),
+          message: `Selector '${selector.selector}' is declared but it's never used`,
+          source: "(React TS CSS)",
+          sourceAtRange: selector.selector,
+          severity: DiagnosticSeverity.Hint,
+        });
+      }
+    }
+    return candidates;
+  }
+}
+
+export class CodeActionsProvider extends CSSProvider {}

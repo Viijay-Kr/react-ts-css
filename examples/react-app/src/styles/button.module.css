@@ -4,8 +4,9 @@
 
 .btn-secondary {
     background: #0019;
-    
-    .btn-secondary-nested {
-        background: cyan;
-    }
+
+}
+
+.btn-secondary-nested {
+    background: cyan;
 }
