@@ -89,6 +89,7 @@ See how it compares with **CSS modules**
 
 - Useful diagnostics information are provided for missing selector - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/missing-selector.png)
 - Module not found error is also provided for non existing CSS modules - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/missing-module.png)
+- Hints for un used selectors inside CSS/SCSS documents - [demo](/assets/css-diagnostics.gif)
 - Settings to change diagnostics
   - `reactTsScss.diagnostics` - Toggle to turn off diagnostics
   - `reactTsScss.tsconfig` - Base TS Config path in the project. Useful for resolving path aliases. Defaults to './tsconfig.json'
