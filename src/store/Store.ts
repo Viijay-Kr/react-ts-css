@@ -9,7 +9,7 @@ import * as fsg from "fast-glob";
 import { promises as fs_promises } from "node:fs";
 import Settings from "../settings";
 import { Parser } from "../parser/Parser";
-import { DiagnosticsProvider } from "../providers/ts/diagnostics";
+import { DiagnosticsProvider } from "../providers/diagnostics";
 import { normalizePath } from "../path-utils";
 
 // Full file path of the active opened file
@@ -289,13 +289,13 @@ export class Store {
 
       const document = this.activeTextEditor.document;
       const filePath = document.uri.fsPath;
+
       this.parser.parsed_result = await this.parser?.parse({
         filePath,
         content: document.getText(),
       });
-      if (Settings.diagnostics) {
-        return this.provideDiagnostics();
-      }
+
+      if (Settings.diagnostics) return this.provideDiagnostics();
     } catch (e) {}
   }
 
@@ -318,9 +318,9 @@ export class Store {
         parser: this.parser,
         activeFileDir,
         activeFileUri,
+        document: this.activeTextEditor.document,
       });
-      await this.diagnosticsProvider.runDiagnostics();
-      this.diagnosticsProvider.provideDiagnostics();
+      await this.diagnosticsProvider.provideDiagnostics();
       return this.diagnosticsProvider.getDiagnostics();
     }
   }
