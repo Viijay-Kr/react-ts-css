@@ -1,5 +1,11 @@
 ## 3.1.0
 
+## 3.1.3
+
+### Patch Changes
+
+- 14c3e92: feat: diagnostics for css documents
+
 ## 3.1.2
 
 ### Patch Changes
