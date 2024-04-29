@@ -22,6 +22,7 @@ import { CssDefinitionProvider } from "./providers/css/definition";
 import { ReferenceProvider } from "./providers/css/references";
 import { ReferenceCodeLensProvider } from "./providers/css/codelens";
 import { RenameSelectorProvider } from "./providers/css/rename-selector";
+import { GitExtension } from "./api/git";
 
 const documentSelector = [
   { scheme: "file", language: "typescriptreact" },
@@ -97,6 +98,16 @@ export async function activate(context: ExtensionContext): Promise<void> {
       });
     }
   };
+  const gitExtension = extensions.getExtension("vscode.git")?.exports as
+    | GitExtension
+    | undefined;
+  const git = gitExtension?.getAPI(1);
+  if (git) {
+    git.onDidChangeState((e) => {
+      console.log(">> git event change", e);
+      Store.experimental_BootStrap();
+    });
+  }
 
   try {
     await syncTsPlugin();

@@ -173,7 +173,7 @@ export class Store {
               ),
             } as TsJsConfig);
           } catch (e) {
-            console.error(e);
+            // console.error(e);
           }
         })
       );
