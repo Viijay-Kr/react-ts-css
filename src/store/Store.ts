@@ -70,7 +70,7 @@ export class Store {
     this._workSpaceRoot = v;
   }
 
-  private async experimental_setCssModules() {
+  async loadCSSModules() {
     const uri = window.activeTextEditor?.document?.uri;
     if (uri) {
       if (!this.workSpaceRoot) {
@@ -101,7 +101,7 @@ export class Store {
     }
   }
 
-  private async experimental_setTsModules() {
+  async loadTSModules() {
     const uri = window.activeTextEditor?.document?.uri;
     if (uri) {
       if (!this.workSpaceRoot) {
@@ -264,17 +264,17 @@ export class Store {
     return this.activeTextEditor.document;
   }
 
-  public async experimental_BootStrap() {
+  public async bootstrap() {
     try {
       if (this.activeTextEditor.document.isDirty) {
         return;
       }
       if (!this.cssModules.size) {
-        await this.experimental_setCssModules();
+        await this.loadCSSModules();
       }
 
       if (!this.tsModules.size) {
-        await this.experimental_setTsModules();
+        await this.loadTSModules();
       }
 
       await this.saveTsJsConfig();
