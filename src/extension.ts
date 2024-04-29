@@ -22,6 +22,7 @@ import { CssDefinitionProvider } from "./providers/css/definition";
 import { ReferenceProvider } from "./providers/css/references";
 import { ReferenceCodeLensProvider } from "./providers/css/codelens";
 import { RenameSelectorProvider } from "./providers/css/rename-selector";
+import { GitExtension } from "./api/git";
 
 const documentSelector = [
   { scheme: "file", language: "typescriptreact" },
@@ -59,12 +60,31 @@ workspace.onDidCreateFiles((e) => {
 });
 
 workspace.onDidChangeTextDocument((e) => {
-  Store.experimental_BootStrap();
+  Store.bootstrap();
 });
 
 window.onDidChangeActiveTextEditor((e) => {
-  Store.experimental_BootStrap();
+  Store.bootstrap();
 });
+
+const syncWithGit = () => {
+  const gitExtension = extensions.getExtension("vscode.git")?.exports as
+    | GitExtension
+    | undefined;
+  const git = gitExtension?.getAPI(1);
+  if (git) {
+    git.onDidChangeState(() => {
+      git.repositories.forEach((repo) => {
+        repo.state.onDidChange(async () => {
+          await Promise.allSettled([
+            await Store.loadCSSModules(),
+            await Store.loadTSModules(),
+          ]).catch();
+        });
+      });
+    });
+  }
+};
 
 export async function activate(context: ExtensionContext): Promise<void> {
   workspace.onDidChangeConfiguration(async (e) => {
@@ -97,10 +117,10 @@ export async function activate(context: ExtensionContext): Promise<void> {
       });
     }
   };
-
+  syncWithGit();
   try {
     await syncTsPlugin();
-    await Store.experimental_BootStrap();
+    await Store.bootstrap();
     const _definitionProvider = languages.registerDefinitionProvider(
       documentSelector,
       new DefnitionProvider()

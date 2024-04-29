@@ -158,6 +158,9 @@
       }
     ]
   },
+  "extensionDependencies": [
+    "vscode.git"
+  ],
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "webpack",
