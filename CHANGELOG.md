@@ -1,5 +1,11 @@
 ## 3.1.0
 
+## 3.1.4
+
+### Patch Changes
+
+- c9971f8: Feat support git event changes
+
 ## 3.1.3
 
 ### Patch Changes
