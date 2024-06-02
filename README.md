@@ -77,7 +77,7 @@ See how it compares with **CSS modules**
 ### [Hover](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
 - Peek CSS properties of a selector on hover - [demo](https://github.com/Viijay-Kr/react-ts-css/tree/main/assets/hover.gif)
-  - `reactTsScss.peek` - setting for this feature
+  - `reactTsScss.peekProperties` - setting for this feature
 
 ### [Completions](https://code.visualstudio.com/api/references/vscode-api#HoverProvider)
 
@@ -160,7 +160,7 @@ Defaults
 
 ```json
 {
-  "reactTsScss.peek": true,
+  "reactTsScss.peekProperties": true,
   "reactTsScss.autoComplete": true,
   "reactTsScss.autoImport": true,
   "reactTsScss.definition": true,
