@@ -1,5 +1,11 @@
 ## 3.1.0
 
+## 3.1.5
+
+### Patch Changes
+
+- 29a018d: update property name from `peek` to `peekProperties` in `README.md`
+
 ## 3.1.4
 
 ### Patch Changes
