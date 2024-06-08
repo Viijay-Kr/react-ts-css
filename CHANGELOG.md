@@ -1,5 +1,11 @@
 ## 3.1.0
 
+## 3.1.6
+
+### Patch Changes
+
+- 5b59b6e: change property name from `typecriptCleanUpDefs` to `tsCleanUpDefs` in `extension.ts`
+
 ## 3.1.5
 
 ### Patch Changes
