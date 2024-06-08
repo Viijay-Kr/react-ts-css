@@ -820,6 +820,14 @@ suite("TS Config path aliases", async () => {
         path.join(__dirname, examplesLocation, "react-app/src/App.tsx")
       );
 
+      const AliasedModuleComponent = Uri.file(
+        path.join(
+          __dirname,
+          examplesLocation,
+          "react-app/src/test/aliased-modules/AliasedModules.tsx"
+        )
+      );
+
       test("should not report an import diagnostics error on aliased module imports", async () => {
         const document = await workspace.openTextDocument(AppComponent);
         await window.showTextDocument(document);
@@ -849,6 +857,36 @@ suite("TS Config path aliases", async () => {
         const hover = new HoverProvider();
         const position = new Position(17, 48);
         const result = await hover.provideHover(document, position);
+
+        assert.notEqual(result, undefined);
+        StorageInstance.flushStorage();
+      });
+
+      test("should resolve `@` scoped modules when base url is also defined:Hover", async () => {
+        const document = await workspace.openTextDocument(
+          AliasedModuleComponent
+        );
+        await window.showTextDocument(document);
+
+        await StorageInstance.bootstrap();
+        const hover = new HoverProvider();
+        const position = new Position(5, 31);
+        const result = await hover.provideHover(document, position);
+
+        assert.notEqual(result, undefined);
+        StorageInstance.flushStorage();
+      });
+
+      test("should resolve `@` scoped modules when base url is also defined:Definition", async () => {
+        const document = await workspace.openTextDocument(
+          AliasedModuleComponent
+        );
+        await window.showTextDocument(document);
+
+        await StorageInstance.bootstrap();
+        const def = new DefnitionProvider();
+        const position = new Position(6, 29);
+        const result = await def.provideDefinition(document, position);
 
         assert.notEqual(result, undefined);
         StorageInstance.flushStorage();

@@ -220,13 +220,15 @@ export class Store {
         const alias = normalizePath(path.dirname(source));
         const module_name = path.basename(source);
         const paths = config.compilerOptions.paths;
+        const dir = (paths?.[alias] ?? [""]).join("");
         const baseUrl = config.compilerOptions.baseUrl;
         if (baseUrl) {
           const final_path = normalizePath(
             path.join(
               config.baseDir,
               config.compilerOptions.baseUrl ?? "",
-              source.replace("@", "")
+              !!alias.match(/^\@/g)?.[0] ? dir.replace("*", "") : alias,
+              module_name
             )
           );
           if (this.cssModules.has(final_path)) {
