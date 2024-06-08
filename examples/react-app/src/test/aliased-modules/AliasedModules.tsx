@@ -1,5 +1,5 @@
 import styles from "@d/DuplicateSelectors.module.scss";
-import buttonCss from "@s/button.module.scss";
+import buttonCss from "@s/button.module.css";
 
 export default function () {
   return (
