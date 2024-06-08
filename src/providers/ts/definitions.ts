@@ -11,6 +11,7 @@ import {
 import Settings from "../../settings";
 import { TSProvider } from "./TSProvider";
 import { ProviderKind } from "./../types";
+import Store from "../../store/Store";
 
 export class DefnitionProvider implements vscode_DefinitionProvider {
   async provideDefinition(
@@ -49,8 +50,11 @@ export class DefnitionProvider implements vscode_DefinitionProvider {
         return [locationLinks];
       }
       return [];
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      Store.outputChannel.error(
+        `TSDefinitionProvider: Failed in document '${document}' at '${position.line}:${position.character}' 
+         ${e.message}`
+      );
       return [];
     }
   }

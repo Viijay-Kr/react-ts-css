@@ -15,6 +15,7 @@ import {
 import Settings from "../../settings";
 import { ProviderKind } from "../types";
 import { TSProvider } from "./TSProvider";
+import Store from "../../store/Store";
 
 export class SelectorsCompletionProvider implements CompletionItemProvider {
   async provideCompletionItems(
@@ -89,7 +90,10 @@ export class SelectorsCompletionProvider implements CompletionItemProvider {
         }
       } catch (e) {}
     } catch (e) {
-      console.info(e);
+      Store.outputChannel.error(
+        `${e as Error}`,
+        `SelectorCompletionProvider: Failed in document '${document}' at '${position.line}:${position.character}'`
+      );
     }
     return [];
   }
@@ -115,8 +119,11 @@ export class ImportCompletionProvider implements CompletionItemProvider {
           additionalTextEdits: c.additionalEdits,
         }))
       );
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      Store.outputChannel.error(
+        `ImportCompletionProvider: Failed in document '${document}' at '${position.line}:${position.character}' 
+         ${e.message}`
+      );
       return;
     }
   }

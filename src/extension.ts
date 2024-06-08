@@ -59,10 +59,6 @@ workspace.onDidCreateFiles((e) => {
   Store.addSourceFiles(e.files);
 });
 
-workspace.onDidChangeTextDocument((e) => {
-  Store.bootstrap();
-});
-
 window.onDidChangeActiveTextEditor((e) => {
   Store.bootstrap();
 });
@@ -87,6 +83,13 @@ const syncWithGit = () => {
 };
 
 export async function activate(context: ExtensionContext): Promise<void> {
+  workspace.onDidChangeTextDocument((e) => {
+    // Event is fired when logging to output channel
+    if (e.document.fileName.includes(context.extension.id)) return;
+
+    Store.bootstrap();
+  });
+
   workspace.onDidChangeConfiguration(async (e) => {
     const affected = e.affectsConfiguration(EXT_NAME);
     if (affected) {
@@ -105,6 +108,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
       await syncTsPlugin();
     }
   });
+
   const syncTsPlugin = async () => {
     const ext = extensions.getExtension("vscode.typescript-language-features");
     if (ext) {
@@ -188,9 +192,9 @@ export async function activate(context: ExtensionContext): Promise<void> {
     context.subscriptions.push(_cssCodeLensProvider);
     context.subscriptions.push(_cssRenameSelectorProvider);
   } catch (e) {
-    console.error(e);
+    Store.outputChannel.error((e as Error).message);
     window.showWarningMessage(
-      "Something went wrong while activating React-TS-CSS extension"
+      "Something went wrong while activating React-TS-CSS extension. Check the output channel"
     );
   }
 }

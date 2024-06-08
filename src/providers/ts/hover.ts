@@ -48,8 +48,11 @@ export class HoverProvider implements vscode_HoverProvider {
         return hover;
       }
       return;
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      Store.outputChannel.error(
+        `TSHoverProvider: Failed in document '${document}' at '${position.line}:${position.character}' 
+         ${e.message}`
+      );
       return;
     }
   }

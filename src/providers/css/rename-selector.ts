@@ -12,6 +12,7 @@ import Settings from "../../settings";
 import { CSSProvider, CSSRenameProvider } from "./CSSProvider";
 import { ProviderKind } from "../types";
 import { isSuffix, stripSelectHelpers } from "../../parser/utils";
+import Store from "../../store/Store";
 export class RenameSelectorProvider implements RenameProvider {
   async provideRenameEdits(
     document: TextDocument,
@@ -55,8 +56,11 @@ export class RenameSelectorProvider implements RenameProvider {
       });
       const range = await provider.getSelectorRange();
       return range;
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      Store.outputChannel.error(
+        `RenameSelectorProviderError: Failed in document '${document}' at '${position.line}:${position.character}' 
+         ${e.message}`
+      );
       return;
     }
   }

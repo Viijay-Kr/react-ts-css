@@ -31,6 +31,7 @@ import {
   isSibling,
   isSuffix,
 } from "../utils";
+import Store from "../../store/Store";
 
 export const getLanguageService = (module: string) => {
   switch (path.extname(module) as CssModuleExtensions) {
@@ -86,7 +87,9 @@ export const parseCss = async (
     );
     return { selectors, eofRange, variables, ast: ast as Stylesheet, colors };
   } catch (e) {
-    console.error(e);
+    Store.outputChannel.error(
+      `CSSParserError: Parsing css module ${module} failed`
+    );
   }
 };
 

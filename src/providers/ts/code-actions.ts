@@ -118,7 +118,10 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
       action.diagnostics = [diagnostic];
       return action;
     } catch (e) {
-      console.log(e);
+      Store.outputChannel.error(
+        e as Error,
+        `CodeActionError: Ingore warning failed`
+      );
       throw e;
     }
   }
