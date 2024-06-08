@@ -3,7 +3,6 @@ import {
   Uri,
   Range,
   DefinitionProvider as vscode_DefinitionProvider,
-  Definition,
   LocationLink,
   Position,
   TextDocument,
@@ -17,7 +16,7 @@ export class DefnitionProvider implements vscode_DefinitionProvider {
   async provideDefinition(
     document: TextDocument,
     position: Position
-  ): Promise<Definition | LocationLink[]> {
+  ): Promise<LocationLink[]> {
     if (!Settings.definition) {
       return [];
     }

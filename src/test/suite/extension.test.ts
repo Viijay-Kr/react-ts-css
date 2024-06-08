@@ -888,7 +888,7 @@ suite("TS Config path aliases", async () => {
         const position = new Position(6, 29);
         const result = await def.provideDefinition(document, position);
 
-        assert.notEqual(result, undefined);
+        assert.notEqual(result.length, 0);
         StorageInstance.flushStorage();
       });
     }
