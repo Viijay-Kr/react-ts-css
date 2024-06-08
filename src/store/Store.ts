@@ -11,6 +11,7 @@ import Settings from "../settings";
 import { Parser } from "../parser/Parser";
 import { DiagnosticsProvider } from "../providers/diagnostics";
 import { normalizePath } from "../path-utils";
+import * as JSON5 from "json5/lib";
 
 // Full file path of the active opened file
 type CssModules = Map<string, string>;
@@ -44,6 +45,9 @@ export class Store {
   public tsJsConfig: TsJsConfigMap = new Map();
   public tsModules: TsModules = new Map();
   public parser: Parser | undefined;
+  public outputChannel = window.createOutputChannel("React CSS Modules", {
+    log: true,
+  });
 
   constructor() {
     const uri = window.activeTextEditor?.document?.uri;
@@ -166,19 +170,27 @@ export class Store {
           const _path = path.resolve(this.workSpaceRoot ?? "", config);
           const contents = (await fs_promises.readFile(_path)).toString();
           try {
+            const tsConfig = JSON5.parse(contents);
             this.tsJsConfig.set(_path, {
-              ...JSON.parse(contents),
+              ...tsConfig,
               baseDir: normalizePath(
                 path.join(this.workSpaceRoot ?? "", path.dirname(config))
               ),
             } as TsJsConfig);
-          } catch (e) {
-            // console.error(e);
+          } catch (e: any) {
+            this.outputChannel.error(
+              `TsJsConfigSyntaxError: Failed to parse config at ${_path} 
+               ${e.message}`
+            );
           }
         })
       );
-    } catch (e) {
+    } catch (e: any) {
       // Catch errors here
+      this.outputChannel.error(
+        `TsJsConfigSyntaxError: Failed to parse config 
+         ${e.message}`
+      );
     }
   }
 
@@ -208,13 +220,15 @@ export class Store {
         const alias = normalizePath(path.dirname(source));
         const module_name = path.basename(source);
         const paths = config.compilerOptions.paths;
+        const dir = (paths?.[alias] ?? [""]).join("");
         const baseUrl = config.compilerOptions.baseUrl;
         if (baseUrl) {
           const final_path = normalizePath(
             path.join(
               config.baseDir,
               config.compilerOptions.baseUrl ?? "",
-              source
+              !!alias.match(/^\@/g)?.[0] ? dir.replace("*", "") : alias,
+              module_name
             )
           );
           if (this.cssModules.has(final_path)) {

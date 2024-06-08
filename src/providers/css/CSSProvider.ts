@@ -115,7 +115,13 @@ export class CSSProvider {
         })
       );
     } catch (e) {
-      console.error(e);
+      Store.outputChannel.error(
+        `CSSProviderError: Failed in document '${
+          this.document.uri.fsPath
+        }' at '${this.position.line}:${this.position.character}' 
+         Provider: ${this.providerKind}
+         ${e as Error}`
+      );
     }
 
     return candidates;
@@ -529,6 +535,9 @@ export class CSSDiagnosticsProvider extends CSSProvider {
     const references = await this.getReferences();
     const filePath = normalizePath(this.document.uri.fsPath);
     const source_css_file = Store.cssModules.get(filePath);
+    if (!source_css_file) {
+      return [];
+    }
     const selectors = (await parseCss(source_css_file ?? ""))?.selectors;
     if (!selectors) return [];
 

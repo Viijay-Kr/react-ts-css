@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import Settings from "../../settings";
 import { ProviderKind } from "../types";
 import { CSSCodeLensProvider, CSSProvider } from "./CSSProvider";
+import Store from "../../store/Store";
 
 export class ReferenceCodeLens extends vscode.CodeLens {
   constructor(
@@ -29,8 +30,8 @@ export class ReferenceCodeLensProvider implements vscode.CodeLensProvider {
       });
 
       return provider.provideCodeLenses();
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      Store.outputChannel.error(`ReferenceCodeLensProviderError: ${e.message}`);
       return [];
     }
   }
