@@ -1,5 +1,11 @@
 ## 3.1.0
 
+## 3.2.0
+
+### Minor Changes
+
+- c120969: feat(tsconfig): json5 to parse tsconfig
+
 ## 3.1.6
 
 ### Patch Changes
