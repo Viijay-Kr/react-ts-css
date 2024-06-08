@@ -98,7 +98,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
       Settings.diagnostics = getSettings().get("diagnostics");
       Settings.baseDir = getSettings().get("baseDir");
       Settings.cssSyntaxColor = getSettings().get("cssSyntaxColor");
-      Settings.tsCleanUpDefs = getSettings().get("typecriptCleanUpDefs");
+      Settings.tsCleanUpDefs = getSettings().get("tsCleanUpDefs");
       Settings.cleanUpDefs = getSettings().get("cleanUpDefs");
       Settings.references = getSettings().get("references");
       Settings.codeLens = getSettings().get("codelens");
