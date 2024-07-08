@@ -210,6 +210,6 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
-    "typescript-cleanup-definitions": "^1.1.0"
+    "typescript-cleanup-definitions": "^1.2.0"
   }
 }
