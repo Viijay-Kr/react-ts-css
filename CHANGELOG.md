@@ -1,5 +1,11 @@
 ## 3.1.0
 
+## 3.2.1
+
+### Patch Changes
+
+- 8bf50d9: fix: mdx analyzer plugin conflicts
+
 ## 3.2.0
 
 ### Minor Changes
