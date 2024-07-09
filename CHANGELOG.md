@@ -1,5 +1,11 @@
 ## 3.1.0
 
+## 3.2.2
+
+### Patch Changes
+
+- 6e8690c: fix: revert typescript server plugin
+
 ## 3.2.1
 
 ### Patch Changes
