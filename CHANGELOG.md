@@ -1,5 +1,11 @@
 ## 3.1.0
 
+## 3.2.3
+
+### Patch Changes
+
+- 42bd1ba: fix typescript server plugin
+
 ## 3.2.2
 
 ### Patch Changes
