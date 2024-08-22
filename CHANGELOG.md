@@ -1,4 +1,9 @@
-## 3.1.0
+## 3.2.4
+
+### Patch Changes
+
+- 1a2e686: fix: language service plugin conflicts with mdx analyzer
+- 1a2e686: fix: language service plugin conflicts with mdx analyzer
 
 ## 3.2.3
 
