@@ -1,0 +1,29 @@
+.not {
+  &:not(.active) {
+    opacity: 0.5;
+  }
+}
+
+
+.is {
+  &:is(.primary, .secondary) {
+    font-size: 2rem;
+    color: darkblue;
+  }
+}
+
+.has {
+  &:has(.inactive) {
+    color: darkblue;
+  }
+}
+
+.where {
+  &:where(.hello) {
+    text-align: center;
+  }
+
+  :hover {
+    text-emphasis: none;
+  }
+}

@@ -20,6 +20,8 @@ This extension also supports CSS language features which are not supported by bu
 > - Nested selectors
 > - Suffixed selectors ([SCSS only](https://sass-lang.com/documentation/style-rules/parent-selector#adding-suffixes))
 > - Deeply nested suffix selectors
+> - Pseudo Classes
+> - Pseudo Class functions
 >
 > Almost all project scaffolders such as Vite, Next.js and CRA add css module declaration to the project by injecting it in a `.d.ts` file (for instance inside `node_modules/vite/client.d.ts` added by Vite). TypeScript treats these definitions as definition provider for Style properties. This results in a useless definition result when VS Code `Go to Definition` is triggered. Check this [issue](https://github.com/Viijay-Kr/react-ts-css/issues/68).
 >
@@ -35,6 +37,8 @@ See how it compares with **CSS modules**
 | Completion                | Camel Case selectors - ✅<br>Snake Case selectors - ✅<br>Pascal Case selectors - ✅<br>Kebab Case selectors - ✅ | Camel Case selector - ✅<br>Snake Case selectors - ✅<br>Pascal Case selectors - ✅<br>Kebab Case selectors - ✅  |
 | Hover                     |                                     Supported for all types of selectors - ✅                                     |                                                        ❌                                                         |
 | SCSS Suffix Selectors     |                                                        ✅                                                         |                                                        ❌                                                         |
+| Psuedo Classes            |                                                        ✅                                                         |                                                        ✅                                                         |
+| Psuedo Class Functions    |                                                        ✅                                                         |                                                        ✅                                                         |
 | Less suffix selectors     |                                                        ✅                                                         |                                                        ❌                                                         |
 | Selector Diagnostics      |                                                        ✅                                                         |                                                        ❌                                                         |
 | Selector References       |                                                        ✅                                                         |                                                        ❌                                                         |
