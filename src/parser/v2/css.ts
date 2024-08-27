@@ -98,7 +98,6 @@ export type Selector = {
   range: Range;
   content: string;
   selectionRange: Range;
-  rule: string;
 };
 
 export type Variable = {
@@ -115,68 +114,59 @@ export type Variable = {
 
 export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
   const selectors: Map<string, Selector> = new Map();
+  const visitedRules: Node[] = [];
+  const insertSelector = (selectorNode: Node, selector: string) => {
+    const parentRule = visitedRules[visitedRules.length - 1];
 
-  const insertSelector = (
-    selectorNode: Node,
-    parentNode: Node,
-    selector: string
-  ) => {
+    if (!parentRule) return;
+
     if (selectors.has(selector)) {
       return;
     }
+
     const range = Range.create(
       document.positionAt(selectorNode.offset),
       document.positionAt(selectorNode.end)
     );
     const selectionRange = Range.create(
-      document.positionAt(parentNode.offset),
-      document.positionAt(parentNode.end)
+      document.positionAt(parentRule.offset),
+      document.positionAt(parentRule.end)
     );
     selectors.set(selector, {
       selector,
       range,
-      content: parentNode.getText(),
+      content: parentRule.getText(),
       selectionRange,
-      rule: selectorNode.getText(),
     });
   };
 
   function resolveSelectors(node: Node, parent: Node | null) {
     switch (node.type) {
       case NodeType.Ruleset: {
-        const selectorNodeList = (node as RuleSet).getSelectors();
-        for (const selectorNode of selectorNodeList.getChildren()) {
-          for (const simpleSelector of selectorNode.getChildren()) {
-            if (simpleSelector.type === NodeType.SimpleSelector) {
-              let selector = simpleSelector.getText();
-              let isInvalid = false;
-              if (isSuffix(selector)) {
-                selector =
-                  resolveSuffixSelectors(parent, "") +
-                  selector.replace("&", "");
-              } else if (isSibling(selector)) {
-                selector = selector.replace(/&./gi, "");
-              } else if (isChild(selector)) {
-                selector = selector.replace(/& ./gi, "");
-              } else if (isNormal(selector)) {
-                selector = selector.replace(".", "");
-              } else {
-                isInvalid = true;
-              }
-              if (isPsuedo(selector)) {
-                selector = selector.split(":")[0];
-              }
-              if (isCombination(selector)) {
-                for (const _selector of selector.split(".")) {
-                  insertSelector(selectorNode, node, _selector);
-                }
-              } else {
-                if (!isInvalid) {
-                  insertSelector(selectorNode, node, selector);
-                }
-              }
-            }
-          }
+        visitedRules.push(node);
+        break;
+      }
+      case NodeType.SimpleSelector: {
+        let selector = node.getText();
+        let isInvalid = false;
+        if (isSuffix(selector)) {
+          selector = resolveSuffixSelectors(parent, "");
+        } else if (isSibling(selector)) {
+          selector = selector.replace(/&./gi, "");
+        } else if (isChild(selector)) {
+          selector = selector.replace(/& ./gi, "");
+        } else if (isNormal(selector)) {
+          selector = selector.replace(".", "");
+        } else {
+          isInvalid = true;
+        }
+        // Psuedo attributes is figured out only later. Thus it has to be its own if block
+        if (isPsuedo(selector)) {
+          selector = selector.split(":")[0];
+        }
+
+        if (!isInvalid) {
+          insertSelector(node, selector);
         }
         break;
       }
