@@ -1,5 +1,11 @@
 ## 3.2.4
 
+## 3.2.5
+
+### Patch Changes
+
+- fb84092: fix: pseudo class functions
+
 ### Patch Changes
 
 - 1a2e686: fix: language service plugin conflicts with mdx analyzer
