@@ -11,8 +11,8 @@ import {
   window,
   workspace,
 } from "vscode";
-import StorageInstance, { Store } from "../../store/Store";
 
+import Storage from "../../store/Store";
 import { DefnitionProvider } from "../../providers/ts/definitions";
 import { HoverProvider } from "../../providers/ts/hover";
 import {
@@ -55,6 +55,12 @@ const VariousSelectorsModule = path.join(
   __dirname,
   examplesLocation,
   "react-app/src/test/VariousSelectors/VariousSelectors.module.scss"
+);
+
+const PseudoSelectorsModule = path.join(
+  __dirname,
+  examplesLocation,
+  "react-app/src/test/psuedo-selectors/PseudoSelectors.module.css"
 );
 
 suite("Extension Test Suite", async () => {
@@ -122,20 +128,20 @@ suite("Extension Test Suite", async () => {
       test("should provide definitions when definition command is triggered at a relavent position [Class identifier]", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
 
         const definition = new DefnitionProvider();
         const position = new Position(6, 34);
         const result = await definition.provideDefinition(document, position);
 
         assert.equal(Array.isArray(result) ? result.length : [], 1);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should not provide definitions if the command is triggered at a irrelavent position [no class identifier]", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
 
         const definition = new DefnitionProvider();
         const position = new Position(4, 34);
@@ -143,13 +149,13 @@ suite("Extension Test Suite", async () => {
         if (Array.isArray(result)) {
           assert.equal(result.length, 0);
         }
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should go to the correct definition content when definition is triggered on suffixed/nested selectors", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
 
         const definition = new DefnitionProvider();
         const suffixResult = (await definition.provideDefinition(
@@ -177,7 +183,7 @@ suite("Extension Test Suite", async () => {
       test("should create a hovering content on hover at relavent position [Class selctor idenftier]", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
 
         const hover = new HoverProvider();
         const position = new Position(6, 34);
@@ -188,25 +194,25 @@ suite("Extension Test Suite", async () => {
           result?.contents[1]?.includes("test-container"),
           true
         );
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should not create a hovering content on hover at irrelavent position [Class selctor idenftier]", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
 
         const hover = new HoverProvider();
         const position = new Position(4, 34);
         const result = await hover.provideHover(document, position);
         assert.equal(result, undefined);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should show the correct hover content when hover on suffix selectors", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
 
         const definition = new HoverProvider();
         const result = (await definition.provideHover(
@@ -220,7 +226,7 @@ suite("Extension Test Suite", async () => {
       test("should work for camel case selector values", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
 
         const definition = new HoverProvider();
         const result = (await definition.provideHover(
@@ -236,7 +242,7 @@ suite("Extension Test Suite", async () => {
       test("should provide correct number of completions when triggered at the relavent position", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
 
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
 
         const completion = new SelectorsCompletionProvider();
         const position = new Position(6, 31);
@@ -256,7 +262,7 @@ suite("Extension Test Suite", async () => {
           list.items.some((i) => i.label === "test-container"),
           true
         );
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should not consider pusedo selectors for completion", async () => {
@@ -267,7 +273,7 @@ suite("Extension Test Suite", async () => {
         writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
 
         const document = await workspace.openTextDocument(TestComponentUri);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
 
         const completion = new SelectorsCompletionProvider();
         const position = new Position(6, 31);
@@ -290,7 +296,7 @@ suite("Extension Test Suite", async () => {
           false
         );
 
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should consider newly added selectors for completion", async () => {
@@ -302,7 +308,7 @@ suite("Extension Test Suite", async () => {
         const enc = new TextEncoder();
         writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
 
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const completion = new SelectorsCompletionProvider();
         writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
         const position = new Position(6, 31);
@@ -321,13 +327,13 @@ suite("Extension Test Suite", async () => {
         contents = contents.replace(replaceText, "");
         writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
         assert.equal(list.items.length, 6);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should provide import completions on accessing styles identifier", async () => {
         const document = await workspace.openTextDocument(AutoImportComponent);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const completion = new ImportCompletionProvider();
         const position = new Position(6, 31);
         const list = await completion.provideCompletionItems(
@@ -335,13 +341,13 @@ suite("Extension Test Suite", async () => {
           position
         );
         assert.equal(list?.items.length, 3);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should not provide import completions of already imported module on accessing styles identifier", async () => {
         const document = await workspace.openTextDocument(AutoImportComponent1);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const completion = new ImportCompletionProvider();
         const position = new Position(6, 31);
         const list = await completion.provideCompletionItems(
@@ -349,7 +355,7 @@ suite("Extension Test Suite", async () => {
           position
         );
         assert.equal(list?.items.length, 2);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
     });
 
@@ -357,14 +363,14 @@ suite("Extension Test Suite", async () => {
       test("should provide diagnostics for missing selector", async () => {
         const document = await workspace.openTextDocument(TestComponentUri);
         await window.showTextDocument(document);
-        const diagnostics = await StorageInstance.bootstrap();
+        const diagnostics = await Storage.bootstrap();
         assert.equal(diagnostics?.length, 1);
       });
 
       test("should provide diagnostics for in correct css module import", async () => {
         const document = await workspace.openTextDocument(DiagnosticComponent);
         await window.showTextDocument(document);
-        const diagnostics = await StorageInstance.bootstrap();
+        const diagnostics = await Storage.bootstrap();
         assert.equal(diagnostics?.length, 2);
       });
 
@@ -378,7 +384,7 @@ suite("Extension Test Suite", async () => {
         );
         const document = await workspace.openTextDocument(DynamicClasses);
         await window.showTextDocument(document);
-        const diagnostics = await StorageInstance.bootstrap();
+        const diagnostics = await Storage.bootstrap();
         assert.equal(diagnostics?.length, 0);
       });
     });
@@ -394,8 +400,8 @@ suite("Extension Test Suite", async () => {
     test("should include normal selectors [no relationship or bound to any rules]", async () => {
       const document = await workspace.openTextDocument(VariousSelectorsModule);
       await window.showTextDocument(document);
-      await StorageInstance.bootstrap();
-      const source_css_file = StorageInstance.cssModules.get(
+      await Storage.bootstrap();
+      const source_css_file = Storage.cssModules.get(
         normalizePath(VariousSelectorsModule)
       );
       const node = await parseCss(source_css_file ?? "");
@@ -413,8 +419,8 @@ suite("Extension Test Suite", async () => {
     test("should include  selectors from mixins and media queries", async () => {
       const document = await workspace.openTextDocument(VariousSelectorsModule);
       await window.showTextDocument(document);
-      await StorageInstance.bootstrap();
-      const source_css_file = StorageInstance.cssModules.get(
+      await Storage.bootstrap();
+      const source_css_file = Storage.cssModules.get(
         normalizePath(VariousSelectorsModule)
       );
       const node = await parseCss(source_css_file ?? "");
@@ -437,8 +443,8 @@ suite("Extension Test Suite", async () => {
     test("should include selectors from placeholders", async () => {
       const document = await workspace.openTextDocument(VariousSelectorsModule);
       await window.showTextDocument(document);
-      await StorageInstance.bootstrap();
-      const source_css_file = StorageInstance.cssModules.get(
+      await Storage.bootstrap();
+      const source_css_file = Storage.cssModules.get(
         normalizePath(VariousSelectorsModule)
       );
       const node = await parseCss(source_css_file ?? "");
@@ -450,8 +456,8 @@ suite("Extension Test Suite", async () => {
     test("should include suffixed selectors at any depth", async () => {
       const document = await workspace.openTextDocument(VariousSelectorsModule);
       await window.showTextDocument(document);
-      await StorageInstance.bootstrap();
-      const source_css_file = StorageInstance.cssModules.get(
+      await Storage.bootstrap();
+      const source_css_file = Storage.cssModules.get(
         normalizePath(VariousSelectorsModule)
       );
       const node = await parseCss(source_css_file ?? "");
@@ -474,8 +480,8 @@ suite("Extension Test Suite", async () => {
     test("should include camelCased suffixed selectors", async () => {
       const document = await workspace.openTextDocument(VariousSelectorsModule);
       await window.showTextDocument(document);
-      await StorageInstance.bootstrap();
-      const source_css_file = StorageInstance.cssModules.get(
+      await Storage.bootstrap();
+      const source_css_file = Storage.cssModules.get(
         normalizePath(VariousSelectorsModule)
       );
       const node = await parseCss(source_css_file ?? "");
@@ -491,13 +497,33 @@ suite("Extension Test Suite", async () => {
         "camelCasesuffixonemore"
       );
     });
+    test("should include possible combinations of psuedo selectors", async () => {
+      const document = await workspace.openTextDocument(PseudoSelectorsModule);
+      await window.showTextDocument(document);
+      await Storage.bootstrap();
+      const source_css_file = Storage.cssModules.get(
+        normalizePath(PseudoSelectorsModule)
+      );
+      const node = await parseCss(source_css_file ?? "");
+      assert.notEqual(node, undefined);
+      const selectors = node!.selectors;
+      assert.equal(selectors.get("not")?.selector, "not");
+      assert.equal(selectors.get("active")?.selector, "active");
+      assert.equal(selectors.get("is")?.selector, "is");
+      assert.equal(selectors.get("primary")?.selector, "primary");
+      assert.equal(selectors.get("secondary")?.selector, "secondary");
+      assert.equal(selectors.get("has")?.selector, "has");
+      assert.equal(selectors.get("inactive")?.selector, "inactive");
+      assert.equal(selectors.get("where")?.selector, "where");
+      assert.equal(selectors.get("hello")?.selector, "hello");
+    });
 
     suite("CSS module features", () => {
       test("should include nested child selectors", async () => {
         const document = await workspace.openTextDocument(CSSModule);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
-        const source_css_file = StorageInstance.cssModules.get(
+        await Storage.bootstrap();
+        const source_css_file = Storage.cssModules.get(
           normalizePath(CSSModule)
         );
         const node = await parseCss(source_css_file ?? "");
@@ -526,7 +552,7 @@ suite("Extension Test Suite", async () => {
       test("provide completions for css variables across files", async () => {
         const document = await workspace.openTextDocument(AppCssUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CssVariablesCompletion();
         const position = new Position(6, 31);
         const result = await provider.provideCompletionItems(
@@ -538,7 +564,7 @@ suite("Extension Test Suite", async () => {
       test("completion items should resolve item to `var(${name})` if no `var` key word exists", async () => {
         const document = await workspace.openTextDocument(AppCssUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CssVariablesCompletion();
         const position = new Position(6, 31);
         const result = await provider.provideCompletionItems(
@@ -554,7 +580,7 @@ suite("Extension Test Suite", async () => {
       test("completions items should not resolve to `var${name}` when var keyword exists", async () => {
         const document = await workspace.openTextDocument(AppCssUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CssVariablesCompletion();
         const position = new Position(46, 14);
         const result = await provider.provideCompletionItems(
@@ -569,7 +595,7 @@ suite("Extension Test Suite", async () => {
       test("dont provide completions for css variables from same file", async () => {
         const document = await workspace.openTextDocument(IndexCssUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CssVariablesCompletion();
         const position = new Position(6, 31);
         const result = await provider.provideCompletionItems(
@@ -583,7 +609,7 @@ suite("Extension Test Suite", async () => {
       test("provide definitions for variables across different files", async () => {
         const document = await workspace.openTextDocument(AppCssUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CssDefinitionProvider();
         const position = new Position(40, 21);
         const result = await provider.provideDefinition(document, position);
@@ -593,7 +619,7 @@ suite("Extension Test Suite", async () => {
       test("dont provide definitions for variables within the same file", async () => {
         const document = await workspace.openTextDocument(IndexCssUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CssDefinitionProvider();
         const position = new Position(23, 20);
         const result = await provider.provideDefinition(document, position);
@@ -604,7 +630,7 @@ suite("Extension Test Suite", async () => {
       test("provide color information for variables across different files", async () => {
         const document = await workspace.openTextDocument(AppCssUri);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CssDocumentColorProvider();
         const result = await provider.provideDocumentColors(document);
         assert.equal(result.length > 0, true);
@@ -615,7 +641,7 @@ suite("Extension Test Suite", async () => {
       test("provide references for a selector at a given position", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CSSReferenceProvider({
           document,
           position: new Position(3, 11),
@@ -627,7 +653,7 @@ suite("Extension Test Suite", async () => {
       test("provide references for a suffix selector at a given position from multiple modules", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CSSReferenceProvider({
           document,
           position: new Position(11, 11),
@@ -642,7 +668,7 @@ suite("Extension Test Suite", async () => {
       test("provide code lens for a selectors in a document", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CSSCodeLensProvider({
           document,
           position: new Position(0, 0),
@@ -654,7 +680,7 @@ suite("Extension Test Suite", async () => {
       test("provide code lens for a suffix selector in a document", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         let provider = new CSSCodeLensProvider({
           document,
           position: new Position(0, 0),
@@ -677,7 +703,7 @@ suite("Extension Test Suite", async () => {
       test("should rename a selector at a given position across all its usage", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CSSRenameProvider({
           document,
           position: new Position(16, 0),
@@ -697,7 +723,7 @@ suite("Extension Test Suite", async () => {
       test("should rename a selector at a given position across multiple locations", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CSSRenameProvider({
           document,
           position: new Position(7, 3),
@@ -711,7 +737,7 @@ suite("Extension Test Suite", async () => {
       test("should rename a suffix selector at a given position with the right combination of parent and suffix", async () => {
         const document = await workspace.openTextDocument(TestCssModulePath);
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const provider = new CSSRenameProvider({
           document,
           position: new Position(11, 3),
@@ -728,7 +754,7 @@ suite("Extension Test Suite", async () => {
           VariousSelectorSCssModule
         );
         await window.showTextDocument(document);
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         let provider = new CSSRenameProvider({
           document,
           position: new Position(6, 10),
@@ -751,7 +777,7 @@ suite("TS Config path aliases", async () => {
   suite.skip(
     "should work in a mono repo setup with tsconfig aliases",
     async () => {
-      StorageInstance.flushStorage();
+      Storage.flushStorage();
       const IndexComponent = Uri.file(
         path.join(
           __dirname,
@@ -761,20 +787,20 @@ suite("TS Config path aliases", async () => {
       );
 
       test("should not report an import diagnostics error on aliased module imports", async () => {
-        StorageInstance.workSpaceRoot = path.join(
+        Storage.workSpaceRoot = path.join(
           __dirname,
           examplesLocation,
           "monorepo"
         );
         const document = await workspace.openTextDocument(IndexComponent);
         await window.showTextDocument(document);
-        const diagnostics = await StorageInstance.bootstrap();
+        const diagnostics = await Storage.bootstrap();
         assert.equal(diagnostics?.length, 0);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should resolve selectors from aliased module imports reference for definition", async () => {
-        StorageInstance.workSpaceRoot = path.join(
+        Storage.workSpaceRoot = path.join(
           __dirname,
           examplesLocation,
           "monorepo"
@@ -782,17 +808,17 @@ suite("TS Config path aliases", async () => {
         const document = await workspace.openTextDocument(IndexComponent);
         await window.showTextDocument(document);
 
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const definition = new DefnitionProvider();
         const position = new Position(6, 32);
         const result = await definition.provideDefinition(document, position);
 
         assert.equal(Array.isArray(result) ? result.length : [], 1);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should resolve selectors from aliased module imports reference for hover", async () => {
-        StorageInstance.workSpaceRoot = path.join(
+        Storage.workSpaceRoot = path.join(
           __dirname,
           examplesLocation,
           "monorepo"
@@ -800,13 +826,13 @@ suite("TS Config path aliases", async () => {
         const document = await workspace.openTextDocument(IndexComponent);
         await window.showTextDocument(document);
 
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const hover = new HoverProvider();
         const position = new Position(6, 33);
         const result = await hover.provideHover(document, position);
 
         assert.notEqual(result, undefined);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
     }
   );
@@ -814,7 +840,7 @@ suite("TS Config path aliases", async () => {
   suite(
     "should work in a poly repo setup with a single root tsconfig file",
     async () => {
-      StorageInstance.flushStorage();
+      Storage.flushStorage();
       setWorskpaceFolder("react-app");
       const AppComponent = Uri.file(
         path.join(__dirname, examplesLocation, "react-app/src/App.tsx")
@@ -831,35 +857,35 @@ suite("TS Config path aliases", async () => {
       test("should not report an import diagnostics error on aliased module imports", async () => {
         const document = await workspace.openTextDocument(AppComponent);
         await window.showTextDocument(document);
-        const diagnostics = await StorageInstance.bootstrap();
+        const diagnostics = await Storage.bootstrap();
         assert.equal(diagnostics?.length, 0);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should resolve selectors from aliased module imports reference for definition", async () => {
         const document = await workspace.openTextDocument(AppComponent);
         await window.showTextDocument(document);
 
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const definition = new DefnitionProvider();
         const position = new Position(17, 48);
         const result = await definition.provideDefinition(document, position);
 
         assert.equal(Array.isArray(result) ? result.length : [], 1);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should resolve selectors from aliased module imports reference for hover", async () => {
         const document = await workspace.openTextDocument(AppComponent);
         await window.showTextDocument(document);
 
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const hover = new HoverProvider();
         const position = new Position(17, 48);
         const result = await hover.provideHover(document, position);
 
         assert.notEqual(result, undefined);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should resolve `@` scoped modules when base url is also defined:Hover", async () => {
@@ -868,13 +894,13 @@ suite("TS Config path aliases", async () => {
         );
         await window.showTextDocument(document);
 
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const hover = new HoverProvider();
         const position = new Position(5, 31);
         const result = await hover.provideHover(document, position);
 
         assert.notEqual(result, undefined);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
 
       test("should resolve `@` scoped modules when base url is also defined:Definition", async () => {
@@ -883,13 +909,13 @@ suite("TS Config path aliases", async () => {
         );
         await window.showTextDocument(document);
 
-        await StorageInstance.bootstrap();
+        await Storage.bootstrap();
         const def = new DefnitionProvider();
         const position = new Position(6, 29);
         const result = await def.provideDefinition(document, position);
 
         assert.notEqual(result.length, 0);
-        StorageInstance.flushStorage();
+        Storage.flushStorage();
       });
     }
   );
