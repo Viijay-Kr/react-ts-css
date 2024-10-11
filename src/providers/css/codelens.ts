@@ -8,7 +8,7 @@ export class ReferenceCodeLens extends vscode.CodeLens {
   constructor(
     public document: vscode.TextDocument,
     public file: string,
-    range: vscode.Range
+    range: vscode.Range,
   ) {
     super(range);
   }
@@ -17,7 +17,7 @@ export class ReferenceCodeLens extends vscode.CodeLens {
 export class ReferenceCodeLensProvider implements vscode.CodeLensProvider {
   async provideCodeLenses(
     document: vscode.TextDocument,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): Promise<ReferenceCodeLens[]> {
     if (!Settings.codeLens || token.isCancellationRequested) {
       return [];

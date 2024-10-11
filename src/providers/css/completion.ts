@@ -11,7 +11,7 @@ import { CSSProvider, CSSVariableCompletionProvider } from "./CSSProvider";
 export class CssVariablesCompletion implements CompletionItemProvider {
   async provideCompletionItems(
     document: TextDocument,
-    position: Position
+    position: Position,
   ): Promise<CompletionList<import("vscode").CompletionItem> | undefined> {
     try {
       if (!Settings.cssAutoComplete) {

@@ -18,7 +18,7 @@ export class RenameSelectorProvider implements RenameProvider {
     document: TextDocument,
     position: Position,
     newName: string,
-    token: CancellationToken
+    token: CancellationToken,
   ): Promise<WorkspaceEdit | undefined | null> {
     if (!Settings.renameSelector || token.isCancellationRequested) {
       return;
@@ -43,7 +43,7 @@ export class RenameSelectorProvider implements RenameProvider {
   async prepareRename?(
     document: TextDocument,
     position: Position,
-    token: CancellationToken
+    token: CancellationToken,
   ): Promise<Range | { range: Range; placeholder: string } | null | undefined> {
     if (!Settings.renameSelector || token.isCancellationRequested) {
       return;
@@ -59,7 +59,7 @@ export class RenameSelectorProvider implements RenameProvider {
     } catch (e: any) {
       Store.outputChannel.error(
         `RenameSelectorProviderError: Failed in document '${document}' at '${position.line}:${position.character}' 
-         ${e.message}`
+         ${e.message}`,
       );
       return;
     }

@@ -14,11 +14,11 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
   public constructor(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       DiagnosticCodeAction.ADD_SELECTOR_COMMAND,
-      this.addSelectorCommand
+      this.addSelectorCommand,
     );
     vscode.commands.registerCommand(
       DiagnosticNonCodeActions.IGNORE_WARNING,
-      this.ignoreWarningCommand
+      this.ignoreWarningCommand,
     );
   }
   private async addSelectorCommand(...args: any[]) {
@@ -36,14 +36,14 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
     document: vscode.TextDocument,
     range: vscode.Range | vscode.Selection,
     context: vscode.CodeActionContext,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): vscode.ProviderResult<(vscode.CodeAction | vscode.Command)[]> {
     const relaventDiagnostics = (
       context.diagnostics as Array<extended_Diagnostic>
     ).filter(
       (d) =>
         (d.code && d.code === DiagnosticCodeActions.RENAME_SELECTOR) ||
-        d.code === DiagnosticCodeActions.CREATE_SELECTOR
+        d.code === DiagnosticCodeActions.CREATE_SELECTOR,
     );
     const codeActions: (vscode.CodeAction | vscode.Command)[] = [];
     for (const d of relaventDiagnostics) {
@@ -56,13 +56,13 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
   private renameAction(diagnostic: extended_Diagnostic) {
     const renameAction = new vscode.CodeAction(
       "Change spelling to '" + diagnostic.replace + "'",
-      vscode.CodeActionKind.QuickFix
+      vscode.CodeActionKind.QuickFix,
     );
     const edit = new vscode.WorkspaceEdit();
     edit.replace(
       Store.activeTextEditor.document.uri,
       diagnostic.range,
-      diagnostic.replace ?? ""
+      diagnostic.replace ?? "",
     );
     renameAction.edit = edit;
     renameAction.isPreferred = true;
@@ -74,9 +74,9 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
     if (diagnostic.relatedInformation?.[0]) {
       const codeAction = new vscode.CodeAction(
         `Add '${diagnostic.replace}' to ${path.basename(
-          diagnostic.relatedInformation[0].location.uri.fsPath
+          diagnostic.relatedInformation[0].location.uri.fsPath,
         )}`,
-        vscode.CodeActionKind.QuickFix
+        vscode.CodeActionKind.QuickFix,
       );
       const relatedInformation = diagnostic.relatedInformation ?? [];
       if (relatedInformation.length) {
@@ -84,7 +84,7 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
         edit.replace(
           relatedInformation[0].location.uri,
           relatedInformation[0].location.range,
-          `\n.${diagnostic.replace}\t{}`
+          `\n.${diagnostic.replace}\t{}`,
         );
         codeAction.command = {
           command: DiagnosticCodeAction.ADD_SELECTOR_COMMAND,
@@ -107,7 +107,7 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
     try {
       const action = new vscode.CodeAction(
         `ignore '${diagnostic.sourceAtRange}' warning`,
-        vscode.CodeActionKind.QuickFix
+        vscode.CodeActionKind.QuickFix,
       );
       action.command = {
         command: DiagnosticNonCodeActions.IGNORE_WARNING,
@@ -120,14 +120,14 @@ export class DiagnosticCodeAction implements vscode.CodeActionProvider {
     } catch (e) {
       Store.outputChannel.error(
         e as Error,
-        `CodeActionError: Ingore warning failed`
+        `CodeActionError: Ingore warning failed`,
       );
       throw e;
     }
   }
 
   private createCodeActions(
-    diagnostic: extended_Diagnostic
+    diagnostic: extended_Diagnostic,
   ): vscode.CodeAction[] {
     let actions: vscode.CodeAction[] = [];
     switch (diagnostic.code) {

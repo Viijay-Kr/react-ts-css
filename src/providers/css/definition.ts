@@ -6,7 +6,7 @@ import { CSSDefinitionProvider, CSSProvider } from "./CSSProvider";
 export class CssDefinitionProvider implements vscode.DefinitionProvider {
   async provideDefinition(
     document: vscode.TextDocument,
-    position: vscode.Position
+    position: vscode.Position,
   ): Promise<vscode.LocationLink[]> {
     if (!Settings.cssDefinitions) {
       return [];

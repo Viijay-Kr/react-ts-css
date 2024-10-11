@@ -94,7 +94,7 @@ class Diagnostics {
 export class SelectorRelatedDiagnostics extends Diagnostics {
   static findClosestMatchingSelector(
     selector: string,
-    allSelectors: Map<string, Selector>
+    allSelectors: Map<string, Selector>,
   ) {
     const match = closestMatch(selector, Array.from(allSelectors.keys()));
     if (typeof match === "string") {
@@ -136,14 +136,14 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
             const closestMatchingSelector =
               SelectorRelatedDiagnostics.findClosestMatchingSelector(
                 selector,
-                selectors
+                selectors,
               );
             let additionalSelector = closestMatchingSelector
               ? `Did you mean '${closestMatchingSelector}'?`
               : "";
             const relativePath = path.relative(
               Store.workSpaceRoot ?? "",
-              style_reference.uri
+              style_reference.uri,
             );
             this.diagnostics.push({
               message: `Selector '${selector}' does not exist in '${relativePath}'.${additionalSelector}`,
@@ -158,7 +158,7 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
               relatedInformation: [
                 new DiagnosticRelatedInformation(
                   new Location(Uri.file(style_reference.uri), rangeAtEof!),
-                  "Add this selector to " + relativePath
+                  "Add this selector to " + relativePath,
                 ),
               ],
               range: new Range(
@@ -166,14 +166,14 @@ export class SelectorRelatedDiagnostics extends Diagnostics {
                   property.loc?.start.line! - 1,
                   isStringLiteral(property)
                     ? property.loc?.start.column! + 1
-                    : property.loc?.start.column!
+                    : property.loc?.start.column!,
                 ),
                 new Position(
                   property.loc?.end.line! - 1,
                   isStringLiteral(property)
                     ? property.loc?.end.column! - 1
-                    : property.loc?.end.column!
-                )
+                    : property.loc?.end.column!,
+                ),
               ),
               severity: DiagnosticSeverity.Warning,
             });
@@ -201,7 +201,7 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
           const relativePath = normalizePath(
             !isRelativeImport
               ? path.resolve(Store.workSpaceRoot!, baseDir ?? "", module)
-              : path.resolve(activeFileDir ?? "", module)
+              : path.resolve(activeFileDir ?? "", module),
           );
           let doesModuleExists = Store.cssModules.has(relativePath);
           if (!doesModuleExists) {
@@ -220,12 +220,12 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
               range: new Range(
                 new Position(
                   statement.loc!.start.line - 1,
-                  statement.loc!.start.column
+                  statement.loc!.start.column,
                 ),
                 new Position(
                   statement.loc!.end.line - 1,
-                  statement.loc!.end.column
-                )
+                  statement.loc!.end.column,
+                ),
               ),
             });
           }

@@ -14,7 +14,7 @@ import { TSProvider } from "./TSProvider";
 export class HoverProvider implements vscode_HoverProvider {
   async provideHover(
     document: TextDocument,
-    position: Position
+    position: Position,
   ): Promise<Hover | undefined> {
     if (!Settings.peekProperties) {
       return;
@@ -34,7 +34,7 @@ export class HoverProvider implements vscode_HoverProvider {
         const language = path.extname(matchedSelector.uri).replace(".", "");
         const filePath = path.relative(
           Store.workSpaceRoot ?? "",
-          matchedSelector.uri
+          matchedSelector.uri,
         );
         const linenum = target.range.start.line + 1;
         const charnum = target.range.start.character;
@@ -43,7 +43,7 @@ export class HoverProvider implements vscode_HoverProvider {
             new MarkdownString(`*_${filePath}:${linenum},${charnum}_*`),
             `\`\`\`${language} \n${content}\n\`\`\``,
           ],
-          provider.getOriginWordRange()
+          provider.getOriginWordRange(),
         );
         return hover;
       }
@@ -51,7 +51,7 @@ export class HoverProvider implements vscode_HoverProvider {
     } catch (e: any) {
       Store.outputChannel.error(
         `TSHoverProvider: Failed in document '${document}' at '${position.line}:${position.character}' 
-         ${e.message}`
+         ${e.message}`,
       );
       return;
     }

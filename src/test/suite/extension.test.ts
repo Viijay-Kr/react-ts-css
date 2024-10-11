@@ -54,62 +54,62 @@ function setWorskpaceFolder(app: string) {
 const VariousSelectorsModule = path.join(
   __dirname,
   examplesLocation,
-  "react-app/src/test/VariousSelectors/VariousSelectors.module.scss"
+  "react-app/src/test/VariousSelectors/VariousSelectors.module.scss",
 );
 
 const PseudoSelectorsModule = path.join(
   __dirname,
   examplesLocation,
-  "react-app/src/test/psuedo-selectors/PseudoSelectors.module.css"
+  "react-app/src/test/psuedo-selectors/PseudoSelectors.module.css",
 );
 
 suite("Extension Test Suite", async () => {
   window.showInformationMessage("Start all tests.");
   const AppComponentUri = Uri.file(
-    path.join(__dirname, examplesLocation, "react-app/src/App.tsx")
+    path.join(__dirname, examplesLocation, "react-app/src/App.tsx"),
   );
   const TestComponentUri = Uri.file(
     path.join(
       __dirname,
       examplesLocation,
-      "react-app/src/test/TestComponent.tsx"
-    )
+      "react-app/src/test/TestComponent.tsx",
+    ),
   );
 
   const AutoImportComponent = Uri.file(
     path.join(
       __dirname,
       examplesLocation,
-      "react-app/src/test/auto-import/AutoImport.tsx"
-    )
+      "react-app/src/test/auto-import/AutoImport.tsx",
+    ),
   );
 
   const AutoImportComponent1 = Uri.file(
     path.join(
       __dirname,
       examplesLocation,
-      "react-app/src/test/auto-import/AutoImport_1.tsx"
-    )
+      "react-app/src/test/auto-import/AutoImport_1.tsx",
+    ),
   );
 
   const TestCssModulePath = path.join(
     __dirname,
     examplesLocation,
-    "react-app/src/test/styles/TestStyles.module.scss"
+    "react-app/src/test/styles/TestStyles.module.scss",
   );
 
   const VariousSelectorSCssModule = path.join(
     __dirname,
     examplesLocation,
-    "react-app/src/test/VariousSelectors/VariousSelectors.module.scss"
+    "react-app/src/test/VariousSelectors/VariousSelectors.module.scss",
   );
 
   const DiagnosticComponent = Uri.file(
     path.join(
       __dirname,
       examplesLocation,
-      "react-app/src/test/Diagnostics/Diagnostics.tsx"
-    )
+      "react-app/src/test/Diagnostics/Diagnostics.tsx",
+    ),
   );
 
   setWorskpaceFolder("react-app");
@@ -118,7 +118,7 @@ suite("Extension Test Suite", async () => {
     test("Should use fake workspace folder", () => {
       assert.equal(
         workspace.getWorkspaceFolder(AppComponentUri)?.name,
-        "react-app"
+        "react-app",
       );
     });
   });
@@ -160,20 +160,20 @@ suite("Extension Test Suite", async () => {
         const definition = new DefnitionProvider();
         const suffixResult = (await definition.provideDefinition(
           document,
-          new Position(7, 37)
+          new Position(7, 37),
         )) as LocationLink[];
         assert.equal(suffixResult[0].targetRange.start.line + 1, 12);
 
         const nestedChild = (await definition.provideDefinition(
           document,
-          new Position(10, 39)
+          new Position(10, 39),
         )) as LocationLink[];
 
         assert.equal(nestedChild[0].targetRange.start.line + 1, 4);
 
         const sibling = (await definition.provideDefinition(
           document,
-          new Position(11, 41)
+          new Position(11, 41),
         )) as LocationLink[];
         assert.equal(sibling[0].targetRange.start.line + 1, 8);
       });
@@ -192,7 +192,7 @@ suite("Extension Test Suite", async () => {
         assert.equal(
           // @ts-ignore
           result?.contents[1]?.includes("test-container"),
-          true
+          true,
         );
         Storage.flushStorage();
       });
@@ -217,7 +217,7 @@ suite("Extension Test Suite", async () => {
         const definition = new HoverProvider();
         const result = (await definition.provideHover(
           document,
-          new Position(7, 37)
+          new Position(7, 37),
         )) as Hover;
         // @ts-ignore
         assert.equal(result.contents[1].includes("&-test-suffix"), true);
@@ -231,7 +231,7 @@ suite("Extension Test Suite", async () => {
         const definition = new HoverProvider();
         const result = (await definition.provideHover(
           document,
-          new Position(14, 37)
+          new Position(14, 37),
         )) as Hover;
         // @ts-ignore
         assert.equal(result.contents[1].includes("testCamelCase"), true);
@@ -256,11 +256,11 @@ suite("Extension Test Suite", async () => {
           {
             triggerCharacter: ".",
             triggerKind: CompletionTriggerKind.TriggerCharacter,
-          }
+          },
         )) as CompletionList;
         assert.equal(
           list.items.some((i) => i.label === "test-container"),
-          true
+          true,
         );
         Storage.flushStorage();
       });
@@ -287,13 +287,13 @@ suite("Extension Test Suite", async () => {
           {
             triggerCharacter: ".",
             triggerKind: CompletionTriggerKind.TriggerCharacter,
-          }
+          },
         )) as CompletionList;
         contents = contents.replace(replaceText, "");
         writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
         assert.equal(
           list.items.some((i) => i.label === "test-container:hover"),
-          false
+          false,
         );
 
         Storage.flushStorage();
@@ -322,7 +322,7 @@ suite("Extension Test Suite", async () => {
           {
             triggerCharacter: ".",
             triggerKind: CompletionTriggerKind.TriggerCharacter,
-          }
+          },
         )) as CompletionList;
         contents = contents.replace(replaceText, "");
         writeFileSync(cssDocument.uri.fsPath, enc.encode(contents));
@@ -338,7 +338,7 @@ suite("Extension Test Suite", async () => {
         const position = new Position(6, 31);
         const list = await completion.provideCompletionItems(
           document,
-          position
+          position,
         );
         assert.equal(list?.items.length, 3);
         Storage.flushStorage();
@@ -352,7 +352,7 @@ suite("Extension Test Suite", async () => {
         const position = new Position(6, 31);
         const list = await completion.provideCompletionItems(
           document,
-          position
+          position,
         );
         assert.equal(list?.items.length, 2);
         Storage.flushStorage();
@@ -379,8 +379,8 @@ suite("Extension Test Suite", async () => {
           path.join(
             __dirname,
             examplesLocation,
-            "react-app/src/test/DynamicClasses/DynamicClasses.tsx"
-          )
+            "react-app/src/test/DynamicClasses/DynamicClasses.tsx",
+          ),
         );
         const document = await workspace.openTextDocument(DynamicClasses);
         await window.showTextDocument(document);
@@ -394,7 +394,7 @@ suite("Extension Test Suite", async () => {
     const CSSModule = path.join(
       __dirname,
       examplesLocation,
-      "react-app/src/styles/button.module.css"
+      "react-app/src/styles/button.module.css",
     );
 
     test("should include normal selectors [no relationship or bound to any rules]", async () => {
@@ -402,18 +402,18 @@ suite("Extension Test Suite", async () => {
       await window.showTextDocument(document);
       await Storage.bootstrap();
       const source_css_file = Storage.cssModules.get(
-        normalizePath(VariousSelectorsModule)
+        normalizePath(VariousSelectorsModule),
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
       const selectors = node!.selectors;
       assert.equal(
         selectors.get("normal-selector")?.selector,
-        "normal-selector"
+        "normal-selector",
       );
       assert.equal(
         selectors.get("sibling-selector")?.selector,
-        "sibling-selector"
+        "sibling-selector",
       );
     });
     test("should include  selectors from mixins and media queries", async () => {
@@ -421,7 +421,7 @@ suite("Extension Test Suite", async () => {
       await window.showTextDocument(document);
       await Storage.bootstrap();
       const source_css_file = Storage.cssModules.get(
-        normalizePath(VariousSelectorsModule)
+        normalizePath(VariousSelectorsModule),
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -432,11 +432,11 @@ suite("Extension Test Suite", async () => {
       assert.equal(selectors.get("card")?.selector, "card");
       assert.equal(
         selectors.get("mixin-reference-selector")?.selector,
-        "mixin-reference-selector"
+        "mixin-reference-selector",
       );
       assert.equal(
         selectors.get("nested-mixin-reference-selector")?.selector,
-        "nested-mixin-reference-selector"
+        "nested-mixin-reference-selector",
       );
     });
 
@@ -445,7 +445,7 @@ suite("Extension Test Suite", async () => {
       await window.showTextDocument(document);
       await Storage.bootstrap();
       const source_css_file = Storage.cssModules.get(
-        normalizePath(VariousSelectorsModule)
+        normalizePath(VariousSelectorsModule),
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -458,22 +458,22 @@ suite("Extension Test Suite", async () => {
       await window.showTextDocument(document);
       await Storage.bootstrap();
       const source_css_file = Storage.cssModules.get(
-        normalizePath(VariousSelectorsModule)
+        normalizePath(VariousSelectorsModule),
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
       const selectors = node!.selectors;
       assert.equal(
         selectors.get("normal-selector-suffix")?.selector,
-        "normal-selector-suffix"
+        "normal-selector-suffix",
       );
       assert.equal(
         selectors.get("normal-selector-suffix-nested-suffix")?.selector,
-        "normal-selector-suffix-nested-suffix"
+        "normal-selector-suffix-nested-suffix",
       );
       assert.equal(
         selectors.get("flex-row-center")?.selector,
-        "flex-row-center"
+        "flex-row-center",
       );
     });
 
@@ -482,7 +482,7 @@ suite("Extension Test Suite", async () => {
       await window.showTextDocument(document);
       await Storage.bootstrap();
       const source_css_file = Storage.cssModules.get(
-        normalizePath(VariousSelectorsModule)
+        normalizePath(VariousSelectorsModule),
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -490,11 +490,11 @@ suite("Extension Test Suite", async () => {
       assert.equal(selectors.get("camelCase")?.selector, "camelCase");
       assert.equal(
         selectors.get("camelCasesuffix")?.selector,
-        "camelCasesuffix"
+        "camelCasesuffix",
       );
       assert.equal(
         selectors.get("camelCasesuffixonemore")?.selector,
-        "camelCasesuffixonemore"
+        "camelCasesuffixonemore",
       );
     });
     test("should include possible combinations of psuedo selectors", async () => {
@@ -502,7 +502,7 @@ suite("Extension Test Suite", async () => {
       await window.showTextDocument(document);
       await Storage.bootstrap();
       const source_css_file = Storage.cssModules.get(
-        normalizePath(PseudoSelectorsModule)
+        normalizePath(PseudoSelectorsModule),
       );
       const node = await parseCss(source_css_file ?? "");
       assert.notEqual(node, undefined);
@@ -524,14 +524,14 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         await Storage.bootstrap();
         const source_css_file = Storage.cssModules.get(
-          normalizePath(CSSModule)
+          normalizePath(CSSModule),
         );
         const node = await parseCss(source_css_file ?? "");
         assert.notEqual(node, undefined);
         const selectors = node!.selectors;
         assert.equal(
           selectors.get("btn-secondary-nested")?.selector,
-          "btn-secondary-nested"
+          "btn-secondary-nested",
         );
       });
     });
@@ -541,12 +541,12 @@ suite("Extension Test Suite", async () => {
     const AppCssUri = path.join(
       __dirname,
       examplesLocation,
-      "react-app/src/App.css"
+      "react-app/src/App.css",
     );
     const IndexCssUri = path.join(
       __dirname,
       examplesLocation,
-      "react-app/src/index.css"
+      "react-app/src/index.css",
     );
     suite("Completions", () => {
       test("provide completions for css variables across files", async () => {
@@ -557,7 +557,7 @@ suite("Extension Test Suite", async () => {
         const position = new Position(6, 31);
         const result = await provider.provideCompletionItems(
           document,
-          position
+          position,
         );
         assert.equal((result?.items.length ?? 0) > 1, true);
       });
@@ -569,11 +569,11 @@ suite("Extension Test Suite", async () => {
         const position = new Position(6, 31);
         const result = await provider.provideCompletionItems(
           document,
-          position
+          position,
         );
         assert.equal(
           result?.items[0].insertText?.toString().includes("var"),
-          true
+          true,
         );
       });
 
@@ -585,11 +585,11 @@ suite("Extension Test Suite", async () => {
         const position = new Position(46, 14);
         const result = await provider.provideCompletionItems(
           document,
-          position
+          position,
         );
         assert.equal(
           result?.items[0].insertText?.toString().includes("var"),
-          false
+          false,
         );
       });
       test("dont provide completions for css variables from same file", async () => {
@@ -600,7 +600,7 @@ suite("Extension Test Suite", async () => {
         const position = new Position(6, 31);
         const result = await provider.provideCompletionItems(
           document,
-          position
+          position,
         );
         assert.equal(result?.items.length, 0);
       });
@@ -693,7 +693,7 @@ suite("Extension Test Suite", async () => {
           position: new Position(11, 3),
         });
         const result = await provider.resolveCodeLens(
-          document.getWordRangeAtPosition(new Position(11, 3))!
+          document.getWordRangeAtPosition(new Position(11, 3))!,
         );
         assert.equal(result.length, 4);
       });
@@ -710,7 +710,7 @@ suite("Extension Test Suite", async () => {
           providerKind: ProviderKind.RenameSelector,
         });
         const locations = await provider.provideRenameReferences(
-          "testCamelCaseRenamed"
+          "testCamelCaseRenamed",
         );
         assert.equal(locations.length, 1);
         assert.equal(locations[0].text, "testCamelCaseRenamed");
@@ -730,7 +730,7 @@ suite("Extension Test Suite", async () => {
           providerKind: ProviderKind.RenameSelector,
         });
         const locations = await provider.provideRenameReferences(
-          "test-sibling-renamed"
+          "test-sibling-renamed",
         );
         assert.equal(locations.length, 3);
       });
@@ -744,14 +744,14 @@ suite("Extension Test Suite", async () => {
           providerKind: ProviderKind.RenameSelector,
         });
         const locations = await provider.provideRenameReferences(
-          "&-test-suffix-renamed"
+          "&-test-suffix-renamed",
         );
         assert.equal(locations.length, 4);
         assert.equal(locations[0].text, "test-container-test-suffix-renamed");
       });
       test("should rename a deeply nested suffix selector at a given position with the right combination of parent and suffix", async () => {
         const document = await workspace.openTextDocument(
-          VariousSelectorSCssModule
+          VariousSelectorSCssModule,
         );
         await window.showTextDocument(document);
         await Storage.bootstrap();
@@ -761,12 +761,12 @@ suite("Extension Test Suite", async () => {
           providerKind: ProviderKind.RenameSelector,
         });
         const locations = await provider.provideRenameReferences(
-          "&-nested-suffix-renamed"
+          "&-nested-suffix-renamed",
         );
         assert.equal(locations.length, 1);
         assert.equal(
           locations[0].text,
-          "normal-selector-suffix-nested-suffix-renamed"
+          "normal-selector-suffix-nested-suffix-renamed",
         );
       });
     });
@@ -782,15 +782,15 @@ suite("TS Config path aliases", async () => {
         path.join(
           __dirname,
           examplesLocation,
-          "monorepo/apps/web/pages/index.tsx"
-        )
+          "monorepo/apps/web/pages/index.tsx",
+        ),
       );
 
       test("should not report an import diagnostics error on aliased module imports", async () => {
         Storage.workSpaceRoot = path.join(
           __dirname,
           examplesLocation,
-          "monorepo"
+          "monorepo",
         );
         const document = await workspace.openTextDocument(IndexComponent);
         await window.showTextDocument(document);
@@ -803,7 +803,7 @@ suite("TS Config path aliases", async () => {
         Storage.workSpaceRoot = path.join(
           __dirname,
           examplesLocation,
-          "monorepo"
+          "monorepo",
         );
         const document = await workspace.openTextDocument(IndexComponent);
         await window.showTextDocument(document);
@@ -821,7 +821,7 @@ suite("TS Config path aliases", async () => {
         Storage.workSpaceRoot = path.join(
           __dirname,
           examplesLocation,
-          "monorepo"
+          "monorepo",
         );
         const document = await workspace.openTextDocument(IndexComponent);
         await window.showTextDocument(document);
@@ -834,7 +834,7 @@ suite("TS Config path aliases", async () => {
         assert.notEqual(result, undefined);
         Storage.flushStorage();
       });
-    }
+    },
   );
 
   suite(
@@ -843,15 +843,15 @@ suite("TS Config path aliases", async () => {
       Storage.flushStorage();
       setWorskpaceFolder("react-app");
       const AppComponent = Uri.file(
-        path.join(__dirname, examplesLocation, "react-app/src/App.tsx")
+        path.join(__dirname, examplesLocation, "react-app/src/App.tsx"),
       );
 
       const AliasedModuleComponent = Uri.file(
         path.join(
           __dirname,
           examplesLocation,
-          "react-app/src/test/aliased-modules/AliasedModules.tsx"
-        )
+          "react-app/src/test/aliased-modules/AliasedModules.tsx",
+        ),
       );
 
       test("should not report an import diagnostics error on aliased module imports", async () => {
@@ -890,7 +890,7 @@ suite("TS Config path aliases", async () => {
 
       test("should resolve `@` scoped modules when base url is also defined:Hover", async () => {
         const document = await workspace.openTextDocument(
-          AliasedModuleComponent
+          AliasedModuleComponent,
         );
         await window.showTextDocument(document);
 
@@ -905,7 +905,7 @@ suite("TS Config path aliases", async () => {
 
       test("should resolve `@` scoped modules when base url is also defined:Definition", async () => {
         const document = await workspace.openTextDocument(
-          AliasedModuleComponent
+          AliasedModuleComponent,
         );
         await window.showTextDocument(document);
 
@@ -917,6 +917,6 @@ suite("TS Config path aliases", async () => {
         assert.notEqual(result.length, 0);
         Storage.flushStorage();
       });
-    }
+    },
   );
 });

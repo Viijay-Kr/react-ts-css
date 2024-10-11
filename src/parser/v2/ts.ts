@@ -31,7 +31,7 @@ export type ParserResult = {
 };
 
 export const parseTypescript = (
-  content: string
+  content: string,
 ): Promise<ParserResult | undefined> => {
   const ast = parse(content, {
     sourceType: "module",
@@ -42,7 +42,7 @@ export const parseTypescript = (
   return new Promise((resolve, reject) => {
     try {
       const importDeclarations = ast.program.body.filter((node) =>
-        isImportDeclaration(node)
+        isImportDeclaration(node),
       );
       const sourceIdentifiers: Identifier[] = [];
       const accessors: Accessor[] = [];
@@ -77,7 +77,7 @@ export const parseTypescript = (
                     isIdentifier(path.node.property) &&
                     content.charAt(
                       // @ts-expect-error
-                      (path.node.property.loc?.start.index! as number) - 1
+                      (path.node.property.loc?.start.index! as number) - 1,
                     ) === "[",
                 });
               }
