@@ -76,7 +76,6 @@ export const parseTypescript = (
                   isDynamic:
                     isIdentifier(path.node.property) &&
                     content.charAt(
-                      // @ts-expect-error
                       (path.node.property.loc?.start.index! as number) - 1,
                     ) === "[",
                 });
