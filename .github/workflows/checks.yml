@@ -21,6 +21,7 @@ jobs:
         with:
           node-version: 16.x
       - run: npm install
+      - run: npm lint
       - run: npm run format:check
   test:
     name: Run Tests
