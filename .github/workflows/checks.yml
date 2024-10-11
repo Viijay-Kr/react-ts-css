@@ -19,7 +19,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 20.x
       - run: npm install
       - run: npm lint
       - run: npm run format:check
@@ -35,7 +35,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 20.x
       - run: npm install
       - run: xvfb-run -a npm test
         if: runner.os == 'Linux'
