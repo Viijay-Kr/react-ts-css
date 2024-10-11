@@ -10,6 +10,18 @@ on:
       - "main"
 
 jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - run: npm install
+      - run: npm run format:check
   test:
     name: Run Tests
     strategy:
@@ -24,8 +36,8 @@ jobs:
         with:
           node-version: 16.x
       - run: npm install
-      - run: npm run format:check
       - run: xvfb-run -a npm test
         if: runner.os == 'Linux'
       - run: npm test
         if: runner.os != 'Linux'
+      
