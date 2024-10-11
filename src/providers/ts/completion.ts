@@ -22,7 +22,7 @@ export class SelectorsCompletionProvider implements CompletionItemProvider {
     document: TextDocument,
     position: Position,
     _token: CancellationToken,
-    _context: CompletionContext
+    _context: CompletionContext,
   ): Promise<
     CompletionItem[] | CompletionList<CompletionItem> | null | undefined
   > {
@@ -39,7 +39,7 @@ export class SelectorsCompletionProvider implements CompletionItemProvider {
       const toCompletionItem = (s: { label: string }) => {
         const completionItem = new CompletionItem(
           s.label,
-          CompletionItemKind.Keyword
+          CompletionItemKind.Keyword,
         );
         const triggerKind = _context.triggerKind;
         const triggerCharacter = _context.triggerCharacter;
@@ -55,9 +55,9 @@ export class SelectorsCompletionProvider implements CompletionItemProvider {
                   new TextEdit(
                     new Range(
                       new Position(position.line, position.character - 1),
-                      new Position(position.line, position.character)
+                      new Position(position.line, position.character),
                     ),
-                    ""
+                    "",
                   ),
                 ];
                 if (s.label.includes("-")) {
@@ -83,8 +83,8 @@ export class SelectorsCompletionProvider implements CompletionItemProvider {
         if (selectors) {
           const completionList = new CompletionList(
             Array.from(selectors.keys()).map((key) =>
-              toCompletionItem({ label: key })
-            )
+              toCompletionItem({ label: key }),
+            ),
           );
           return completionList;
         }
@@ -92,7 +92,7 @@ export class SelectorsCompletionProvider implements CompletionItemProvider {
     } catch (e) {
       Store.outputChannel.error(
         `${e as Error}`,
-        `SelectorCompletionProvider: Failed in document '${document}' at '${position.line}:${position.character}'`
+        `SelectorCompletionProvider: Failed in document '${document}' at '${position.line}:${position.character}'`,
       );
     }
     return [];
@@ -117,12 +117,12 @@ export class ImportCompletionProvider implements CompletionItemProvider {
           detail: `auto import from ./${c.shortPath}`,
           kind: CompletionItemKind.Module,
           additionalTextEdits: c.additionalEdits,
-        }))
+        })),
       );
     } catch (e: any) {
       Store.outputChannel.error(
         `ImportCompletionProvider: Failed in document '${document}' at '${position.line}:${position.character}' 
-         ${e.message}`
+         ${e.message}`,
       );
       return;
     }

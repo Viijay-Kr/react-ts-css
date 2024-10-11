@@ -52,7 +52,7 @@ export class Parser {
       return this.parsed_result.parsedResult.style_accessors?.find(
         ({ property: n, object: o }) =>
           (n?.start! <= offset && offset <= n?.end!) ||
-          (o?.start! <= offset && offset <= o?.end!)
+          (o?.start! <= offset && offset <= o?.end!),
       );
     }
     return undefined;
@@ -67,14 +67,14 @@ export class Parser {
       sourceFiles.has(pathOfSource);
     if (isRelativePath) {
       const relativePathOfSource = normalizePath(
-        path.resolve(activeFileDir, source)
+        path.resolve(activeFileDir, source),
       );
       if (doesModuleExists(relativePathOfSource)) {
         return relativePathOfSource;
       }
     } else {
       let absolutePathOfSource = normalizePath(
-        path.resolve(workspaceRoot, source)
+        path.resolve(workspaceRoot, source),
       );
       if (doesModuleExists(absolutePathOfSource)) {
         return absolutePathOfSource;
@@ -86,7 +86,7 @@ export class Parser {
         return aliasedModule;
       }
       absolutePathOfSource = normalizePath(
-        path.resolve(workspaceRoot, baseDir, source)
+        path.resolve(workspaceRoot, baseDir, source),
       );
       if (doesModuleExists(absolutePathOfSource)) {
         return absolutePathOfSource;
@@ -110,7 +110,7 @@ export class Parser {
           ) {
             const sourceCssFile = this.resolveCssFilePath(
               statements.source.value,
-              filePath
+              filePath,
             );
             if (sourceCssFile) {
               const result = await this.buildSelectorsSet(sourceCssFile);

@@ -1,0 +1,7 @@
+examples
+dist
+out
+node_modules
+.github
+scripts
+.vscode

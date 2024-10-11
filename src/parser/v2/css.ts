@@ -66,7 +66,7 @@ export type CssParserResult = {
 };
 
 export const parseCss = async (
-  module: string
+  module: string,
 ): Promise<CssParserResult | undefined> => {
   try {
     const languageService = getLanguageService(module);
@@ -75,7 +75,7 @@ export const parseCss = async (
       module,
       getLanguageId(module),
       1,
-      content
+      content,
     );
     const ast = languageService.parseStylesheet(document);
     const selectors = getSelectors(ast as Stylesheet, document);
@@ -83,12 +83,12 @@ export const parseCss = async (
     const colors = languageService.findDocumentColors(document, ast);
     const eofRange = new vscodeRange(
       new Position(document.lineCount + 2, 0),
-      new Position(document.lineCount + 2, 0)
+      new Position(document.lineCount + 2, 0),
     );
     return { selectors, eofRange, variables, ast: ast as Stylesheet, colors };
   } catch (e) {
     Store.outputChannel.error(
-      `CSSParserError: Parsing css module ${module} failed`
+      `CSSParserError: Parsing css module ${module} failed`,
     );
   }
 };
@@ -126,11 +126,11 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
 
     const range = Range.create(
       document.positionAt(selectorNode.offset),
-      document.positionAt(selectorNode.end)
+      document.positionAt(selectorNode.end),
     );
     const selectionRange = Range.create(
       document.positionAt(parentRule.offset),
-      document.positionAt(parentRule.end)
+      document.positionAt(parentRule.end),
     );
     selectors.set(selector, {
       selector,
@@ -211,15 +211,15 @@ export const getVariables = (ast: Stylesheet, document: TextDocument) => {
         location: {
           value_range: Range.create(
             document.positionAt(_node.value?.offset ?? _node.offset),
-            document.positionAt(_node.value?.end ?? _node.end)
+            document.positionAt(_node.value?.end ?? _node.end),
           ),
           full_range: Range.create(
             document.positionAt(_node.offset),
-            document.positionAt(_node.end)
+            document.positionAt(_node.end),
           ),
           property_range: Range.create(
             document.positionAt(_node.property?.offset ?? _node.offset),
-            document.positionAt(_node.property?.end ?? _node.end)
+            document.positionAt(_node.property?.end ?? _node.end),
           ),
           uri: Uri.file(document.uri),
         },
@@ -236,7 +236,7 @@ export const createStyleSheet = (document: vscode_TextDocument): Stylesheet => {
     document.uri.path,
     getLanguageId(document.uri.path),
     1,
-    document.getText()
+    document.getText(),
   );
   const languageService = getLanguageService(document.uri.path);
   const ast = languageService.parseStylesheet(_document);

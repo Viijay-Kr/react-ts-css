@@ -101,7 +101,7 @@ export declare enum ReferenceType {
 }
 export declare function getNodeAtOffset(
   node: Node,
-  offset: number
+  offset: number,
 ): Node | null;
 export declare function getNodePath(node: Node, offset: number): Node[];
 export declare function getParentDeclaration(node: Node): Declaration | null;
@@ -240,7 +240,7 @@ export declare class Declaration extends AbstractDeclaration {
   setValue(value: Expression | null): value is Expression;
   getValue(): Expression | undefined;
   setNestedProperties(
-    value: NestedProperties | null
+    value: NestedProperties | null,
   ): value is NestedProperties;
   getNestedProperties(): NestedProperties | undefined;
 }
@@ -303,7 +303,7 @@ export declare class IfStatement extends BodyDeclaration {
   get type(): NodeType;
   setExpression(node: Expression | null): node is Expression;
   setElseClause(
-    elseClause: BodyDeclaration | null
+    elseClause: BodyDeclaration | null,
   ): elseClause is BodyDeclaration;
 }
 export declare class ForStatement extends BodyDeclaration {
@@ -579,7 +579,7 @@ export declare class MixinReference extends Node {
   getName(): string;
   getArguments(): Nodelist;
   setContent(
-    node: MixinContentDeclaration | null
+    node: MixinContentDeclaration | null,
   ): node is MixinContentDeclaration;
   getContent(): MixinContentDeclaration | undefined;
 }
@@ -659,7 +659,7 @@ export declare class Marker implements IMarker {
     level: Level,
     message?: string,
     offset?: number,
-    length?: number
+    length?: number,
   );
   getRule(): IRule;
   getLevel(): Level;

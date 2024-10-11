@@ -54,14 +54,14 @@ export class TSProvider {
   public async getMatchedSelector() {
     const parserResult = Store.parser?.parsed_result;
     const accessorAtOffset = Store.parser?.getAccessorAtOffset(
-      this.document.offsetAt(this.position)
+      this.document.offsetAt(this.position),
     );
 
     if (!accessorAtOffset) {
       return;
     }
     const style_reference = parserResult?.style_references.get(
-      accessorAtOffset.object.name
+      accessorAtOffset.object.name,
     );
     if (style_reference) {
       const source_css_file = Store.cssModules.get(style_reference?.uri);
@@ -70,7 +70,7 @@ export class TSProvider {
         if (css_parser_result) {
           if (isIdentifier(accessorAtOffset.property)) {
             const selector = css_parser_result.selectors?.get(
-              accessorAtOffset.property.name
+              accessorAtOffset.property.name,
             );
             return {
               selector,
@@ -79,7 +79,7 @@ export class TSProvider {
           }
           if (isStringLiteral(accessorAtOffset.property)) {
             const selector = css_parser_result.selectors?.get(
-              accessorAtOffset.property.value
+              accessorAtOffset.property.value,
             );
             return {
               selector,
@@ -93,7 +93,7 @@ export class TSProvider {
 
   public getOriginWordRange() {
     const nodeAtOffset = Store.parser?.getAccessorAtOffset(
-      this.document.offsetAt(this.position)
+      this.document.offsetAt(this.position),
     );
     if (!nodeAtOffset) {
       return;
@@ -101,12 +101,12 @@ export class TSProvider {
     return new Range(
       new Position(
         nodeAtOffset.object.loc?.start.line! - 1,
-        nodeAtOffset.object.loc?.start.column!
+        nodeAtOffset.object.loc?.start.column!,
       ),
       new Position(
         nodeAtOffset.property.loc?.end.line! - 1,
-        nodeAtOffset.property.loc?.end.column!
-      )
+        nodeAtOffset.property.loc?.end.column!,
+      ),
     );
   }
 
@@ -114,7 +114,7 @@ export class TSProvider {
     const document = this.document;
     const currentRange = new Range(
       new Position(this.position.line, this.position.character),
-      new Position(this.position.line, this.position.character)
+      new Position(this.position.line, this.position.character),
     );
     const parser_result = Store.parser?.parsed_result?.parsedResult;
     let matched_identifier = "";
@@ -124,10 +124,10 @@ export class TSProvider {
           currentRange.with(
             new Position(
               this.position.line,
-              this.position.character - identifier.name.length - 1
+              this.position.character - identifier.name.length - 1,
             ),
-            new Position(this.position.line, this.position.character - 1)
-          )
+            new Position(this.position.line, this.position.character - 1),
+          ),
         );
         const match = wordToMatch.match(new RegExp(identifier.name));
         if (match) {
@@ -159,12 +159,12 @@ export class TSProvider {
     const lastImportStatement = importStatements?.[importStatements.length - 1];
 
     const buildAdditionalEdit = (
-      module: string /** full path of the module */
+      module: string /** full path of the module */,
     ) => {
       const modulePathInfo = parsePath(module);
       const activePathInfo = parsePath(activeFileuri);
       const relativePath = normalizePath(
-        relative(activePathInfo.dir, modulePathInfo.dir)
+        relative(activePathInfo.dir, modulePathInfo.dir),
       );
       const newText = `import styles from '${
         relativePath === "" ? "./" : relativePath
@@ -174,7 +174,7 @@ export class TSProvider {
         return [
           TextEdit.insert(
             new Position(lastImportStatement.loc?.end.line, 0),
-            newText
+            newText,
           ),
         ];
       } else {
@@ -215,7 +215,7 @@ export class TSProvider {
         }
         return acc;
       },
-      []
+      [],
     );
   }
 

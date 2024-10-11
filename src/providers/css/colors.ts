@@ -15,7 +15,7 @@ import { CSSColorInfoProvider, CSSProvider } from "./CSSProvider";
 
 export class CssDocumentColorProvider implements _DocumentColorProvider {
   async provideDocumentColors(
-    document: TextDocument
+    document: TextDocument,
   ): Promise<ColorInformation[]> {
     if (!Settings.cssSyntaxColor) {
       return [];
@@ -30,7 +30,7 @@ export class CssDocumentColorProvider implements _DocumentColorProvider {
   provideColorPresentations(
     color: Color,
     context: { readonly document: TextDocument; readonly range: Range },
-    token: CancellationToken
+    token: CancellationToken,
   ): ColorPresentation[] {
     if (!Settings.cssSyntaxColor) {
       return [];

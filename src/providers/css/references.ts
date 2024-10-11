@@ -7,7 +7,7 @@ import { CSSProvider, CSSReferenceProvider } from "./CSSProvider";
 export class ReferenceProvider implements vscode.ReferenceProvider {
   provideReferences(
     document: vscode.TextDocument,
-    position: vscode.Position
+    position: vscode.Position,
   ): vscode.ProviderResult<vscode.Location[]> {
     if (!Settings.references) {
       return [];

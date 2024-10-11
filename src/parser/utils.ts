@@ -6,7 +6,7 @@ import { colors } from "../constants";
 import { Variable } from "./v2/css";
 
 export const getImportDeclarations = (
-  ast: ReturnType<typeof parse> | undefined
+  ast: ReturnType<typeof parse> | undefined,
 ) => {
   if (!ast?.program) {
     return [];
@@ -53,7 +53,7 @@ export const rangeLooseEqual = (source: Range, target: Range) => {
 export const toVsCodeRange = (range: Range) => {
   return new vscode.Range(
     new vscode.Position(range.start.line, range.start.character),
-    new vscode.Position(range.end.line, range.end.character)
+    new vscode.Position(range.end.line, range.end.character),
   );
 };
 

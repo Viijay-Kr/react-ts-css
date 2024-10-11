@@ -83,7 +83,7 @@ export class Store {
         this.workSpaceRoot = workspaceRoot;
       }
       const exts = CSS_MODULE_EXTENSIONS.map((e) => e.replace(".", "")).join(
-        ","
+        ",",
       );
       const glob = `**/*.{${exts}}`;
       const files = await fsg(glob, {
@@ -100,7 +100,7 @@ export class Store {
         absolute: true,
       });
       files.forEach((file) =>
-        this.cssModules.set(normalizePath(file), normalizePath(file))
+        this.cssModules.set(normalizePath(file), normalizePath(file)),
       );
     }
   }
@@ -114,7 +114,7 @@ export class Store {
         this.workSpaceRoot = workspaceRoot;
       }
       const glob = `**/*.{${TS_MODULE_EXTENSIONS.map((e) =>
-        e.replace(".", "")
+        e.replace(".", ""),
       ).join(",")}}`;
       const files = await fsg(glob, {
         cwd: this.workSpaceRoot,
@@ -163,7 +163,7 @@ export class Store {
             "**/*.test.tsx",
           ],
           cwd: this.workSpaceRoot,
-        }
+        },
       );
       await Promise.allSettled(
         configs.map(async (config) => {
@@ -174,22 +174,22 @@ export class Store {
             this.tsJsConfig.set(_path, {
               ...tsConfig,
               baseDir: normalizePath(
-                path.join(this.workSpaceRoot ?? "", path.dirname(config))
+                path.join(this.workSpaceRoot ?? "", path.dirname(config)),
               ),
             } as TsJsConfig);
           } catch (e: any) {
             this.outputChannel.error(
               `TsJsConfigSyntaxError: Failed to parse config at ${_path} 
-               ${e.message}`
+               ${e.message}`,
             );
           }
-        })
+        }),
       );
     } catch (e: any) {
       // Catch errors here
       this.outputChannel.error(
         `TsJsConfigSyntaxError: Failed to parse config 
-         ${e.message}`
+         ${e.message}`,
       );
     }
   }
@@ -203,7 +203,7 @@ export class Store {
     files.forEach(async (f) => {
       if (
         CSS_MODULE_EXTENSIONS.includes(
-          path.extname(f.fsPath) as CssModuleExtensions
+          path.extname(f.fsPath) as CssModuleExtensions,
         )
       ) {
         this.cssModules.set(f.path, f.path);
@@ -213,7 +213,7 @@ export class Store {
 
   resolveCssModuleAlias(source: string): string | undefined {
     const activeFileDir = normalizePath(
-      path.dirname(this.getActiveTextDocument().fileName)
+      path.dirname(this.getActiveTextDocument().fileName),
     );
     for (const [, config] of this.tsJsConfig) {
       if (activeFileDir.includes(config.baseDir)) {
@@ -228,8 +228,8 @@ export class Store {
               config.baseDir,
               config.compilerOptions.baseUrl ?? "",
               !!alias.match(/^\@/g)?.[0] ? dir.replace("*", "") : alias,
-              module_name
-            )
+              module_name,
+            ),
           );
           if (this.cssModules.has(final_path)) {
             return final_path;
@@ -246,8 +246,8 @@ export class Store {
                 config.baseDir,
                 config.compilerOptions.baseUrl ?? "",
                 alias_value,
-                module_name
-              )
+                module_name,
+              ),
             );
           } else if (alias.indexOf(alias_dir_path) === 0) {
             final_path = normalizePath(
@@ -255,8 +255,8 @@ export class Store {
                 config.baseDir,
                 alias_value,
                 alias.replace(alias_dir_path, ""),
-                module_name
-              )
+                module_name,
+              ),
             );
           }
           if (this.cssModules.has(final_path)) {
@@ -324,7 +324,7 @@ export class Store {
 
   private async provideDiagnostics() {
     const activeFileDir = path.parse(
-      this.activeTextEditor.document.uri.fsPath
+      this.activeTextEditor.document.uri.fsPath,
     ).dir;
     const activeFileUri = this.activeTextEditor.document.uri;
     if (Settings.diagnostics && this.parser) {

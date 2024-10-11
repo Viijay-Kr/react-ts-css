@@ -15,7 +15,7 @@ import Store from "../../store/Store";
 export class DefnitionProvider implements vscode_DefinitionProvider {
   async provideDefinition(
     document: TextDocument,
-    position: Position
+    position: Position,
   ): Promise<LocationLink[]> {
     if (!Settings.definition) {
       return [];
@@ -32,13 +32,13 @@ export class DefnitionProvider implements vscode_DefinitionProvider {
           matchedSelector.selector.range.start.line,
           matchedSelector.selector.range.start.character,
           matchedSelector.selector.range.end.line,
-          matchedSelector.selector.range.end.character
+          matchedSelector.selector.range.end.character,
         );
         const targetSelectionRange = new Range(
           matchedSelector.selector.selectionRange.start.line,
           matchedSelector.selector.selectionRange.start.character,
           matchedSelector.selector.selectionRange.end.line,
-          matchedSelector.selector.selectionRange.end.character
+          matchedSelector.selector.selectionRange.end.character,
         );
         const locationLinks: DefinitionLink = {
           originSelectionRange: provider.getOriginWordRange(),
@@ -52,7 +52,7 @@ export class DefnitionProvider implements vscode_DefinitionProvider {
     } catch (e: any) {
       Store.outputChannel.error(
         `TSDefinitionProvider: Failed in document '${document}' at '${position.line}:${position.character}' 
-         ${e.message}`
+         ${e.message}`,
       );
       return [];
     }

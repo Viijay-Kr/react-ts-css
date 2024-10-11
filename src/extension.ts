@@ -127,11 +127,11 @@ export async function activate(context: ExtensionContext): Promise<void> {
     await Store.bootstrap();
     const _definitionProvider = languages.registerDefinitionProvider(
       documentSelector,
-      new DefnitionProvider()
+      new DefnitionProvider(),
     );
     const _hoverProvider = languages.registerHoverProvider(
       documentSelector,
-      new HoverProvider()
+      new HoverProvider(),
     );
     const _selectorsCompletionProvider =
       languages.registerCompletionItemProvider(
@@ -139,45 +139,45 @@ export async function activate(context: ExtensionContext): Promise<void> {
         new SelectorsCompletionProvider(),
         ".",
         "'",
-        "["
+        "[",
       );
     const _importsCompletionProvider = languages.registerCompletionItemProvider(
       documentSelector,
-      new ImportCompletionProvider()
+      new ImportCompletionProvider(),
     );
     const _codeActionsProvider = languages.registerCodeActionsProvider(
       documentSelector,
-      new DiagnosticCodeAction(context)
+      new DiagnosticCodeAction(context),
     );
 
     const _cssVariablesCompletion = languages.registerCompletionItemProvider(
       cssDocumentSelector,
       new CssVariablesCompletion(),
-      "-"
+      "-",
     );
 
     const _cssColorProviders = languages.registerColorProvider(
       cssDocumentSelector,
-      new CssDocumentColorProvider()
+      new CssDocumentColorProvider(),
     );
 
     const _cssDefinitionProvider = languages.registerDefinitionProvider(
       cssDocumentSelector,
-      new CssDefinitionProvider()
+      new CssDefinitionProvider(),
     );
 
     const _cssReferenceProvider = languages.registerReferenceProvider(
       cssModulesDocumentSelector,
-      new ReferenceProvider()
+      new ReferenceProvider(),
     );
 
     const _cssCodeLensProvider = languages.registerCodeLensProvider(
       cssModulesDocumentSelector,
-      new ReferenceCodeLensProvider()
+      new ReferenceCodeLensProvider(),
     );
     const _cssRenameSelectorProvider = languages.registerRenameProvider(
       cssModulesDocumentSelector,
-      new RenameSelectorProvider()
+      new RenameSelectorProvider(),
     );
 
     context.subscriptions.push(_selectorsCompletionProvider);
@@ -194,7 +194,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
   } catch (e) {
     Store.outputChannel.error((e as Error).message);
     window.showWarningMessage(
-      "Something went wrong while activating React-TS-CSS extension. Check the output channel"
+      "Something went wrong while activating React-TS-CSS extension. Check the output channel",
     );
   }
 }

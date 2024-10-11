@@ -69,7 +69,7 @@ export class CSSProvider {
     const styleSheet = createStyleSheet(this.document);
     const offset = this.document.offsetAt(this.position);
     const cssmodule = Store.cssModules.get(
-      normalizePath(this.document.uri.fsPath)
+      normalizePath(this.document.uri.fsPath),
     );
     if (cssmodule) {
       const node = styleSheet;
@@ -112,7 +112,7 @@ export class CSSProvider {
               }
             }
           }
-        })
+        }),
       );
     } catch (e) {
       Store.outputChannel.error(
@@ -120,7 +120,7 @@ export class CSSProvider {
           this.document.uri.fsPath
         }' at '${this.position.line}:${this.position.character}' 
          Provider: ${this.providerKind}
-         ${e as Error}`
+         ${e as Error}`,
       );
     }
 
@@ -158,7 +158,7 @@ export class CSSProvider {
       referenceCandidates.map(async (c) => ({
         uri: c,
         parsed_result: await Store.parser?.getParsedResultByFile(c),
-      }))
+      })),
     ).catch((e) => {
       throw e;
     });
@@ -193,16 +193,16 @@ export class CSSCodeLensProvider extends CSSProvider {
                 return new Range(
                   new Position(
                     accessor.property.loc!.start.line - 1,
-                    accessor.property.loc!.start.column
+                    accessor.property.loc!.start.column,
                   ),
                   new Position(
                     accessor.property.loc!.end.line - 1,
-                    accessor.property.loc!.end.column
-                  )
+                    accessor.property.loc!.end.column,
+                  ),
                 );
               })();
               candidates.push(
-                new Location(Uri.file(ref.value.uri), preferedRange)
+                new Location(Uri.file(ref.value.uri), preferedRange),
               );
             }
           }
@@ -221,7 +221,7 @@ export class CSSCodeLensProvider extends CSSProvider {
       for (const [, _selector] of selectors?.entries()) {
         const range = toVsCodeRange(_selector.range);
         codeLens.push(
-          new ReferenceCodeLens(this.document, this.document.fileName, range)
+          new ReferenceCodeLens(this.document, this.document.fileName, range),
         );
       }
     }
@@ -235,7 +235,7 @@ export class CSSReferenceProvider extends CSSProvider {
   }
 
   public async provideReferences(
-    onlySelectorRange?: boolean
+    onlySelectorRange?: boolean,
   ): Promise<Location[]> {
     let candidates: Location[] = [];
     let selectorAtRange = await this.getSelectorAtPosition();
@@ -258,27 +258,27 @@ export class CSSReferenceProvider extends CSSProvider {
                   return new Range(
                     new Position(
                       accessor.property.loc!.start.line - 1,
-                      accessor.property.loc!.start.column
+                      accessor.property.loc!.start.column,
                     ),
                     new Position(
                       accessor.property.loc!.end.line - 1,
-                      accessor.property.loc!.end.column
-                    )
+                      accessor.property.loc!.end.column,
+                    ),
                   );
                 }
                 return new Range(
                   new Position(
                     accessor.object.loc!.start.line - 1,
-                    accessor.object.loc!.start.column
+                    accessor.object.loc!.start.column,
                   ),
                   new Position(
                     accessor.property.loc!.end.line - 1,
-                    accessor.property.loc!.end.column
-                  )
+                    accessor.property.loc!.end.column,
+                  ),
                 );
               })();
               candidates.push(
-                new Location(Uri.file(ref.value.uri), preferedRange)
+                new Location(Uri.file(ref.value.uri), preferedRange),
               );
             }
           }
@@ -311,7 +311,7 @@ export class CSSColorInfoProvider extends CSSProvider {
             colorVariables.add(v);
           }
         });
-      })
+      }),
     );
 
     const stylesheet = createStyleSheet(this.document);
@@ -324,18 +324,18 @@ export class CSSColorInfoProvider extends CSSProvider {
           for (const [v] of colorVariables.entries()) {
             if (v.name === args.getText()) {
               const source = parser_result.get(
-                normalizePath(v.location.uri.fsPath)
+                normalizePath(v.location.uri.fsPath),
               );
               if (source) {
                 const match = source.colors.find((c) =>
-                  rangeStrictEqual(c.range, v.location.value_range)
+                  rangeStrictEqual(c.range, v.location.value_range),
                 );
                 if (match) {
                   colorInformation.push({
                     color: match.color,
                     range: new Range(
                       this.document.positionAt(node.offset),
-                      this.document.positionAt(node.end)
+                      this.document.positionAt(node.end),
                     ),
                   });
                 }
@@ -355,7 +355,7 @@ export class CSSColorInfoProvider extends CSSProvider {
       this.document.uri.path,
       getLanguageId(this.document.uri.path),
       1,
-      this.document.getText()
+      this.document.getText(),
     );
     const ls = getLanguageService(this.document.uri.path);
     // @ts-ignore
@@ -369,8 +369,8 @@ export class CSSDefinitionProvider extends CSSProvider {
     const candidates: LocationLink[] = [];
     const variables = await Promise.all(
       Array.from(Store.cssModules.entries()).map(
-        async ([, value]) => (await parseCss(value))?.variables
-      )
+        async ([, value]) => (await parseCss(value))?.variables,
+      ),
     );
     for (const v of variables.flat()) {
       if (
@@ -381,18 +381,18 @@ export class CSSDefinitionProvider extends CSSProvider {
         candidates.push({
           originSelectionRange: new Range(
             this.document.positionAt(nodeAtOffset!.offset),
-            this.document.positionAt(nodeAtOffset!.end)
+            this.document.positionAt(nodeAtOffset!.end),
           ),
           targetUri: v.location.uri,
           targetRange: new Range(
             new Position(
               v.location.full_range.start.line,
-              v.location.full_range.start.character
+              v.location.full_range.start.character,
             ),
             new Position(
               v.location.full_range.end.line,
-              v.location.full_range.end.character
-            )
+              v.location.full_range.end.character,
+            ),
           ),
         });
       }
@@ -411,7 +411,7 @@ export class CSSVariableCompletionProvider extends CSSProvider {
     const thisDocPath = this.document.uri.fsPath;
     if (module.endsWith(".css")) {
       const cssModules = Array.from(Store.cssModules.keys()).filter((c) =>
-        c.endsWith(".css")
+        c.endsWith(".css"),
       );
       await Promise.allSettled(
         cssModules.map(async (m) => {
@@ -419,7 +419,7 @@ export class CSSVariableCompletionProvider extends CSSProvider {
           if (css_parser_result) {
             variables.push(...css_parser_result.variables);
           }
-        })
+        }),
       );
     }
     const completionList = new CompletionList();
@@ -455,7 +455,7 @@ export class CSSRenameProvider extends CSSProvider {
   }
 
   public async provideRenameReferences(
-    newName: string
+    newName: string,
   ): Promise<Array<Location & { text: string }>> {
     const candidates: Array<Location & { text: string }> = [];
     let selectorAtPosition = await this.getSelectorAtPosition();
@@ -481,23 +481,23 @@ export class CSSRenameProvider extends CSSProvider {
                   return new Range(
                     new Position(
                       accessor.property.loc!.start.line - 1,
-                      accessor.property.loc!.start.column + 1
+                      accessor.property.loc!.start.column + 1,
                     ),
                     new Position(
                       accessor.property.loc!.end.line - 1,
-                      accessor.property.loc!.end.column - 1
-                    )
+                      accessor.property.loc!.end.column - 1,
+                    ),
                   );
                 } else if (selectorType === "Identifier") {
                   return new Range(
                     new Position(
                       accessor.property.loc!.start.line - 1,
-                      accessor.property.loc!.start.column
+                      accessor.property.loc!.start.column,
                     ),
                     new Position(
                       accessor.property.loc!.end.line - 1,
-                      accessor.property.loc!.end.column
-                    )
+                      accessor.property.loc!.end.column,
+                    ),
                   );
                 }
               })();
@@ -510,7 +510,7 @@ export class CSSRenameProvider extends CSSProvider {
                   text: isSuffix(newName)
                     ? `${selectorAtPosition?.selector.replace(
                         previous,
-                        ""
+                        "",
                       )}${replacement}`
                     : replacement,
                 });
