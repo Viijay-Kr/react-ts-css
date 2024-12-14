@@ -4,7 +4,6 @@
   }
 }
 
-
 .is {
   &:is(.primary, .secondary) {
     font-size: 2rem;

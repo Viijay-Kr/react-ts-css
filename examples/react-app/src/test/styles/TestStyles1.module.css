@@ -10,7 +10,7 @@
   display: block;
 }
 
-.test-class>.test-child>.test-child_1 .test-child_2 {
+.test-class > .test-child > .test-child_1 .test-child_2 {
   display: block;
 }
 
@@ -18,7 +18,7 @@
   display: flex;
 }
 
-.test-sibling>.test-nested.sibling-child {
+.test-sibling > .test-nested.sibling-child {
   display: contents;
 }
 
@@ -28,5 +28,5 @@
 
 .sibling-child {
   display: flex;
-  color:var(--color-blue)
+  color: var(--color-blue);
 }

@@ -1,96 +1,96 @@
 .normal-selector {
+  display: block;
+
+  &-suffix {
+    display: flex;
+
+    &-nested-suffix {
+      display: contents;
+    }
+  }
+
+  &.sibling-selector {
     display: block;
+  }
 
-    &-suffix {
-        display: flex;
-
-        &-nested-suffix {
-            display: contents;
-        }
-    }
-
-    &.sibling-selector {
-        display: block;
-    }
-
-    .child-selector {
-        display: flex;
-    }
+  .child-selector {
+    display: flex;
+  }
 }
 
 @mixin mixin-flex-row {
-    .flex-row {
-        display: flex;
-        flex-direction: column;
+  .flex-row {
+    display: flex;
+    flex-direction: column;
 
-        &-center {
-            align-items: center;
-            justify-content: center;
-        }
+    &-center {
+      align-items: center;
+      justify-content: center;
     }
+  }
 }
 
 @media (max-width: 1023px) {
-    .desktop {
-        max-width: 1000px;
-    }
+  .desktop {
+    max-width: 1000px;
+  }
 }
 
 @media (prefers-reduced-motion) {
-    .thirteen::before {
-        animation: none;
-    }
+  .thirteen::before {
+    animation: none;
+  }
 
-    .card:hover span {
-        transform: none;
-    }
+  .card:hover span {
+    transform: none;
+  }
 }
 
 %placeholder {
-    .place-holder {
-        display: flex;
-    }
+  .place-holder {
+    display: flex;
+  }
 }
 
 .camelCase {
-    display: flex;
+  display: flex;
 
-    &suffix {
-        display: contents;
+  &suffix {
+    display: contents;
 
-        &onemore {
-            display: contents;
-        }
+    &onemore {
+      display: contents;
     }
+  }
 }
 
 .new-selector-added {
-    display: flex;
+  display: flex;
 }
 
 @mixin colorize($bg, $text) {
-    background-color: $bg;
-    color: $text;
+  background-color: $bg;
+  color: $text;
 
-    .mixin-decl-selector {
-        color: #000;
-    }
+  .mixin-decl-selector {
+    color: #000;
+  }
 
-    @content;
+  @content;
 }
 
 @mixin md {
-    @content;
+  @content;
 }
 
 @include colorize(#000, #ccc) {
-    .mixin-reference-selector {
-        height: 100px;
-    }
+  .mixin-reference-selector {
+    height: 100px;
+  }
 
-    @include md() {
-        .nested-mixin-reference-selector {
-            width: 200px;
-        }
+  @include md() {
+    .nested-mixin-reference-selector {
+      width: 200px;
     }
+  }
 }

@@ -2,12 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@standard/*": [
-        "src/styles/standard/*"
-      ]
+      "@standard/*": ["src/styles/standard/*"]
     }
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }

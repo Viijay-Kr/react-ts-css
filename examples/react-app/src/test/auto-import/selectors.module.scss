@@ -1,22 +1,22 @@
 %hello {
-    display: flex;
+  display: flex;
 
-    .hello-world {
-        display: block;
-    }
+  .hello-world {
+    display: block;
+  }
 }
 
 .display {
-    @extend %hello;
-    flex: row;
+  @extend %hello;
+  flex: row;
 }
 
 @mixin primary {
-    display: flex;
+  display: flex;
 
-    .variant {
-        &-1 {
-            display: flex;
-        }
+  .variant {
+    &-1 {
+      display: flex;
     }
+  }
 }
