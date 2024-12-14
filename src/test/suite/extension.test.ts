@@ -566,7 +566,7 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         await Storage.bootstrap();
         const provider = new CssVariablesCompletion();
-        const position = new Position(6, 31);
+        const position = new Position(7, 31);
         const result = await provider.provideCompletionItems(
           document,
           position,
@@ -582,7 +582,7 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         await Storage.bootstrap();
         const provider = new CssVariablesCompletion();
-        const position = new Position(46, 14);
+        const position = new Position(45, 14);
         const result = await provider.provideCompletionItems(
           document,
           position,
@@ -611,7 +611,7 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         await Storage.bootstrap();
         const provider = new CssDefinitionProvider();
-        const position = new Position(40, 21);
+        const position = new Position(39, 21);
         const result = await provider.provideDefinition(document, position);
         assert.equal(result.length > 0, true);
       });
