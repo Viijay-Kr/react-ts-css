@@ -1,12 +1,11 @@
 .btn-primary {
-    background: #000;
+  background: #000;
 }
 
 .btn-secondary {
-    background: #0019;
-
+  background: #0019;
 }
 
 .btn-secondary-nested {
-    background: cyan;
+  background: cyan;
 }

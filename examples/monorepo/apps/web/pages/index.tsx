@@ -1,5 +1,5 @@
 import { Button } from "ui";
-import styles from '@styles/app.module.scss';
+import styles from "@styles/app.module.scss";
 
 export default function Web() {
   return (

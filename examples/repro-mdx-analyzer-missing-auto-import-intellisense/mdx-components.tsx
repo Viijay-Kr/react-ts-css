@@ -1,5 +1,5 @@
-import { MDXComponents } from 'mdx/types';
-import { HTMLAttributes } from 'react';
+import { MDXComponents } from "mdx/types";
+import { HTMLAttributes } from "react";
 
 type ZoomImageProps = {
   alt: string;

@@ -14,7 +14,7 @@ export const Foo = ({ isActive }: { isActive: boolean }) => {
         },
         styles.secondary,
         styles.where,
-        styles.hello
+        styles.hello,
       )}
     >
       foo

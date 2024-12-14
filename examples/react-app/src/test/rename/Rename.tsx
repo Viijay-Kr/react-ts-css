@@ -1,1 +1,1 @@
-import styles from './Rename.module.css';
+import styles from "./Rename.module.css";
