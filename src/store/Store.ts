@@ -216,52 +216,32 @@ export class Store {
       path.dirname(this.getActiveTextDocument().fileName),
     );
     for (const [, config] of this.tsJsConfig) {
+      const alias = normalizePath(path.dirname(source));
+      const module_name = path.basename(source);
+      const paths = config.compilerOptions.paths;
       if (activeFileDir.includes(config.baseDir)) {
-        const alias = normalizePath(path.dirname(source));
-        const module_name = path.basename(source);
-        const paths = config.compilerOptions.paths;
-        const dir = (paths?.[alias] ?? [""]).join("");
-        const baseUrl = config.compilerOptions.baseUrl;
-        if (baseUrl) {
-          const final_path = normalizePath(
-            path.join(
-              config.baseDir,
-              config.compilerOptions.baseUrl ?? "",
-              !!alias.match(/^\@/g)?.[0] ? dir.replace("*", "") : alias,
-              module_name,
-            ),
-          );
-          if (this.cssModules.has(final_path)) {
-            return final_path;
+        let aliasPath = undefined;
+        const match = alias.match(/^@\w+/g);
+        const a = match?.[0];
+        for (const [key, val] of Object.entries(paths ?? {})) {
+          const b = key.match(/^@\w+/g)?.[0];
+          if (b === a && !!b && !!a) {
+            const rest = alias.substring(a?.length);
+            aliasPath = path.join(val[0].replace("*", ""), rest);
+            break;
           }
         }
 
-        for (const [_path, values] of Object.entries(paths ?? {})) {
-          const alias_dir_path = normalizePath(path.dirname(_path));
-          let final_path = "";
-          const alias_value = values[0].replace("*", "");
-          if (alias === alias_dir_path) {
-            final_path = normalizePath(
-              path.join(
-                config.baseDir,
-                config.compilerOptions.baseUrl ?? "",
-                alias_value,
-                module_name,
-              ),
-            );
-          } else if (alias.indexOf(alias_dir_path) === 0) {
-            final_path = normalizePath(
-              path.join(
-                config.baseDir,
-                alias_value,
-                alias.replace(alias_dir_path, ""),
-                module_name,
-              ),
-            );
-          }
-          if (this.cssModules.has(final_path)) {
-            return final_path;
-          }
+        const final_path = normalizePath(
+          path.join(
+            config.baseDir,
+            config.compilerOptions.baseUrl ?? "",
+            aliasPath ?? alias,
+            module_name,
+          ),
+        );
+        if (this.cssModules.has(final_path)) {
+          return final_path;
         }
       }
     }
