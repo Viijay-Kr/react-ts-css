@@ -16,6 +16,6 @@
     //   }
     // ]
   },
-  "exclude": ["examples"],
+  "exclude": ["examples/**/*"],
   "include": ["src/**/*"]
 }
