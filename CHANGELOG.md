@@ -1,5 +1,11 @@
 ## 3.2.4
 
+## 3.2.6
+
+### Patch Changes
+
+- 1dd6894: fix: jsconfig path alias
+
 ## 3.2.5
 
 ### Patch Changes
