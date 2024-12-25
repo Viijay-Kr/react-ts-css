@@ -6,6 +6,7 @@ import {
   workspace,
   languages,
   extensions,
+  DocumentSelector,
 } from "vscode";
 import Settings, { EXT_NAME, getSettings } from "./settings";
 import Store from "./store/Store";
@@ -31,22 +32,22 @@ const documentSelector = [
   { scheme: "file", language: "javascript" },
 ];
 
-const cssDocumentSelector = [
+const cssDocumentSelector: DocumentSelector = [
   {
-    scheme: "file",
     language: "css",
+    pattern: "**/*.module.css",
   },
 ];
 
-const cssModulesDocumentSelector = [
+const cssModulesDocumentSelector: DocumentSelector = [
   ...cssDocumentSelector,
   {
-    scheme: "file",
     language: "scss",
+    pattern: "**/*.module.scss",
   },
   {
-    scheme: "file",
     language: "less",
+    pattern: "**/*.module.less",
   },
 ];
 
@@ -157,12 +158,12 @@ export async function activate(context: ExtensionContext): Promise<void> {
     );
 
     const _cssColorProviders = languages.registerColorProvider(
-      cssDocumentSelector,
+      { scheme: "file", language: "css" },
       new CssDocumentColorProvider(),
     );
 
     const _cssDefinitionProvider = languages.registerDefinitionProvider(
-      cssDocumentSelector,
+      { scheme: "file", language: "css" },
       new CssDefinitionProvider(),
     );
 
