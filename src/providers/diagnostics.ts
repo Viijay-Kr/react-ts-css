@@ -237,8 +237,10 @@ export class ImportsRelatedDiagnostics extends Diagnostics {
 
 export class CSSDocumentDiagnostics extends Diagnostics {
   protected cssDiagnosticsProvider: CSSDiagnosticsProvider;
+  protected uri: Uri;
   constructor(options: DiagnosticsContext) {
     super(options);
+    this.uri = options.document.uri;
     this.cssDiagnosticsProvider = new CSSDiagnosticsProvider({
       providerKind: ProviderKind.Diagnostic,
       position: new Position(0, 0),
@@ -247,6 +249,8 @@ export class CSSDocumentDiagnostics extends Diagnostics {
   }
 
   async runDiagnostics() {
+    if (!this.uri.fsPath.includes("module")) return;
+
     this.diagnostics = await this.cssDiagnosticsProvider.provideDiagnostics();
   }
 }

@@ -34,12 +34,13 @@ import {
 import { parseCss } from "../../parser/v2/css";
 import {
   CSSCodeLensProvider,
-  CSSProvider,
   CSSReferenceProvider,
   CSSRenameProvider,
 } from "../../providers/css/CSSProvider";
 import { ProviderKind } from "../../providers/types";
 const examplesLocation = "../../../examples/";
+
+const testAppLocation = path.join(__dirname, examplesLocation, "react-app");
 
 function setWorskpaceFolder(app: string) {
   workspace.getWorkspaceFolder = () => {
@@ -365,6 +366,7 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         const diagnostics = await Storage.bootstrap();
         assert.equal(diagnostics?.length, 1);
+        Storage.flushStorage();
       });
 
       test("should provide diagnostics for in correct css module import", async () => {
@@ -372,9 +374,10 @@ suite("Extension Test Suite", async () => {
         await window.showTextDocument(document);
         const diagnostics = await Storage.bootstrap();
         assert.equal(diagnostics?.length, 2);
+        Storage.flushStorage();
       });
 
-      test("should not provide dignostics for dynamic slectors", async () => {
+      test("should not provide dignostics for dynamic selectors", async () => {
         const DynamicClasses = Uri.file(
           path.join(
             __dirname,
@@ -383,6 +386,15 @@ suite("Extension Test Suite", async () => {
           ),
         );
         const document = await workspace.openTextDocument(DynamicClasses);
+        await window.showTextDocument(document);
+        const diagnostics = await Storage.bootstrap();
+        assert.equal(diagnostics?.length, 0);
+        Storage.flushStorage();
+      });
+
+      test("should not provide diagnostics for normal css files", async () => {
+        const AppCss = Uri.file(path.join(testAppLocation, "src/App.css"));
+        const document = await workspace.openTextDocument(AppCss);
         await window.showTextDocument(document);
         const diagnostics = await Storage.bootstrap();
         assert.equal(diagnostics?.length, 0);
