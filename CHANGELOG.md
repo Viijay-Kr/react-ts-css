@@ -1,5 +1,11 @@
 ## 3.2.4
 
+## 3.2.7
+
+### Patch Changes
+
+- 738d1cb: enable references,codelens,diagnostics,rename only for css modules
+
 ## 3.2.6
 
 ### Patch Changes
