@@ -221,13 +221,10 @@ export class Store {
       const paths = config.compilerOptions.paths;
       if (activeFileDir.includes(config.baseDir)) {
         let aliasPath = undefined;
-        const match = alias.match(/^@\w+/g);
-        const a = match?.[0];
         for (const [key, val] of Object.entries(paths ?? {})) {
-          const b = key.match(/^@\w+/g)?.[0];
-          if (b === a && !!b && !!a) {
-            const rest = alias.substring(a?.length);
-            aliasPath = path.join(val[0].replace("*", ""), rest);
+          const prefix = key.replace("*", "");
+          if (alias.startsWith(prefix)) {
+            aliasPath = alias.replace(prefix, val[0].replace("*", ""));
             break;
           }
         }
