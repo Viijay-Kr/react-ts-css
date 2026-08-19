@@ -428,6 +428,27 @@ suite("Extension Test Suite", async () => {
         "sibling-selector",
       );
     });
+
+    test("should include individual class names from chained selectors", async () => {
+      const document = await workspace.openTextDocument(VariousSelectorsModule);
+      await window.showTextDocument(document);
+      await Storage.bootstrap();
+      const source_css_file = Storage.cssModules.get(
+        normalizePath(VariousSelectorsModule),
+      );
+      const node = await parseCss(source_css_file ?? "");
+      assert.notEqual(node, undefined);
+      const selectors = node!.selectors;
+      assert.equal(selectors.get("repeated-class")?.selector, "repeated-class");
+      assert.equal(selectors.get("chained-parent")?.selector, "chained-parent");
+      assert.equal(selectors.get("chained-child")?.selector, "chained-child");
+      assert.equal(
+        selectors.get("chained-child-suffix")?.selector,
+        "chained-child-suffix",
+      );
+      assert.equal(selectors.has("repeated-class.repeated-class"), false);
+    });
+
     test("should include  selectors from mixins and media queries", async () => {
       const document = await workspace.openTextDocument(VariousSelectorsModule);
       await window.showTextDocument(document);
