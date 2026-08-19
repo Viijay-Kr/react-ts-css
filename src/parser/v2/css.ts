@@ -23,12 +23,8 @@ import {
   Stylesheet,
 } from "../../css-node.types";
 import {
-  isChild,
   isColorString,
-  isCombination,
-  isNormal,
   isPsuedo,
-  isSibling,
   isSuffix,
 } from "../utils";
 import Store from "../../store/Store";
@@ -146,28 +142,21 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
         visitedRules.push(node);
         break;
       }
+      case NodeType.ClassSelector: {
+        insertSelector(node, getClassName(node.getText()));
+        break;
+      }
       case NodeType.SimpleSelector: {
-        let selector = node.getText();
-        let isInvalid = false;
-        if (isSuffix(selector)) {
-          selector = resolveSuffixSelectors(parent, "");
-        } else if (isSibling(selector)) {
-          selector = selector.replace(/&./gi, "");
-        } else if (isChild(selector)) {
-          selector = selector.replace(/& ./gi, "");
-        } else if (isNormal(selector)) {
-          selector = selector.replace(".", "");
-        } else {
-          isInvalid = true;
+        if (!isSuffix(node.getText())) {
+          break;
         }
+        let selector = resolveSuffixSelectors(parent, "");
         // Psuedo attributes is figured out only later. Thus it has to be its own if block
         if (isPsuedo(selector)) {
           selector = selector.split(":")[0];
         }
 
-        if (!isInvalid) {
-          insertSelector(node, selector);
-        }
+        insertSelector(node, selector);
         break;
       }
     }
@@ -183,6 +172,17 @@ export const getSelectors = (ast: Stylesheet, document: TextDocument) => {
   return selectors;
 };
 
+function getClassName(selector: string): string {
+  return selector.replace(/^\./, "");
+}
+
+function getLastClassName(selector: string): string | undefined {
+  const matches = Array.from(
+    selector.matchAll(/\.([^\s.#:[\]>+~(),]+)/g),
+  ).map((match) => match[1]);
+  return matches[matches.length - 1];
+}
+
 function resolveSuffixSelectors(parent: Node | null, suffixes: string): string {
   if (!parent) {
     return suffixes;
@@ -195,7 +195,7 @@ function resolveSuffixSelectors(parent: Node | null, suffixes: string): string {
     suffixes = parentSelector.replace("&", "") + suffixes;
     return resolveSuffixSelectors(parent.parent, suffixes);
   }
-  const suffixSelector = parentSelector.replace(".", "") + suffixes;
+  const suffixSelector = (getLastClassName(parentSelector) ?? "") + suffixes;
   return suffixSelector;
 }
 

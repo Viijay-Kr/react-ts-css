@@ -68,6 +68,18 @@
   display: flex;
 }
 
+.repeated-class.repeated-class {
+  display: block;
+}
+
+.chained-parent.chained-child {
+  display: grid;
+
+  &-suffix {
+    place-items: center;
+  }
+}
+
 @mixin colorize($bg, $text) {
   background-color: $bg;
   color: $text;
